@@ -1,0 +1,11 @@
+{
+  "name": "dada-drinks",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/check.mjs",
+    "test": "node --test",
+    "dev": "npx serve public"
+  }
+}
