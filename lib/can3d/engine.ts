@@ -5,7 +5,15 @@
 import * as THREE from "three";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 
-export function createCanScene(canvas, { flavor, assetBase = "/labels", onReady, onError } = {}) {
+export type CanSceneOptions = {
+  flavor: any;
+  assetBase?: string;
+  onReady?: () => void;
+  onError?: (message: string) => void;
+};
+
+export function createCanScene(canvas: HTMLCanvasElement, options: CanSceneOptions) {
+const { flavor, assetBase = "/labels", onReady, onError } = options;
 let cur = flavor;
 const status = {
   set hidden(v) { if (v && onReady) onReady(); },
