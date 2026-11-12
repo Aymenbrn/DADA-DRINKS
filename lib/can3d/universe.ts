@@ -389,8 +389,11 @@ function canvasTex(size: number, draw: (g: CanvasRenderingContext2D, s: number) 
   t.colorSpace = THREE.SRGBColorSpace;
   return t;
 }
+// Chair juteuse mais pas délavée : reflet discret
 const fleshMat = (map: THREE.Texture) =>
-  new THREE.MeshPhysicalMaterial({ map, roughness: 0.32, clearcoat: 0.9, clearcoatRoughness: 0.2, side: THREE.DoubleSide });
+  new THREE.MeshPhysicalMaterial({
+    map, roughness: 0.5, clearcoat: 0.3, clearcoatRoughness: 0.35, envMapIntensity: 0.45, side: THREE.DoubleSide,
+  });
 
 /** UV d'une ShapeGeometry ramenées entre 0 et 1 */
 function fitUV(geo: THREE.BufferGeometry) {
@@ -465,9 +468,9 @@ const mangoFace = () =>
     const c = S / 2;
     g.fillStyle = "#e5a531"; g.beginPath(); g.arc(c, c, c, 0, Math.PI * 2); g.fill();
     const gr = g.createRadialGradient(c, c, 0, c, c, c * 0.95);
-    gr.addColorStop(0, "#ffad12"); gr.addColorStop(1, "#ffc94a");
+    gr.addColorStop(0, "#f58a00"); gr.addColorStop(1, "#ffa81f");
     g.fillStyle = gr; g.beginPath(); g.arc(c, c, c * 0.95, 0, Math.PI * 2); g.fill();
-    g.strokeStyle = "rgba(190,90,0,0.35)"; g.lineWidth = 6; // découpe en hérisson
+    g.strokeStyle = "rgba(170,70,0,0.22)"; g.lineWidth = 4; // découpe en hérisson, discrète
     for (let k = -4; k <= 4; k++) {
       g.beginPath(); g.moveTo(c + k * 52, 0); g.lineTo(c + k * 52, S); g.stroke();
       g.beginPath(); g.moveTo(0, c + k * 52); g.lineTo(S, c + k * 52); g.stroke();
