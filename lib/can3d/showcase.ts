@@ -112,6 +112,7 @@ export function createShowcase(canvas: HTMLCanvasElement, opts: ShowcaseOptions)
   // Univers de la saveur (fiches produits)
   const universe = opts.universe ? buildUniverse(opts.flavor.slug) : null;
   if (universe) {
+    camera.position.z = 17.5; // un peu plus de recul : canette, ombre et fruits tiennent dans le cadre
     scene.add(universe.group);
     scene.fog = new THREE.Fog(backdropColor(opts.flavor), 16, 28); // les objets lointains se fondent dans le fond
   }
