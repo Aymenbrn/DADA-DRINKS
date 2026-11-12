@@ -5,7 +5,6 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { CAT_LABELS, FLAVORS as ALL_FLAVORS, pad } from "@/lib/flavors";
 import { createCarousel } from "@/lib/can3d/carousel";
 import BeachDecor from "@/components/BeachDecor";
-import AudienceSwitch from "@/components/AudienceSwitch";
 import { useAudience } from "@/components/AudienceContext";
 
 /** La nouveauté mise en avant à chaque ouverture / actualisation de la page */
@@ -111,7 +110,6 @@ export default function HomeCarousel() {
           <span className="sr-only">Dada </span>
           {f.name}
         </h1>
-        <AudienceSwitch className="ribbon-switch" />
         <p className="ribbon-hint">Glisser ou utiliser les flèches pour découvrir</p>
           <div className="ribbon-actions">
             {audience === "pro" ? (

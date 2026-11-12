@@ -663,3 +663,13 @@ button { font-family: inherit; }
 .pack-dots { display: grid; grid-template-columns: repeat(5, 18px); gap: 8px; }
 .pack-dots span { width: 18px; height: 34px; border-radius: 5px; box-shadow: inset 0 3px 0 rgba(255,255,255,0.35), 0 3px 6px rgba(0,0,0,0.25); }
 @media (prefers-reduced-motion: reduce) { .home-shop-swap { animation: none; } }
+
+/* Bande « Vous êtes : Particulier | Pro » entre l'accueil et la boutique */
+.aud-band {
+  display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap;
+  padding: 44px 16px 0; background: var(--paper); color: var(--ink);
+}
+.aud-band-label { margin: 0; font-family: var(--mono); font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted-on-light); }
+.aud-band-switch { width: 280px; height: 52px; background: #111; border-color: #111; }
+.aud-band-switch button { font-size: 15px; }
+.aud-band + .home-shop-swap > section:first-child { padding-top: 64px !important; }
