@@ -144,8 +144,8 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
   })();
 
   // ---------- Podium métallique sous la canette du centre ----------
-  const CENTER_S = 1.24, CAN_Y = 0.25;
-  const PODIUM_TOP = CAN_Y - (HALF + 0.3) * CENTER_S - 0.02;
+  const CENTER_S = 1.12, CAN_Y = 0.35;
+  const PODIUM_TOP = CAN_Y - (HALF + 0.3) * CENTER_S - 1.75; // la canette flotte au-dessus, le nom passe devant
   const podium = new THREE.Group();
   const podMat = new THREE.MeshStandardMaterial({ color: 0x9a9da3, metalness: 1, roughness: 0.28, envMapIntensity: 0.9 });
   const podTop = new THREE.MeshStandardMaterial({ color: 0x2a2b2e, metalness: 0.9, roughness: 0.35, envMapIntensity: 0.6 });
@@ -179,6 +179,7 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
   );
   shadow.rotation.x = -Math.PI / 2;
   shadow.position.set(0, PODIUM_TOP + 0.01, 1.2);
+  shadow.visible = false;
   scene.add(shadow);
 
   // ---------- Univers de la saveur au centre ----------
@@ -200,6 +201,7 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
   // ---------- Sélection ----------
   let sel = opts.start; // entier continu (peut dépasser n), affiché modulo n
   let pos = sel; // position animée du ruban
+  let vel = 0;
   const fogTarget = backdropColor(flavors[opts.start]);
   const rimTarget = new THREE.Color(flavors[opts.start].hi);
   const ringTarget = new THREE.Color(flavors[opts.start].hi);
@@ -293,40 +295,48 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
     const dt = Math.min(clock.getDelta(), 0.05);
     const t = clock.elapsedTime;
     const k = (rate: number) => 1 - Math.exp(-dt * rate);
-    pos += (sel - pos) * k(reduceMotion ? 60 : 5);
+    // Ressort : le carrousel part vite, dépasse un peu et se pose (comme la référence)
+    if (reduceMotion) pos = sel;
+    else {
+      vel += ((sel - pos) * 85 - vel * 12.5) * dt;
+      pos += vel * dt;
+    }
     cur.lerp(mouse, k(4));
 
-    // Arc : les voisines, grandes, sortent à moitié de l'écran ; les suivantes sont hors champ
-    const halfW = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.position.z * camera.aspect;
-    const EDGE = Math.max(3.6, halfW * (narrow ? 1.12 : 0.98));
+    // Couronne de canettes d'un bord à l'autre de l'écran, en vague, chacune avec son inclinaison ;
+    // celle du centre est éclairée, les autres restent dans la pénombre
+    const S0 = narrow ? 2.7 : 3.5; // écart autour de la canette du centre (place pour les flèches)
+    const S = narrow ? 2.2 : 2.55; // écart entre les autres canettes
     cans.forEach((c, i) => {
       let d = i - pos;
       d = mod(d + n / 2, n) - n / 2; // la voisine la plus proche, d'un côté ou de l'autre
-      const a = Math.abs(d);
+      const a = Math.abs(d), sg = Math.sign(d);
       const focus = Math.max(0, 1 - a); // 1 au centre, 0 dès la voisine
-      const out = Math.min(1, a); // 0 au centre → 1 dès la voisine
+      const out = Math.min(1, a);
       const far = Math.max(0, a - 1);
-      const th = Math.sign(d) * (out * 0.32 + far * 0.25);
+      const bob = reduceMotion ? 0 : Math.sin(t * 0.8 + i * 1.9) * 0.08;
       c.group.position.set(
-        Math.sign(d) * (out * EDGE + far * halfW * 0.75),
-        CAN_Y + out * 0.35 + far * 0.4,
-        -out * 0.6 - far * 2.5 + focus * 1.2
+        sg * (out * S0 + far * S),
+        CAN_Y + 0.85 * Math.sin(d * 0.45) - far * far * 0.05 + bob - focus * 0.25,
+        -a * 0.35 - d * d * 0.09 + focus * 0.9
       );
-      const s = 1.08 + focus * (CENTER_S - 1.08) - far * 0.1;
-      c.group.scale.setScalar(s);
-      c.group.visible = a < 3.2;
-      // inclinaisons variées, comme posées en vrac ; la canette du centre penche franchement
-      const lean = Math.sin(i * 2.3) * 0.22 + Math.sign(d || 1) * 0.06;
+      c.group.scale.setScalar(1 + focus * (CENTER_S - 1));
+      c.group.visible = a < n / 2 - 0.3;
+      // inclinaison propre à chaque canette ; la canette du centre penche vers la gauche,
+      // le mouvement du carrousel les fait balancer
+      const lean = -0.06 - 0.22 * (0.5 + 0.5 * Math.sin(i * 2.7 + 0.6));
+      const sway = THREE.MathUtils.clamp(-vel * 0.05, -0.22, 0.22);
       c.group.rotation.set(
-        focus * cur.y * 0.12,
-        -th * 0.55,
-        out * lean + focus * (-0.2 - cur.x * 0.06)
+        -0.28 * out + focus * cur.y * 0.12,
+        -d * 0.24,
+        out * lean + focus * (0.2 - cur.x * 0.06) + sway * (0.6 + 0.4 * out)
       );
-      // la canette du centre tourne doucement vers le curseur, les autres restent de face
+      // la canette du centre tourne doucement vers le curseur
       const idle = reduceMotion ? 0 : Math.sin(t * 0.45) * 0.18;
       const targetSpin = focus * (idle + cur.x * 0.55);
       c.spin.rotation.y += (targetSpin - c.spin.rotation.y) * k(6);
-      c.spin.position.y = reduceMotion ? 0 : focus * Math.sin(t * 0.9) * 0.06;
+      // pénombre des canettes de côté
+      if (c.bodyMat.map) c.bodyMat.color.setScalar(0.3 + 0.7 * focus);
     });
     key.position.set(-4 + cur.x * 4, 5 - cur.y * 2, 7);
 
