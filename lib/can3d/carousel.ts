@@ -307,7 +307,9 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
     // celle du centre est éclairée, les autres restent dans la pénombre
     const G = narrow ? 0.8 : 0.84; // taille des canettes à l'écran
     const S0 = (narrow ? 2.8 : 3.6) * G; // écart autour de la canette du centre (place pour les flèches)
-    const S = (narrow ? 2.25 : 2.6) * G; // écart entre les autres canettes
+    // écart entre les autres canettes : assez grand pour que la couronne déborde des deux bords
+    const halfW = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.position.z * camera.aspect;
+    const S = Math.max((narrow ? 2.25 : 2.45) * G, (halfW * 1.32 - S0) / (n / 2 - 1.3));
     cans.forEach((c, i) => {
       let d = i - pos;
       d = mod(d + n / 2, n) - n / 2; // la voisine la plus proche, d'un côté ou de l'autre
@@ -319,7 +321,7 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
       c.group.position.set(
         sg * (out * S0 + far * S),
         CAN_Y + 0.85 * Math.sin(d * 0.45) - far * far * 0.05 + bob - focus * 0.25,
-        -a * 0.35 - d * d * 0.09 + focus * 0.9
+        -a * 0.25 - d * d * 0.04 + focus * 0.9
       );
       c.group.scale.setScalar(G * (1 + focus * (CENTER_S - 1)));
       c.group.visible = a < n / 2 - 0.3;
