@@ -53,7 +53,11 @@ function UniverseScene({ slug }: { slug: string }) {
           <h2 id="universe-title" className="h-xl universe-title">
             Dada <span className="serif-i">{f.name}.</span>
           </h2>
-          <p className="universe-lede">{UNIVERSE_TEXT[f.cat]}</p>
+          <p className="universe-lede">
+            {f.slug === "cola-cherry"
+              ? "Des cerises, des glaçons, des bulles : passez la souris pour faire tourner la canette."
+              : UNIVERSE_TEXT[f.cat]}
+          </p>
           <dl className="launch-specs">
             <div><dt>Gamme</dt><dd>{CAT_LABELS[f.cat]}</dd></div>
             <div><dt>Pack</dt><dd>24 canettes</dd></div>
