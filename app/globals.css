@@ -547,6 +547,13 @@ button { font-family: inherit; }
 .ribbon-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity 0.8s ease; cursor: grab; touch-action: pan-y; }
 .ribbon-canvas:active { cursor: grabbing; }
 .ribbon-canvas.is-ready { opacity: 1; }
+/* côtés assombris en dégradé : les canettes de côté s'enfoncent dans l'ombre, le centre reste lumineux */
+.ribbon-vignette {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.28) 16%, rgba(0,0,0,0) 34%, rgba(0,0,0,0) 66%, rgba(0,0,0,0.28) 84%, rgba(0,0,0,0.62) 100%),
+    radial-gradient(120% 90% at 50% 45%, transparent 55%, rgba(0,0,0,0.3) 100%);
+}
 
 .ribbon-arrow {
   position: absolute; z-index: 3; top: 44%; transform: translate(-50%, -50%);

@@ -80,6 +80,7 @@ export default function HomeCarousel() {
         role="img"
         aria-label={`Les canettes Dada en 3D ; au centre, Dada ${f.name}`}
       />
+      <div className="ribbon-vignette" aria-hidden="true" />
       {failed && <p className="launch-fallback">La 3D n’est pas disponible sur cet appareil.</p>}
 
       {/* Flèches en pointillés, juste à côté de la canette du centre */}
