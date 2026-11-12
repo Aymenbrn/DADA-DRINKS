@@ -95,13 +95,6 @@ export default function HomeCarousel() {
         <p className="ribbon-lede">{isNew ? "La nouvelle sortie Dada : un cola aux notes de cerise intensément fruitées." : f.note}</p>
       </div>
 
-      <div className="ribbon-actions">
-        <button type="button" className="btn ribbon-buy" onClick={() => add(f.slug)}>
-          Ajouter au panier · {PACK_PRICE}
-        </button>
-        <Link href={flavorHref(f.slug)} className="btn btn-ghost ribbon-more">Voir la fiche</Link>
-      </div>
-
       {/* Le goût, en grand, sous la canette */}
       <div className="ribbon-center" aria-live="polite">
         {isNew ? <span className="ribbon-new">NOUVEAUTÉ</span> : null}
@@ -126,6 +119,13 @@ export default function HomeCarousel() {
           </ul>
         </div>
         <p className="ribbon-hint">Glisser ou cliquer pour découvrir</p>
+          <div className="ribbon-actions">
+            <button type="button" className="btn ribbon-buy" onClick={() => add(f.slug)}>
+              Ajouter au panier · {PACK_PRICE}
+            </button>
+            <Link href={flavorHref(f.slug)} className="btn btn-ghost ribbon-more">Voir la fiche</Link>
+        </div>
+
       </div>
     </section>
   );

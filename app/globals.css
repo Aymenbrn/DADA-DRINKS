@@ -554,7 +554,7 @@ button { font-family: inherit; }
 .ribbon-slider ul { position: absolute; inset: 0; display: flex; margin: 0; padding: 0; list-style: none; }
 .ribbon-slider li { flex: 1; }
 .ribbon-slider button { width: 100%; height: 100%; border: 0; padding: 0; background: transparent; cursor: pointer; }
-.ribbon-hint { margin: 8px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.75); }
+.ribbon-hint { margin: 6px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.75); }
 
 .ribbon-meta {
   position: absolute; z-index: 2; left: clamp(16px, 4vw, 64px); bottom: clamp(24px, 4vh, 44px); max-width: 300px;
@@ -562,12 +562,9 @@ button { font-family: inherit; }
 }
 .ribbon-eyebrow { margin: 0; font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.16em; color: rgba(255,255,255,0.85); }
 .ribbon-lede { margin: 0; font-size: 14.5px; line-height: 1.5; color: rgba(255,255,255,0.78); }
-.ribbon-actions {
-  position: absolute; z-index: 2; right: clamp(16px, 4vw, 64px); bottom: clamp(24px, 4vh, 44px);
-  display: flex; flex-direction: column; align-items: stretch; gap: 8px;
-}
-.ribbon-buy { background: #fff; color: #0a0a0a; height: 48px; font-size: 14px; }
-.ribbon-more { height: 44px; font-size: 14px; color: #fff; border-color: rgba(255,255,255,0.5); }
+.ribbon-actions { display: flex; gap: 8px; margin-top: 12px; }
+.ribbon-buy { background: #fff; color: #0a0a0a; height: 40px; padding: 0 18px; font-size: 13.5px; }
+.ribbon-more { height: 40px; padding: 0 18px; font-size: 13.5px; color: #fff; border: 1px solid rgba(255,255,255,0.55); }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 @media (max-width: 1100px) {
@@ -578,8 +575,6 @@ button { font-family: inherit; }
   .ribbon-arrow { top: 40%; width: 52px; height: 52px; }
   .ribbon-arrow.is-prev { left: 34px; }
   .ribbon-arrow.is-next { left: calc(100% - 34px); }
-  .ribbon-center { bottom: 92px; }
+  .ribbon-center { bottom: 20px; }
   .ribbon-name { font-size: clamp(38px, 11vw, 64px); }
-  .ribbon-actions { left: 16px; right: 16px; bottom: 16px; flex-direction: row; }
-  .ribbon-actions > * { flex: 1; }
 }
