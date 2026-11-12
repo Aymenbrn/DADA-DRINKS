@@ -1,5 +1,4 @@
-import Hero from "@/components/Hero";
-import NewLaunch from "@/components/NewLaunch";
+import HomeCarousel from "@/components/HomeCarousel";
 import Story from "@/components/Story";
 import Marquee from "@/components/Marquee";
 import Flavors from "@/components/Flavors";
@@ -10,8 +9,7 @@ export default function Home() {
   return (
     <>
       <main>
-        <Hero />
-        <NewLaunch />
+        <HomeCarousel />
         <Story />
         <Marquee />
         <Flavors />
