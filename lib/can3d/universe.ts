@@ -721,17 +721,59 @@ function fieldSlots(w: number, h: number): [number, number, number, number][] {
       const j1 = ((i * 0.618) % 1) - 0.5, j2 = ((i * 0.381) % 1) - 0.5;
       const x = (u + (j1 * 0.9) / cols) * w * 0.95;
       const y = (v + (j2 * 0.8) / rows) * h * 0.9;
-      let z = ((i * 0.7548) % 1) * 4.5 - 3.5; // -3,5 … +1
-      if (Math.abs(x) < 2.8) z = -3.5 - ((i * 0.3) % 1) * 2; // derrière la canette du centre
-      out.push([x, y, z, 0.95 + ((i * 0.45) % 1) * 0.5]);
+      const z = ((i * 0.7548) % 1) * 4.5 - 3.5; // -3,5 … +1
+      // les fruits restent sur les côtés : la colonne centrale (canette, nom) est laissée libre
+      const gap = w * 0.3;
+      const sx = Math.sign(x || (i % 2 ? 1 : -1)) * (gap + Math.abs(x) * (1 - gap / (w * 0.95)));
+      out.push([sx, y, z, 0.95 + ((i * 0.45) % 1) * 0.5]);
     }
   }
   return out;
 }
 
+const easeInOut = (x: number) => {
+  const t = Math.min(1, Math.max(0, x));
+  return t * t * (3 - 2 * t);
+};
+
+/** Champ de bulles fines qui montent en continu (accueil) : il ne change pas avec la saveur */
+export function buildBubbleField(w: number, h: number, n = 70) {
+  const data = Array.from({ length: n }, (_, i) => ({
+    x: (((i * 0.37) % 1) * 2 - 1) * w,
+    y: (((i * 0.61) % 1) * 2 - 1) * h,
+    z: -1 - ((i * 0.29) % 1) * 6,
+    r: 0.035 + ((i * 0.43) % 1) * 0.07,
+    v: 0.25 + ((i * 0.53) % 1) * 0.35,
+  }));
+  const mesh = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 20, 14), bubbleMat(), n);
+  mesh.frustumCulled = false;
+  const d = new THREE.Object3D();
+  return {
+    mesh,
+    update(dt: number, t: number, mouse: THREE.Vector2, still: boolean) {
+      data.forEach((b, i) => {
+        if (!still) {
+          b.y += b.v * dt;
+          if (b.y > h) b.y = -h;
+        }
+        d.position.set(b.x + Math.sin(t + i) * 0.05 - mouse.x * 0.3, b.y, b.z);
+        d.scale.setScalar(b.r);
+        d.updateMatrix();
+        mesh.setMatrixAt(i, d.matrix);
+      });
+      mesh.instanceMatrix.needsUpdate = true;
+    },
+    dispose() {
+      mesh.geometry.dispose();
+      (mesh.material as THREE.Material).dispose();
+    },
+  };
+}
+
 export function buildUniverse(slug: string, field?: { w: number; h: number }) {
   const base = RECIPES[slug] ?? RECIPES.cerise;
-  const recipe: Recipe = field ? { ...base, orbit: false, bubbles: Math.round(base.bubbles * 1.8) } : base;
+  // accueil : les bulles fines sont un champ à part, permanent (voir buildBubbleField)
+  const recipe: Recipe = field ? { ...base, orbit: false, bubbles: 0 } : base;
   const slots: [number, number, number, number][] = field
     ? fieldSlots(field.w, field.h)
     : recipe.orbit
@@ -739,6 +781,7 @@ export function buildUniverse(slug: string, field?: { w: number; h: number }) {
       : SLOTS;
   const BW = field ? field.w : 4.5, BH = field ? field.h + 0.5 : 4.5;
   const group = new THREE.Group();
+  let enter = field ? 0 : 1;
   const items: { obj: THREE.Object3D; base: THREE.Vector3; spin: THREE.Vector3; phase: number; depth: number; steady: boolean; rx: number; ry: number; rz: number }[] = [];
 
   slots.forEach(([x, y, z, s], i) => {
@@ -808,8 +851,10 @@ export function buildUniverse(slug: string, field?: { w: number; h: number }) {
           it.obj.position.set(bx, it.base.y + bob + mouse.y * 0.25, bz);
           continue;
         }
+        // entrée / sortie par les côtés de l'écran (accueil)
+        const slide = field ? Math.sign(it.base.x || 1) * (1 - easeInOut(enter)) * field.w * 1.5 : 0;
         it.obj.position.set(
-          bx - mouse.x * 0.45 * it.depth,
+          bx - mouse.x * 0.45 * it.depth + slide,
           it.base.y + bob + mouse.y * 0.3 * it.depth,
           bz
         );
@@ -827,6 +872,10 @@ export function buildUniverse(slug: string, field?: { w: number; h: number }) {
         });
         bubbles.instanceMatrix.needsUpdate = true;
       }
+    },
+    /** 0 = fruits hors de l'écran, sur les côtés ; 1 = en place */
+    setEnter(v: number) {
+      enter = v;
     },
     dispose() {
       group.traverse((o) => {

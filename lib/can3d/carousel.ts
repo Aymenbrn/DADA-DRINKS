@@ -5,7 +5,7 @@ import * as THREE from "three";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import type { Flavor } from "@/lib/flavors";
 import { getRibbonLabel } from "./labels";
-import { buildUniverse } from "./universe";
+import { buildUniverse, buildBubbleField } from "./universe";
 import { backdropColor } from "./showcase";
 
 export type CarouselOptions = {
@@ -189,7 +189,7 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
 
   // ---------- Univers de la saveur au centre ----------
   const UNI_S = 0.92;
-  type Uni = { u: ReturnType<typeof buildUniverse>; scale: number; target: number };
+  type Uni = { u: ReturnType<typeof buildUniverse>; p: number; target: number };
   const universes: Uni[] = [];
   const showUniverse = (i: number) => {
     universes.forEach((x) => (x.target = 0));
@@ -198,9 +198,10 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
     const hh = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * dist;
     const u = buildUniverse(flavors[i].slug, { w: (hh * camera.aspect) / UNI_S, h: hh / UNI_S });
     u.group.position.set(0, CAN_Y, -1.6);
-    u.group.scale.setScalar(0.001);
+    u.group.scale.setScalar(UNI_S);
+    u.setEnter(0);
     scene.add(u.group);
-    universes.push({ u, scale: 0.001, target: UNI_S });
+    universes.push({ u, p: 0, target: 1 });
   };
 
   // ---------- Sélection ----------
@@ -289,6 +290,16 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
   resize();
   uniAspect = camera.aspect;
   showUniverse(opts.start);
+
+  // Bulles fines permanentes : elles continuent de monter pendant les changements de saveur
+  const bubbleField = (() => {
+    const dist = camera.position.z + 1.6;
+    const hh = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * dist;
+    const b = buildBubbleField(hh * Math.max(camera.aspect, 1.9) * 1.05, hh + 0.5, 80);
+    b.mesh.position.set(0, CAN_Y - 1.2, -1.6);
+    scene.add(b.mesh);
+    return b;
+  })();
   let visible = true;
   const io = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; });
   io.observe(canvas);
@@ -357,13 +368,16 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
     ringMat.color.lerp(ringTarget, k(4));
     podium.rotation.y = cur.x * 0.15;
 
+    bubbleField.update(dt, t, cur, reduceMotion);
+
     // Univers : l'ancien s'efface, le nouveau apparaît
     for (let j = universes.length - 1; j >= 0; j--) {
       const x = universes[j];
-      x.scale += (x.target - x.scale) * k(x.target ? 3.5 : 7);
-      x.u.group.scale.setScalar(Math.max(0.001, x.scale));
+      // les fruits arrivent par les côtés de l'écran, les précédents repartent par les côtés
+      x.p += (x.target - x.p) * k(x.target ? 2.4 : 3);
+      x.u.setEnter(x.p);
       x.u.update(dt, t, cur, reduceMotion);
-      if (x.target === 0 && x.scale < 0.02) {
+      if (x.target === 0 && x.p < 0.01) {
         scene.remove(x.u.group);
         x.u.dispose();
         universes.splice(j, 1);
@@ -393,6 +407,7 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
       canvas.removeEventListener("pointerdown", onDown);
       canvas.removeEventListener("pointerup", onUp);
       universes.forEach((x) => x.u.dispose());
+      bubbleField.dispose();
       cans.forEach((c) => {
         c.bodyMat.map?.dispose();
         c.bodyMat.dispose();
