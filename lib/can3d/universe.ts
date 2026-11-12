@@ -811,6 +811,9 @@ function fieldSlots(w: number, h: number): [number, number, number, number][] {
   return out;
 }
 
+/** Référence au créateur de grappes (le nom « bubbles » est repris plus bas dans buildUniverse) */
+const bubbleCluster: Maker = bubbles;
+
 const easeInOut = (x: number) => {
   const t = Math.min(1, Math.max(0, x));
   return t * t * (3 - 2 * t);
@@ -822,7 +825,8 @@ export function buildBubbleField(w: number, h: number, n = 70) {
     x: (((i * 0.37) % 1) * 2 - 1) * w,
     y: (((i * 0.61) % 1) * 2 - 1) * h,
     z: -1 - ((i * 0.29) % 1) * 6,
-    r: 0.014 + ((i * 0.43) % 1) * 0.03,
+    // une bulle sur cinq est plus grosse, comme les grappes des colas
+    r: i % 5 === 0 ? 0.05 + ((i * 0.43) % 1) * 0.07 : 0.014 + ((i * 0.43) % 1) * 0.03,
     v: 0.6 + ((i * 0.53) % 1) * 0.8,
   }));
   const mesh = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 20, 14), bubbleMat(), n);
@@ -856,7 +860,8 @@ export function buildBubbleField(w: number, h: number, n = 70) {
 export function buildUniverse(slug: string, field?: { w: number; h: number }) {
   const base = RECIPES[slug] ?? RECIPES.cerise;
   // accueil : les bulles fines sont un champ à part, permanent (voir buildBubbleField)
-  const recipe: Recipe = field ? { ...base, orbit: false, bubbles: 0 } : base;
+  // sur l'accueil, toutes les bulles (fines et grappes) vivent dans le champ permanent : elles restent pendant les transitions
+  const recipe: Recipe = field ? { ...base, orbit: false, bubbles: 0, makers: base.makers.filter((m) => m !== bubbleCluster) } : base;
   const slots: [number, number, number, number][] = field
     ? fieldSlots(field.w, field.h)
     : recipe.orbit
@@ -868,6 +873,7 @@ export function buildUniverse(slug: string, field?: { w: number; h: number }) {
   const items: { obj: THREE.Object3D; base: THREE.Vector3; spin: THREE.Vector3; phase: number; depth: number; steady: boolean; rx: number; ry: number; rz: number; rise: number; speed: number }[] = [];
 
   slots.forEach(([x, y, z, s], i) => {
+    if (!recipe.makers.length) return; // colas sur l'accueil : seulement les bulles du champ permanent
     const obj = recipe.makers[i % recipe.makers.length]();
     obj.scale.setScalar(s * (recipe.scale ?? 1) * (0.9 + ((i * 37) % 10) / 50));
     const steady = !!obj.userData.steady;
