@@ -158,42 +158,147 @@ function mangoCubes(): THREE.Object3D {
   return g;
 }
 
-function lychee(): THREE.Object3D {
-  const geo = new THREE.SphereGeometry(0.32, 64, 48);
+/** Points répartis régulièrement sur une sphère (spirale de Fibonacci) */
+function spherePoints(n: number) {
+  const pts: THREE.Vector3[] = [];
+  for (let i = 0; i < n; i++) {
+    const y = 1 - (2 * (i + 0.5)) / n;
+    const r = Math.sqrt(1 - y * y);
+    const a = i * 2.39996;
+    pts.push(new THREE.Vector3(Math.cos(a) * r, y, Math.sin(a) * r));
+  }
+  return pts;
+}
+
+/** Peau de litchi : petites écailles en pointe, rouge framboise, sillons plus sombres */
+function lycheeSkinGeo(r = 0.32, thetaStart = 0, thetaLength = Math.PI) {
+  const geo = new THREE.SphereGeometry(r, 112, 84, 0, Math.PI * 2, thetaStart, thetaLength);
+  const cells = spherePoints(260);
   const pos = geo.attributes.position;
-  const v = new THREE.Vector3();
+  const col = new Float32Array(pos.count * 3);
+  const v = new THREE.Vector3(), n = new THREE.Vector3();
+  const crease = C(0x6e0f1f), red = C(0xc0283d), tip = C(0xe86a72);
   for (let i = 0; i < pos.count; i++) {
     v.fromBufferAttribute(pos, i);
-    const n = Math.sin(v.x * 38) * Math.sin(v.y * 38) * Math.sin(v.z * 38);
-    v.multiplyScalar(1 + 0.035 * Math.abs(n)); // peau granuleuse
-    v.y *= 1.08;
+    n.copy(v).normalize();
+    let d1 = 9, d2 = 9;
+    for (const c of cells) {
+      const d = n.distanceToSquared(c);
+      if (d < d1) { d2 = d1; d1 = d; } else if (d < d2) d2 = d;
+    }
+    const e = Math.sqrt(d2) - Math.sqrt(d1); // 0 sur les sillons, grand au centre des écailles
+    const bump = Math.min(1, e / 0.11);
+    const peak = Math.pow(Math.max(0, 1 - Math.sqrt(d1) / 0.09), 3); // pointe au centre
+    v.copy(n).multiplyScalar(r * (1 + 0.035 * bump + 0.025 * peak));
+    v.y *= 1.1; // légèrement ovale
+    if (v.y < 0) v.y *= 1 + 0.08 * (-v.y / r); // base un peu en pointe
     pos.setXYZ(i, v.x, v.y, v.z);
+    const c = crease.clone().lerp(red, bump).lerp(tip, peak * 0.6);
+    col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
   }
+  geo.setAttribute("color", new THREE.BufferAttribute(col, 3));
   geo.computeVertexNormals();
-  paint(geo, (p) => mixC(0xb8263f, 0xd85a63, (p.y + 0.3) / 0.7));
-  return new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.75 }));
+  return geo;
 }
+const lycheeSkinMat = () => new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.72 });
+const lycheeFleshMat = () =>
+  new THREE.MeshPhysicalMaterial({
+    color: 0xf7f2ea, roughness: 0.1, clearcoat: 1, clearcoatRoughness: 0.05,
+    transmission: 0.45, thickness: 0.5, ior: 1.36, attenuationColor: new THREE.Color(0xefe6d6), attenuationDistance: 0.6,
+  });
 
-function lycheePeeled(): THREE.Object3D {
-  const geo = new THREE.SphereGeometry(0.28, 40, 30);
-  geo.scale(1, 1.08, 1);
-  return new THREE.Mesh(
-    geo,
-    new THREE.MeshPhysicalMaterial({ color: 0xf4efe6, roughness: 0.15, clearcoat: 1, transmission: 0.25, thickness: 0.4 })
-  );
-}
-
-function mint(): THREE.Object3D {
+function lychee(): THREE.Object3D {
   const g = new THREE.Group();
-  for (let i = 0; i < 3; i++) {
-    const l = leaf(0x2f8f45, 0.55, 0.26);
-    l.rotation.z = (i - 1) * 0.7;
-    l.rotation.y = i * 0.5;
-    l.position.y = 0.25;
-    g.add(l);
-  }
+  g.add(new THREE.Mesh(lycheeSkinGeo(), lycheeSkinMat()));
+  g.add(stem([[0, 0.34, 0], [0.03, 0.48, 0], [0.1, 0.62, 0.02]], 0.022, 0x6b4a2a));
   return g;
 }
+
+/** Litchi épluché : chair blanche nacrée, translucide */
+function lycheePeeled(): THREE.Object3D {
+  const geo = new THREE.SphereGeometry(0.28, 48, 36);
+  geo.scale(1, 1.12, 1);
+  return new THREE.Mesh(geo, lycheeFleshMat());
+}
+
+/** Litchi à moitié épluché : la peau garde le bas, la chair sort par le haut */
+function lycheeHalf(): THREE.Object3D {
+  const g = new THREE.Group();
+  g.add(new THREE.Mesh(lycheeSkinGeo(0.32, Math.PI * 0.5, Math.PI * 0.5), lycheeSkinMat()));
+  const flesh = new THREE.SphereGeometry(0.29, 48, 36);
+  flesh.scale(1, 1.12, 1);
+  const m = new THREE.Mesh(flesh, lycheeFleshMat());
+  m.position.y = 0.04;
+  g.add(m);
+  return g;
+}
+
+/** Grappe : deux litchis sur une tige, avec une feuille */
+function lycheeBunch(): THREE.Object3D {
+  const g = new THREE.Group();
+  const a = lychee(), b = lychee();
+  a.position.set(-0.24, -0.1, 0);
+  b.position.set(0.26, -0.22, 0.05);
+  b.rotation.z = -0.3;
+  g.add(a, b);
+  g.add(stem([[-0.14, 0.52, 0], [0.05, 0.75, 0], [0.18, 0.4, 0.05]], 0.02, 0x6b4a2a));
+  const l = leaf(0x2f6b2a, 0.8, 0.2);
+  l.position.set(0.05, 0.75, 0);
+  l.rotation.z = -1.3;
+  g.add(l);
+  return g;
+}
+
+/** Brin de menthe : une tige et des paires de feuilles opposées */
+function mint(): THREE.Object3D {
+  const g = new THREE.Group();
+  g.add(stem([[0, -0.45, 0], [0.02, 0, 0], [0, 0.45, 0]], 0.018, 0x3f7a35));
+  const pairs = [[-0.3, 0.5], [0.0, 0.42], [0.28, 0.32]];
+  pairs.forEach(([y, len], i) => {
+    for (const side of [-1, 1]) {
+      const l = leaf(i === 2 ? 0x4fae55 : 0x2f8f45, len, len * 0.42);
+      l.position.set(0, y, 0);
+      l.rotation.z = side * 1.0;
+      l.rotation.y = i * 1.57 + (side > 0 ? 0 : Math.PI);
+      l.rotation.x = 0.25;
+      g.add(l);
+    }
+  });
+  return g;
+}
+
+/** Quartier de citron vert : peau, chair et quartiers visibles sur les faces coupées */
+function citrusWedge(skin: number, rind: string, pith: string, flesh: string): THREE.Object3D {
+  const size = 256, c = size / 2;
+  const cv = document.createElement("canvas");
+  cv.width = cv.height = size;
+  const g2 = cv.getContext("2d")!;
+  g2.fillStyle = rind; g2.beginPath(); g2.arc(c, c, c, 0, Math.PI * 2); g2.fill();
+  g2.fillStyle = pith; g2.beginPath(); g2.arc(c, c, c * 0.88, 0, Math.PI * 2); g2.fill();
+  for (let i = 0; i < 10; i++) {
+    const a0 = (i / 10) * Math.PI * 2 + 0.05, a1 = ((i + 1) / 10) * Math.PI * 2 - 0.05;
+    g2.fillStyle = flesh; g2.beginPath(); g2.moveTo(c, c); g2.arc(c, c, c * 0.82, a0, a1); g2.closePath(); g2.fill();
+  }
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  const faceMat = new THREE.MeshPhysicalMaterial({ map: tex, roughness: 0.3, clearcoat: 0.8, clearcoatRoughness: 0.15, side: THREE.DoubleSide });
+  const r = 0.36;
+  const g = new THREE.Group();
+  const peel = new THREE.SphereGeometry(r, 40, 30, 0, Math.PI / 2);
+  peel.scale(1, 1.15, 1);
+  g.add(new THREE.Mesh(peel, new THREE.MeshPhysicalMaterial({ color: skin, roughness: 0.45, clearcoat: 0.5 })));
+  // Les deux faces coupées (demi-disques)
+  const f1 = new THREE.CircleGeometry(r, 32, Math.PI / 2, Math.PI);
+  f1.scale(1, 1.15, 1);
+  g.add(new THREE.Mesh(f1, faceMat));
+  const f2 = new THREE.CircleGeometry(r, 32, -Math.PI / 2, Math.PI);
+  f2.scale(1, 1.15, 1);
+  const m2 = new THREE.Mesh(f2, faceMat);
+  m2.rotation.y = -Math.PI / 2;
+  g.add(m2);
+  return g;
+}
+const limeWedge = () => citrusWedge(0x3f8a24, "#3f8a24", "#e8f2cc", "#b9de62");
 const lime = () => citrusSlice("#4a8f2a", "#e9f3cf", "#bfe06a", "#e9f3cf");
 const lemonSlice = () => citrusSlice("#f1c40f", "#fbf3cf", "#f8dc4d", "#fbf3cf");
 
@@ -301,13 +406,19 @@ function bubbles(): THREE.Object3D {
 }
 
 // ---------- Recettes par saveur ----------
-type Recipe = { makers: Maker[]; bubbles: number; scale?: number };
+type Recipe = {
+  makers: Maker[];
+  bubbles: number;
+  scale?: number;
+  /** Les fruits entourent la canette et tournent lentement autour d'elle */
+  orbit?: boolean;
+};
 
 const RECIPES: Record<string, Recipe> = {
-  cerise: { makers: [cherries], bubbles: 18, scale: 1.25 },
+  cerise: { makers: [cherries], bubbles: 18, scale: 1.15, orbit: true },
   mangue: { makers: [mango, mangoCubes, mango, () => leaf(0x3d7f2c)], bubbles: 18 },
-  lychee: { makers: [lychee, lycheePeeled, lychee, () => leaf(0x3d7f2c, 0.6)], bubbles: 18, scale: 1.3 },
-  mojito: { makers: [mint, lime, ice, mint, lime], bubbles: 24 },
+  lychee: { makers: [lycheeBunch, lycheePeeled, lychee, lycheeHalf, lychee], bubbles: 14, scale: 1.25 },
+  mojito: { makers: [limeWedge, mint, limeWedge, mint, lime], bubbles: 20, scale: 1.1 },
   fraise: { makers: [strawberry, strawberry, () => leaf(0x3d8b2f, 0.5)], bubbles: 18, scale: 1.25 },
   melon: { makers: [melonWedge, melonBall, melonWedge, melonBall], bubbles: 18 },
   peche: { makers: [peach, peachSlice, peach], bubbles: 18 },
@@ -315,7 +426,7 @@ const RECIPES: Record<string, Recipe> = {
   lemon: { makers: [lemon, lemonSlice, lemon, lemonSlice], bubbles: 20 },
   cola: { makers: [bubbles], bubbles: 70, scale: 1.2 },
   "cola-zero": { makers: [bubbles], bubbles: 70, scale: 1.2 },
-  "cola-cherry": { makers: [cherries, ice, cherries, ice], bubbles: 32, scale: 1.15 },
+  "cola-cherry": { makers: [cherries, bubbles, cherries, bubbles], bubbles: 60, scale: 1.15 },
   "ice-tea-peche": { makers: [peachSlice, ice, teaLeaf, peachSlice, ice], bubbles: 0 },
 };
 
@@ -333,12 +444,22 @@ const SLOTS: [number, number, number, number][] = [
   [-2.0, -2.5, 3.0, 0.55],
 ];
 
+// Couronne autour de la canette : (angle, hauteur, rayon, échelle)
+const ORBIT: [number, number, number, number][] = [
+  [0.3, 1.9, 2.1, 1.0], [1.1, -0.4, 2.3, 0.95], [1.9, 2.4, 2.0, 0.9], [2.6, -1.9, 2.2, 1.0],
+  [3.4, 0.9, 2.3, 0.95], [4.1, -2.6, 2.0, 0.85], [4.8, 2.9, 2.2, 0.9], [5.6, -1.0, 2.1, 1.0],
+  [0.8, -2.9, 3.6, 1.1], [2.3, 3.4, 3.8, 1.1], [3.9, -3.3, 4.2, 1.15], [5.2, 3.6, 4.0, 1.1],
+];
+
 export function buildUniverse(slug: string) {
   const recipe = RECIPES[slug] ?? RECIPES.cerise;
+  const slots: [number, number, number, number][] = recipe.orbit
+    ? ORBIT.map(([a, y, r, s]) => [Math.cos(a) * r, y, Math.sin(a) * r, s])
+    : SLOTS;
   const group = new THREE.Group();
   const items: { obj: THREE.Object3D; base: THREE.Vector3; spin: THREE.Vector3; phase: number; depth: number }[] = [];
 
-  SLOTS.forEach(([x, y, z, s], i) => {
+  slots.forEach(([x, y, z, s], i) => {
     const obj = recipe.makers[i % recipe.makers.length]();
     obj.scale.setScalar(s * (recipe.scale ?? 1) * (0.9 + ((i * 37) % 10) / 50));
     obj.rotation.set(i * 1.3, i * 2.1, i * 0.7);
@@ -382,10 +503,20 @@ export function buildUniverse(slug: string) {
           it.obj.rotation.y += it.spin.y * dt;
         }
         const bob = still ? 0 : Math.sin(t * 0.6 + it.phase) * 0.12;
+        let bx = it.base.x, bz = it.base.z;
+        if (recipe.orbit) {
+          // rotation lente autour de la canette ; la souris l'accompagne
+          const a = (still ? 0 : t * 0.12) + mouse.x * 0.5;
+          const ca = Math.cos(a), sa = Math.sin(a);
+          bx = it.base.x * ca - it.base.z * sa;
+          bz = it.base.x * sa + it.base.z * ca;
+          it.obj.position.set(bx, it.base.y + bob + mouse.y * 0.25, bz);
+          continue;
+        }
         it.obj.position.set(
-          it.base.x - mouse.x * 0.45 * it.depth,
+          bx - mouse.x * 0.45 * it.depth,
           it.base.y + bob + mouse.y * 0.3 * it.depth,
-          it.base.z
+          bz
         );
       }
       if (bubbles) {

@@ -64,15 +64,17 @@ async function recolored(f: Flavor) {
   }
   g.putImageData(data, 0, 0);
 
-  // Remplace « COLA CHERRY » par le nom de la saveur
+  // Remplace « COLA CHERRY » par le nom de la saveur, sur les deux faces de la canette
   const k = W / 2048;
-  g.fillStyle = f.c;
-  g.fillRect(300 * k, 1440 * k, 480 * k, 96 * k);
   g.font = `900 ${46 * k}px ${labelFont()}, system-ui, sans-serif`;
   g.textAlign = "center";
   g.textBaseline = "middle";
-  g.fillStyle = "#ecebef";
-  g.fillText(f.name.toUpperCase(), 540 * k, 1500 * k);
+  for (const off of [0, 1024]) {
+    g.fillStyle = f.c;
+    g.fillRect((300 + off) * k, 1440 * k, 480 * k, 96 * k);
+    g.fillStyle = "#ecebef";
+    g.fillText(f.name.toUpperCase(), (540 + off) * k, 1500 * k);
+  }
   return c;
 }
 
