@@ -55,7 +55,7 @@ function UniverseScene({ slug }: { slug: string }) {
           </h2>
           <p className="universe-lede">
             {f.slug === "cola-cherry"
-              ? "Des cerises, des glaçons, des bulles : passez la souris pour faire tourner la canette."
+              ? "Des cerises et des bulles autour de la canette : passez la souris pour la faire tourner."
               : UNIVERSE_TEXT[f.cat]}
           </p>
           <dl className="launch-specs">

@@ -256,7 +256,7 @@ function mint(): THREE.Object3D {
   const pairs = [[-0.3, 0.5], [0.0, 0.42], [0.28, 0.32]];
   pairs.forEach(([y, len], i) => {
     for (const side of [-1, 1]) {
-      const l = leaf(i === 2 ? 0x4fae55 : 0x2f8f45, len, len * 0.42);
+      const l = leaf(i === 2 ? 0x6cc46a : 0x4aa552, len, len * 0.42);
       l.position.set(0, y, 0);
       l.rotation.z = side * 1.0;
       l.rotation.y = i * 1.57 + (side > 0 ? 0 : Math.PI);
@@ -299,6 +299,11 @@ function citrusWedge(skin: number, rind: string, pith: string, flesh: string): T
   return g;
 }
 const limeWedge = () => citrusWedge(0x3f8a24, "#3f8a24", "#e8f2cc", "#b9de62");
+const bigMint = () => {
+  const m = mint();
+  m.scale.setScalar(1.7);
+  return m;
+};
 const lime = () => citrusSlice("#4a8f2a", "#e9f3cf", "#bfe06a", "#e9f3cf");
 const lemonSlice = () => citrusSlice("#f1c40f", "#fbf3cf", "#f8dc4d", "#fbf3cf");
 
@@ -387,10 +392,27 @@ function lemon(): THREE.Object3D {
 const teaLeaf = () => leaf(0x35502a, 0.6, 0.22);
 
 /** Grappe de bulles (colas) : sphères transparentes qui ne gardent que leurs reflets */
+// Bulle d'air : centre transparent, liseré lumineux sur le bord et un petit reflet
 const bubbleMat = () =>
-  new THREE.MeshPhysicalMaterial({
-    color: 0xffffff, roughness: 0.02, metalness: 0, transmission: 1, thickness: 0.15, ior: 1.15,
-    clearcoat: 1, clearcoatRoughness: 0.02, specularIntensity: 1, envMapIntensity: 2.2,
+  new THREE.ShaderMaterial({
+    transparent: true,
+    depthWrite: false,
+    uniforms: { uTint: { value: new THREE.Color(0xffffff) } },
+    vertexShader: `varying vec3 vN; varying vec3 vV;
+      void main() {
+        vec4 mv = modelViewMatrix * vec4(position, 1.0);
+        vN = normalize(normalMatrix * normal);
+        vV = normalize(-mv.xyz);
+        gl_Position = projectionMatrix * mv;
+      }`,
+    fragmentShader: `uniform vec3 uTint; varying vec3 vN; varying vec3 vV;
+      void main() {
+        vec3 n = normalize(vN);
+        float rim = pow(1.0 - abs(dot(n, normalize(vV))), 2.6);
+        float spec = pow(max(dot(n, normalize(vec3(-0.45, 0.6, 0.65))), 0.0), 60.0);
+        float a = clamp(rim * 0.85 + spec * 0.9 + 0.03, 0.0, 1.0);
+        gl_FragColor = vec4(uTint * (0.75 + spec), a);
+      }`,
   });
 function bubbles(): THREE.Object3D {
   const g = new THREE.Group();
@@ -418,7 +440,7 @@ const RECIPES: Record<string, Recipe> = {
   cerise: { makers: [cherries], bubbles: 18, scale: 1.15, orbit: true },
   mangue: { makers: [mango, mangoCubes, mango, () => leaf(0x3d7f2c)], bubbles: 18 },
   lychee: { makers: [lycheeBunch, lycheePeeled, lychee, lycheeHalf, lychee], bubbles: 14, scale: 1.25 },
-  mojito: { makers: [limeWedge, mint, limeWedge, mint, lime], bubbles: 20, scale: 1.1 },
+  mojito: { makers: [limeWedge, bigMint, limeWedge, bigMint, lime], bubbles: 20, scale: 1.15 },
   fraise: { makers: [strawberry, strawberry, () => leaf(0x3d8b2f, 0.5)], bubbles: 18, scale: 1.25 },
   melon: { makers: [melonWedge, melonBall, melonWedge, melonBall], bubbles: 18 },
   peche: { makers: [peach, peachSlice, peach], bubbles: 18 },
@@ -485,8 +507,8 @@ export function buildUniverse(slug: string) {
   }));
   const bubbles = nb
     ? new THREE.InstancedMesh(
-        new THREE.SphereGeometry(1, 16, 12),
-        new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.05, clearcoat: 1, transparent: true, opacity: 0.28, depthWrite: false }),
+        new THREE.SphereGeometry(1, 20, 14),
+        bubbleMat(),
         nb
       )
     : null;
