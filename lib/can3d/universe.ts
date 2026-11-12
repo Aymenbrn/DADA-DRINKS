@@ -400,8 +400,14 @@ const bubbleMat = () =>
     uniforms: { uTint: { value: new THREE.Color(0xffffff) } },
     vertexShader: `varying vec3 vN; varying vec3 vV;
       void main() {
-        vec4 mv = modelViewMatrix * vec4(position, 1.0);
-        vN = normalize(normalMatrix * normal);
+        vec4 p = vec4(position, 1.0);
+        vec3 nn = normal;
+        #ifdef USE_INSTANCING
+          p = instanceMatrix * p; // bulles du champ (InstancedMesh)
+          nn = mat3(instanceMatrix) * nn;
+        #endif
+        vec4 mv = modelViewMatrix * p;
+        vN = normalize(normalMatrix * nn);
         vV = normalize(-mv.xyz);
         gl_Position = projectionMatrix * mv;
       }`,
