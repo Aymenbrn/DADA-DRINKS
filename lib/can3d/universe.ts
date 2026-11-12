@@ -738,6 +738,7 @@ function bubbles(): THREE.Object3D {
     b.position.set((Math.random() - 0.5) * 0.7, (Math.random() - 0.5) * 0.9, (Math.random() - 0.5) * 0.4);
     g.add(b);
   }
+  g.userData.bubble = true; // la grappe remonte vers la surface
   return g;
 }
 
@@ -822,7 +823,7 @@ export function buildBubbleField(w: number, h: number, n = 70) {
     y: (((i * 0.61) % 1) * 2 - 1) * h,
     z: -1 - ((i * 0.29) % 1) * 6,
     r: 0.014 + ((i * 0.43) % 1) * 0.03,
-    v: 0.25 + ((i * 0.53) % 1) * 0.35,
+    v: 0.6 + ((i * 0.53) % 1) * 0.8,
   }));
   const mesh = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 20, 14), bubbleMat(), n);
   mesh.frustumCulled = false;
@@ -835,8 +836,11 @@ export function buildBubbleField(w: number, h: number, n = 70) {
           b.y += b.v * dt;
           if (b.y > h) b.y = -h;
         }
-        d.position.set(b.x + Math.sin(t + i) * 0.05 - mouse.x * 0.3, b.y, b.z);
-        d.scale.setScalar(b.r);
+        // ondulation latérale, et les bulles grossissent un peu en approchant de la surface
+        const grow = 0.7 + 0.5 * ((b.y + h) / (2 * h));
+        const born = Math.min(1, (b.y + h) / 0.6); // apparition douce en bas
+        d.position.set(b.x + Math.sin(t * 1.8 + i * 1.3) * 0.09 - mouse.x * 0.3, b.y, b.z);
+        d.scale.setScalar(b.r * grow * born);
         d.updateMatrix();
         mesh.setMatrixAt(i, d.matrix);
       });
@@ -861,7 +865,7 @@ export function buildUniverse(slug: string, field?: { w: number; h: number }) {
   const BW = field ? field.w : 4.5, BH = field ? field.h + 0.5 : 4.5;
   const group = new THREE.Group();
   let enter = field ? 0 : 1;
-  const items: { obj: THREE.Object3D; base: THREE.Vector3; spin: THREE.Vector3; phase: number; depth: number; steady: boolean; rx: number; ry: number; rz: number }[] = [];
+  const items: { obj: THREE.Object3D; base: THREE.Vector3; spin: THREE.Vector3; phase: number; depth: number; steady: boolean; rx: number; ry: number; rz: number; rise: number; speed: number }[] = [];
 
   slots.forEach(([x, y, z, s], i) => {
     const obj = recipe.makers[i % recipe.makers.length]();
@@ -881,6 +885,8 @@ export function buildUniverse(slug: string, field?: { w: number; h: number }) {
       rx: obj.rotation.x,
       ry: obj.rotation.y,
       rz: obj.rotation.z,
+      rise: 0,
+      speed: obj.userData.bubble ? 0.55 + ((i * 0.37) % 1) * 0.6 : 0,
     });
   });
 
@@ -928,6 +934,16 @@ export function buildUniverse(slug: string, field?: { w: number; h: number }) {
           bx = it.base.x * ca - it.base.z * sa;
           bz = it.base.x * sa + it.base.z * ca;
           it.obj.position.set(bx, it.base.y + bob + mouse.y * 0.25, bz);
+          continue;
+        }
+        // grappes de bulles : elles remontent sans cesse, en ondulant, et repartent du bas
+        if (it.speed) {
+          if (!still) it.rise += it.speed * dt;
+          const span = BH * 2 + 1.5;
+          const yy = (((it.base.y + it.rise + BH + 0.75) % span) + span) % span - BH - 0.75;
+          const wob = still ? 0 : Math.sin(t * 1.6 + it.phase) * 0.12;
+          const slideB = field ? Math.sign(it.base.x || 1) * (1 - easeInOut(enter)) * field.w * 1.5 : 0;
+          it.obj.position.set(bx + wob - mouse.x * 0.45 * it.depth + slideB, yy, bz);
           continue;
         }
         // entrée / sortie par les côtés de l'écran (accueil)
