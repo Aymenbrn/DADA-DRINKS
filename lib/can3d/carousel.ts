@@ -148,7 +148,7 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
   })();
 
   // ---------- Podium métallique sous la canette du centre ----------
-  const CENTER_S = 1.12, CAN_Y = 0.35;
+  const CENTER_S = 1.4, CAN_Y = 0.45; // la canette du centre, nettement plus grande
   const PODIUM_TOP = CAN_Y - (HALF + 0.3) * CENTER_S - 1.75; // la canette flotte au-dessus, le nom passe devant
   const podium = new THREE.Group();
   const podMat = new THREE.MeshStandardMaterial({ color: 0x9a9da3, metalness: 1, roughness: 0.28, envMapIntensity: 0.9 });
@@ -323,7 +323,7 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
     // Couronne de canettes d'un bord à l'autre de l'écran, en vague, chacune avec son inclinaison ;
     // celle du centre est éclairée, les autres restent dans la pénombre
     const G = narrow ? 0.8 : 0.84; // taille des canettes à l'écran
-    const S0 = (narrow ? 2.8 : 3.6) * G; // écart autour de la canette du centre (place pour les flèches)
+    const S0 = (narrow ? 3.1 : 4.3) * G; // écart autour de la canette du centre (place pour les flèches)
     // écart entre les autres canettes : assez grand pour que la couronne déborde des deux bords
     const halfW = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.position.z * camera.aspect;
     const S = Math.max((narrow ? 2.25 : 2.45) * G, (halfW * 1.32 - S0) / (n / 2 - 1.3));

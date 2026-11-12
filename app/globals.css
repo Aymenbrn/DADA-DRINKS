@@ -554,8 +554,8 @@ button { font-family: inherit; }
   border: 0; background: transparent; color: #fff; cursor: pointer; opacity: 0.85;
   filter: drop-shadow(0 2px 6px rgba(0,0,0,0.45)); transition: opacity 0.2s, transform 0.25s;
 }
-.ribbon-arrow.is-prev { left: calc(50% - clamp(150px, 19vh, 230px)); }
-.ribbon-arrow.is-next { left: calc(50% + clamp(150px, 19vh, 230px)); }
+.ribbon-arrow.is-prev { left: calc(50% - clamp(180px, 24vh, 290px)); }
+.ribbon-arrow.is-next { left: calc(50% + clamp(180px, 24vh, 290px)); }
 .ribbon-arrow:hover { opacity: 1; }
 .ribbon-arrow.is-prev:hover { transform: translate(calc(-50% - 5px), -50%); }
 .ribbon-arrow.is-next:hover { transform: translate(calc(-50% + 5px), -50%); }
