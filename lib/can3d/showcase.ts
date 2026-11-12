@@ -11,6 +11,8 @@ export type ShowcaseOptions = {
   flavor: Flavor;
   /** Fruits / glaçons 3D autour de la canette */
   universe?: boolean;
+  /** Sur grand écran, décale la canette vers la droite (fraction de la largeur) quand la scène couvre toute la section */
+  shift?: number;
   onReady?: () => void;
 };
 
@@ -140,7 +142,7 @@ export function createShowcase(canvas: HTMLCanvasElement, opts: ShowcaseOptions)
     target.y = THREE.MathUtils.clamp(((e.clientY - r.top) / r.height) * 2 - 1, -1, 1);
   };
   const onLeave = () => target.set(0, 0);
-  const section = canvas.parentElement ?? canvas;
+  const section = canvas.closest("section") ?? canvas.parentElement ?? canvas;
   section.addEventListener("pointermove", onMove);
   section.addEventListener("pointerleave", onLeave);
 
@@ -150,6 +152,8 @@ export function createShowcase(canvas: HTMLCanvasElement, opts: ShowcaseOptions)
     if (!w || !h) return;
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
+    if (opts.shift && w > 860) camera.setViewOffset(w, h, -w * opts.shift, 0, w, h);
+    else camera.clearViewOffset();
     camera.updateProjectionMatrix();
   };
   const ro = new ResizeObserver(resize);

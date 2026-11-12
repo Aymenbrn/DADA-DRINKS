@@ -12,10 +12,12 @@ const glossy = (color: number, roughness = 0.3) =>
 const matte = (color: number, roughness = 0.6) => new THREE.MeshStandardMaterial({ color, roughness });
 const leafMat = (color = 0x2f7d32) =>
   new THREE.MeshStandardMaterial({ color, roughness: 0.55, side: THREE.DoubleSide });
+// Glace : vraie transparence (réfraction), légèrement bleutée, arêtes brillantes
 const iceMat = () =>
   new THREE.MeshPhysicalMaterial({
-    color: 0xe8f6ff, roughness: 0.04, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.02,
-    transparent: true, opacity: 0.38, depthWrite: false, side: THREE.DoubleSide,
+    color: 0xffffff, roughness: 0.08, metalness: 0, transmission: 1, thickness: 0.8, ior: 1.31,
+    attenuationColor: new THREE.Color(0xcfe9ff), attenuationDistance: 1.5,
+    clearcoat: 1, clearcoatRoughness: 0.03, specularIntensity: 1, envMapIntensity: 1.6,
   });
 
 /** Couleurs par sommet, d'après une fonction de la position */

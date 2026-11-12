@@ -32,7 +32,7 @@ function UniverseScene({ slug }: { slug: string }) {
     if (!canvas) return;
     let scene: ReturnType<typeof createShowcase> | null = null;
     try {
-      scene = createShowcase(canvas, { flavor: f, universe: true, onReady: () => setReady(true) });
+      scene = createShowcase(canvas, { flavor: f, universe: true, shift: 0.17, onReady: () => setReady(true) });
     } catch {
       setFailed(true);
     }

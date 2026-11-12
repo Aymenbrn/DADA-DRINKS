@@ -479,3 +479,14 @@ button { font-family: inherit; }
   .universe-inner { grid-template-columns: minmax(0, 1fr); padding-block: 64px 24px; }
   .universe-stage { height: 480px; order: -1; }
 }
+
+/* Grand écran : l'univers occupe toute la section (plus de fruits coupés), le texte reste lisible à gauche */
+@media (min-width: 861px) {
+  .universe-inner { min-height: clamp(560px, 50vw, 720px); }
+  .universe-stage { position: absolute; inset: 0; height: auto; }
+  .universe::before {
+    content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+    background: linear-gradient(90deg, rgba(10,10,10,0.88) 0%, rgba(10,10,10,0.55) 28%, rgba(10,10,10,0) 52%);
+  }
+  .universe-copy { z-index: 2; }
+}
