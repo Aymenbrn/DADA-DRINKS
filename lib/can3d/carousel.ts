@@ -305,8 +305,9 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
 
     // Couronne de canettes d'un bord à l'autre de l'écran, en vague, chacune avec son inclinaison ;
     // celle du centre est éclairée, les autres restent dans la pénombre
-    const S0 = narrow ? 2.7 : 3.5; // écart autour de la canette du centre (place pour les flèches)
-    const S = narrow ? 2.2 : 2.55; // écart entre les autres canettes
+    const G = narrow ? 0.8 : 0.84; // taille des canettes à l'écran
+    const S0 = (narrow ? 2.8 : 3.6) * G; // écart autour de la canette du centre (place pour les flèches)
+    const S = (narrow ? 2.25 : 2.6) * G; // écart entre les autres canettes
     cans.forEach((c, i) => {
       let d = i - pos;
       d = mod(d + n / 2, n) - n / 2; // la voisine la plus proche, d'un côté ou de l'autre
@@ -320,14 +321,14 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
         CAN_Y + 0.85 * Math.sin(d * 0.45) - far * far * 0.05 + bob - focus * 0.25,
         -a * 0.35 - d * d * 0.09 + focus * 0.9
       );
-      c.group.scale.setScalar(1 + focus * (CENTER_S - 1));
+      c.group.scale.setScalar(G * (1 + focus * (CENTER_S - 1)));
       c.group.visible = a < n / 2 - 0.3;
       // inclinaison propre à chaque canette ; la canette du centre penche vers la gauche,
       // le mouvement du carrousel les fait balancer
       const lean = -0.06 - 0.22 * (0.5 + 0.5 * Math.sin(i * 2.7 + 0.6));
       const sway = THREE.MathUtils.clamp(-vel * 0.05, -0.22, 0.22);
       c.group.rotation.set(
-        -0.28 * out + focus * cur.y * 0.12,
+        -0.42 * out + focus * cur.y * 0.12,
         -d * 0.24,
         out * lean + focus * (0.2 - cur.x * 0.06) + sway * (0.6 + 0.4 * out)
       );
@@ -336,7 +337,9 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
       const targetSpin = focus * (idle + cur.x * 0.55);
       c.spin.rotation.y += (targetSpin - c.spin.rotation.y) * k(6);
       // pénombre des canettes de côté
-      if (c.bodyMat.map) c.bodyMat.color.setScalar(0.3 + 0.7 * focus);
+      if (c.bodyMat.map) c.bodyMat.color.setScalar(0.2 + 0.8 * focus);
+      c.bodyMat.envMapIntensity = 0.22 + 0.33 * focus;
+      c.bodyMat.clearcoat = 0.35 + 0.65 * focus;
     });
     key.position.set(-4 + cur.x * 4, 5 - cur.y * 2, 7);
 
