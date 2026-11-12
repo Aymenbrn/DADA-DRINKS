@@ -300,10 +300,11 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
     const dt = Math.min(clock.getDelta(), 0.05);
     const t = clock.elapsedTime;
     const k = (rate: number) => 1 - Math.exp(-dt * rate);
-    // Ressort : le carrousel part vite, dépasse un peu et se pose (comme la référence)
+    // Ressort amorti (sans dépassement) : le carrousel glisse et se pose en douceur, sans rebond
     if (reduceMotion) pos = sel;
     else {
-      vel += ((sel - pos) * 85 - vel * 12.5) * dt;
+      const STIFF = 30, DAMP = 2 * Math.sqrt(STIFF) * 1.15; // amortissement critique +15 %
+      vel += ((sel - pos) * STIFF - vel * DAMP) * dt;
       pos += vel * dt;
     }
     cur.lerp(mouse, k(4));
@@ -333,7 +334,7 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
       // inclinaison propre à chaque canette ; la canette du centre penche vers la gauche,
       // le mouvement du carrousel les fait balancer
       const lean = -0.06 - 0.22 * (0.5 + 0.5 * Math.sin(i * 2.7 + 0.6));
-      const sway = THREE.MathUtils.clamp(-vel * 0.05, -0.22, 0.22);
+      const sway = THREE.MathUtils.clamp(-vel * 0.035, -0.14, 0.14);
       c.group.rotation.set(
         -0.42 * out + focus * cur.y * 0.12,
         -d * 0.24,
