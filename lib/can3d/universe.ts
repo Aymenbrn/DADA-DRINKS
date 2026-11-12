@@ -826,7 +826,7 @@ export function buildBubbleField(w: number, h: number, n = 70) {
     y: (((i * 0.61) % 1) * 2 - 1) * h,
     z: -1 - ((i * 0.29) % 1) * 6,
     // une bulle sur cinq est plus grosse, comme les grappes des colas
-    r: i % 5 === 0 ? 0.05 + ((i * 0.43) % 1) * 0.07 : 0.014 + ((i * 0.43) % 1) * 0.03,
+    r: i % 5 === 0 ? 0.07 + ((i * 0.43) % 1) * 0.07 : 0.014 + ((i * 0.43) % 1) * 0.03,
     v: 0.6 + ((i * 0.53) % 1) * 0.8,
   }));
   const mesh = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 20, 14), bubbleMat(), n);
@@ -861,7 +861,7 @@ export function buildUniverse(slug: string, field?: { w: number; h: number }) {
   const base = RECIPES[slug] ?? RECIPES.cerise;
   // accueil : les bulles fines sont un champ à part, permanent (voir buildBubbleField)
   // sur l'accueil, toutes les bulles (fines et grappes) vivent dans le champ permanent : elles restent pendant les transitions
-  const recipe: Recipe = field ? { ...base, orbit: false, bubbles: 0, makers: base.makers.filter((m) => m !== bubbleCluster) } : base;
+  const recipe: Recipe = field ? { ...base, orbit: false, bubbles: 0 } : base;
   const slots: [number, number, number, number][] = field
     ? fieldSlots(field.w, field.h)
     : recipe.orbit
@@ -873,8 +873,9 @@ export function buildUniverse(slug: string, field?: { w: number; h: number }) {
   const items: { obj: THREE.Object3D; base: THREE.Vector3; spin: THREE.Vector3; phase: number; depth: number; steady: boolean; rx: number; ry: number; rz: number; rise: number; speed: number }[] = [];
 
   slots.forEach(([x, y, z, s], i) => {
-    if (!recipe.makers.length) return; // colas sur l'accueil : seulement les bulles du champ permanent
-    const obj = recipe.makers[i % recipe.makers.length]();
+    const maker = recipe.makers[i % recipe.makers.length];
+    if (field && maker === bubbleCluster) return; // accueil : ces bulles-là sont dans le champ permanent
+    const obj = maker();
     obj.scale.setScalar(s * (recipe.scale ?? 1) * (0.9 + ((i * 37) % 10) / 50));
     const steady = !!obj.userData.steady;
     if (steady) obj.rotation.set(0.25 * Math.sin(i * 1.7), 0.35 * Math.cos(i * 1.3), 0.5 * Math.sin(i * 2.3));
