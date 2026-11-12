@@ -1,6 +1,5 @@
 import HomeCarousel from "@/components/HomeCarousel";
 import Story from "@/components/Story";
-import Marquee from "@/components/Marquee";
 import HomeShop from "@/components/HomeShop";
 import { AudienceProvider } from "@/components/AudienceContext";
 import Collabs from "@/components/Collabs";
@@ -12,7 +11,6 @@ export default function Home() {
       <main>
         <AudienceProvider>
         <HomeCarousel />
-        <Marquee />
         <HomeShop />
         </AudienceProvider>
         <Story />
