@@ -253,18 +253,21 @@ function lycheeBunch(): THREE.Object3D {
 function mint(): THREE.Object3D {
   const g = new THREE.Group();
   g.add(stem([[0, -0.45, 0], [0.02, 0, 0], [0, 0.45, 0]], 0.018, 0x3f7a35));
-  const pairs = [[-0.3, 0.5], [0.0, 0.42], [0.28, 0.32]];
+  const pairs = [[-0.3, 0.62], [0.02, 0.52], [0.3, 0.4]];
   pairs.forEach(([y, len], i) => {
     for (const side of [-1, 1]) {
-      const l = leaf(i === 2 ? 0x6cc46a : 0x4aa552, len, len * 0.42);
+      const l = leaf(i === 2 ? 0x6cc46a : 0x4aa552, len, len * 0.45);
       l.position.set(0, y, 0);
-      l.rotation.z = side * 1.0;
-      l.rotation.y = i * 1.57 + (side > 0 ? 0 : Math.PI);
-      l.rotation.x = 0.25;
+      l.rotation.z = side * (1.05 - i * 0.15) + Math.PI; // les feuilles s'ouvrent vers le haut
+      l.rotation.x = (i % 2 ? 0.25 : -0.25);
       g.add(l);
     }
   });
-  return g;
+  g.rotation.z = Math.PI; // remet le brin à l'endroit
+  const wrap = new THREE.Group();
+  wrap.add(g);
+  wrap.userData.steady = true; // reste face à l'écran, se balance doucement
+  return wrap;
 }
 
 /** Quartier de citron vert : peau, chair et quartiers visibles sur les faces coupées */
@@ -296,12 +299,16 @@ function citrusWedge(skin: number, rind: string, pith: string, flesh: string): T
   const m2 = new THREE.Mesh(f2, faceMat);
   m2.rotation.y = -Math.PI / 2;
   g.add(m2);
-  return g;
+  g.rotation.y = (-3 * Math.PI) / 4; // les deux faces coupées face à l'écran
+  const wrap = new THREE.Group();
+  wrap.add(g);
+  wrap.userData.steady = true;
+  return wrap;
 }
 const limeWedge = () => citrusWedge(0x3f8a24, "#3f8a24", "#e8f2cc", "#b9de62");
 const bigMint = () => {
   const m = mint();
-  m.scale.setScalar(1.7);
+  m.scale.setScalar(1.5);
   return m;
 };
 const lime = () => citrusSlice("#4a8f2a", "#e9f3cf", "#bfe06a", "#e9f3cf");
@@ -485,12 +492,14 @@ export function buildUniverse(slug: string) {
     ? ORBIT.map(([a, y, r, s]) => [Math.cos(a) * r, y, Math.sin(a) * r, s])
     : SLOTS;
   const group = new THREE.Group();
-  const items: { obj: THREE.Object3D; base: THREE.Vector3; spin: THREE.Vector3; phase: number; depth: number }[] = [];
+  const items: { obj: THREE.Object3D; base: THREE.Vector3; spin: THREE.Vector3; phase: number; depth: number; steady: boolean; rx: number; ry: number; rz: number }[] = [];
 
   slots.forEach(([x, y, z, s], i) => {
     const obj = recipe.makers[i % recipe.makers.length]();
     obj.scale.setScalar(s * (recipe.scale ?? 1) * (0.9 + ((i * 37) % 10) / 50));
-    obj.rotation.set(i * 1.3, i * 2.1, i * 0.7);
+    const steady = !!obj.userData.steady;
+    if (steady) obj.rotation.set(0.25 * Math.sin(i * 1.7), 0.35 * Math.cos(i * 1.3), 0.5 * Math.sin(i * 2.3));
+    else obj.rotation.set(i * 1.3, i * 2.1, i * 0.7);
     obj.position.set(x, y, z);
     group.add(obj);
     items.push({
@@ -499,6 +508,10 @@ export function buildUniverse(slug: string) {
       spin: new THREE.Vector3(0.05 + (i % 3) * 0.04, 0.08 + (i % 4) * 0.03, 0.03),
       phase: i * 1.7,
       depth: 1 + z * 0.09, // les objets proches bougent plus que les lointains
+      steady,
+      rx: obj.rotation.x,
+      ry: obj.rotation.y,
+      rz: obj.rotation.z,
     });
   });
 
@@ -526,7 +539,14 @@ export function buildUniverse(slug: string) {
     /** dt en secondes, t temps total, mouse en -1..1 */
     update(dt: number, t: number, mouse: THREE.Vector2, still: boolean) {
       for (const it of items) {
-        if (!still) {
+        if (it.steady) {
+          const w = still ? 0 : 1;
+          it.obj.rotation.set(
+            it.rx + w * 0.22 * Math.sin(t * 0.5 + it.phase),
+            it.ry + w * 0.35 * Math.sin(t * 0.35 + it.phase),
+            it.rz + w * 0.12 * Math.sin(t * 0.4 + it.phase)
+          );
+        } else if (!still) {
           it.obj.rotation.x += it.spin.x * dt;
           it.obj.rotation.y += it.spin.y * dt;
         }
