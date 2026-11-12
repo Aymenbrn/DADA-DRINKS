@@ -523,16 +523,18 @@ button { font-family: inherit; }
 .beach-leaf { transform-box: view-box; transform-origin: 0 0; animation: leafSway var(--dur, 8s) ease-in-out var(--delay, 0s) infinite alternate; }
 @keyframes leafSway { from { transform: rotate(-2.2deg); } to { transform: rotate(2.6deg); } }
 .beach-sand { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: clamp(110px, 24%, 230px); display: block; }
-.beach-grains { position: absolute; inset: 0; }
+.beach-grains { position: absolute; inset: 0; z-index: 1; }
 .beach-grains span {
-  position: absolute; border-radius: 50%; background: #e8cf9f; opacity: 0;
-  animation-name: sandGrain; animation-timing-function: cubic-bezier(.2,.6,.4,1); animation-iteration-count: infinite;
+  position: absolute; border-radius: 50%; background: #f0d9a8; opacity: 0;
+  box-shadow: 0 0 3px rgba(240, 217, 168, 0.7);
+  animation-name: sandGrain; animation-timing-function: linear; animation-iteration-count: infinite;
 }
-/* chaque grain reste au sol la plupart du temps et ne s'envole que sur la fin du cycle */
+/* chaque grain reste posé la plupart du temps, puis la rafale le soulève et l'emporte */
 @keyframes sandGrain {
-  0%, 84% { opacity: 0; transform: translate(0, 0); }
-  86% { opacity: 0.95; }
-  100% { opacity: 0; transform: translate(var(--dx), var(--dy)); }
+  0%, 68% { opacity: 0; transform: translate(0, 0) scale(1); }
+  71% { opacity: 1; }
+  82% { opacity: 1; transform: translate(var(--mx), var(--my)) scale(1); }
+  100% { opacity: 0; transform: translate(var(--dx), calc(var(--dy) + 30px)) scale(0.6); }
 }
 @media (prefers-reduced-motion: reduce) {
   .beach-leaf, .beach-grains span { animation: none; }
