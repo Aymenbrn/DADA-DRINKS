@@ -654,3 +654,12 @@ button { font-family: inherit; }
 .aud-switch button:focus-visible { outline: 2px solid var(--u-hi, #fff); outline-offset: 2px; border-radius: 999px; }
 .ribbon-switch { margin-top: 16px; pointer-events: auto; }
 .pro-switch { margin: 4px 0 22px; }
+
+/* Accueil : bascule de l'offre particulier / pro */
+.home-shop-swap { animation: shopSwap 0.5s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes shopSwap { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+.home-pro-lede { margin: 14px 0 0; max-width: 56ch; color: var(--muted-on-light); font-size: 16px; line-height: 1.55; }
+.pro-visual.is-packs { display: flex; align-items: center; justify-content: center; }
+.pack-dots { display: grid; grid-template-columns: repeat(5, 18px); gap: 8px; }
+.pack-dots span { width: 18px; height: 34px; border-radius: 5px; box-shadow: inset 0 3px 0 rgba(255,255,255,0.35), 0 3px 6px rgba(0,0,0,0.25); }
+@media (prefers-reduced-motion: reduce) { .home-shop-swap { animation: none; } }

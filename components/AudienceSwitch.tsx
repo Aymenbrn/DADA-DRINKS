@@ -2,26 +2,33 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useAudience, type Audience } from "@/components/AudienceContext";
 
-type Side = "particulier" | "pro";
-const HREF: Record<Side, string> = { particulier: "/", pro: "/professionnels" };
+const HREF: Record<Audience, string> = { particulier: "/", pro: "/professionnels" };
 
 /**
  * Interrupteur façon iPhone : « Particulier » d'un côté, « Pro » de l'autre.
- * Le curseur glisse, puis on change d'espace (accueil particuliers ↔ page professionnels).
+ * Sur l'accueil, il change l'offre affichée plus bas (sans quitter la page) ;
+ * ailleurs (page Professionnels), il ramène à l'espace choisi.
  */
-export default function AudienceSwitch({ value, className = "" }: { value: Side; className?: string }) {
+export default function AudienceSwitch({ value = "particulier", className = "" }: { value?: Audience; className?: string }) {
   const router = useRouter();
-  const [side, setSide] = useState<Side>(value);
+  const ctx = useAudience();
+  const [local, setLocal] = useState<Audience>(value);
+  const side = ctx ? ctx.side : local;
 
-  const go = (next: Side) => {
+  const go = (next: Audience) => {
     if (next === side) return;
-    setSide(next);
+    if (ctx) {
+      ctx.setSide(next);
+      return;
+    }
+    setLocal(next);
     window.setTimeout(() => router.push(HREF[next]), 320); // on laisse le curseur glisser
   };
 
   return (
-    <div className={`aud-switch is-${side} ${className}`} role="radiogroup" aria-label="Espace particulier ou professionnel">
+    <div className={`aud-switch is-${side} ${className}`} role="radiogroup" aria-label="Offre particulier ou professionnelle">
       <span className="aud-knob" aria-hidden="true" />
       <button type="button" role="radio" aria-checked={side === "particulier"} onClick={() => go("particulier")}>
         Particulier

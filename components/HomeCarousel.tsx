@@ -6,6 +6,7 @@ import { CAT_LABELS, FLAVORS as ALL_FLAVORS, pad } from "@/lib/flavors";
 import { createCarousel } from "@/lib/can3d/carousel";
 import BeachDecor from "@/components/BeachDecor";
 import AudienceSwitch from "@/components/AudienceSwitch";
+import { useAudience } from "@/components/AudienceContext";
 
 /** La nouveauté mise en avant à chaque ouverture / actualisation de la page */
 const NEW_RELEASE = "cola-cherry";
@@ -25,6 +26,7 @@ export default function HomeCarousel() {
   const [failed, setFailed] = useState(false);
   const [bg, setBg] = useState<{ key: number; c: string; hi: string }[]>([{ key: 0, c: FLAVORS[start].c, hi: FLAVORS[start].hi }]);
   const f = FLAVORS[index];
+  const audience = useAudience()?.side ?? "particulier";
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -109,10 +111,14 @@ export default function HomeCarousel() {
           <span className="sr-only">Dada </span>
           {f.name}
         </h1>
-        <AudienceSwitch value="particulier" className="ribbon-switch" />
+        <AudienceSwitch className="ribbon-switch" />
         <p className="ribbon-hint">Glisser ou utiliser les flèches pour découvrir</p>
           <div className="ribbon-actions">
-            <Link href="/boutique" className="btn ribbon-buy">Remplir le frigo</Link>
+            {audience === "pro" ? (
+              <a href="#offre-pro" className="btn ribbon-buy">Équiper mon commerce</a>
+            ) : (
+              <Link href="/boutique" className="btn ribbon-buy">Remplir le frigo</Link>
+            )}
           </div>
 
       </div>
