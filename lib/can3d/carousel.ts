@@ -83,13 +83,17 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
   camera.position.set(0, 0.9, 20);
   camera.lookAt(0, LOOK_Y, 0);
 
-  const key = new THREE.DirectionalLight(0xffffff, 2.2);
+  const key = new THREE.DirectionalLight(0xffffff, 2.6);
   key.position.set(-4, 5, 7);
   scene.add(key);
   const rim = new THREE.DirectionalLight(new THREE.Color(flavors[opts.start].hi), 1.6);
   rim.position.set(5, 2, -5);
   scene.add(rim);
-  scene.add(new THREE.AmbientLight(0xffffff, 0.15));
+  scene.add(new THREE.AmbientLight(0xffffff, 0.75));
+  // éclairage de face, doux, pour faire ressortir les couleurs de toutes les canettes
+  const fill = new THREE.DirectionalLight(0xffffff, 1.3);
+  fill.position.set(2, 1, 10);
+  scene.add(fill);
 
   // ---------- Les 13 canettes ----------
   const geo = canGeometries();
@@ -339,9 +343,9 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
       const targetSpin = focus * (idle + cur.x * 0.55);
       c.spin.rotation.y += (targetSpin - c.spin.rotation.y) * k(6);
       // pénombre des canettes de côté
-      if (c.bodyMat.map) c.bodyMat.color.setScalar(0.2 + 0.8 * focus);
-      c.bodyMat.envMapIntensity = 0.22 + 0.33 * focus;
-      c.bodyMat.clearcoat = 0.35 + 0.65 * focus;
+      if (c.bodyMat.map) c.bodyMat.color.setScalar(0.82 + 0.18 * focus);
+      c.bodyMat.envMapIntensity = 0.6 + 0.25 * focus;
+      c.bodyMat.clearcoat = 0.7 + 0.3 * focus;
     });
     key.position.set(-4 + cur.x * 4, 5 - cur.y * 2, 7);
 

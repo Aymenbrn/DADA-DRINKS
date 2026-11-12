@@ -500,14 +500,14 @@ button { font-family: inherit; }
 .ribbon-bg {
   position: absolute; inset: 0;
   background:
-    radial-gradient(75% 65% at 50% 42%, color-mix(in srgb, var(--uh) 78%, #ffffff) 0%, var(--uh) 38%, color-mix(in srgb, var(--u) 55%, var(--uh)) 72%, var(--u) 100%),
-    var(--u);
+    radial-gradient(80% 70% at 50% 40%, color-mix(in srgb, var(--u) 70%, var(--uh)) 0%, var(--u) 42%, color-mix(in srgb, var(--u) 55%, #050505) 78%, color-mix(in srgb, var(--u) 30%, #050505) 100%),
+    color-mix(in srgb, var(--u) 30%, #050505);
   animation: ribbonFade 0.9s ease both;
 }
 .ribbon-bg::after {
   content: ""; position: absolute; inset: 0;
-  background: linear-gradient(180deg, transparent 55%, color-mix(in srgb, var(--u) 70%, #000000 30%) 100%);
-  opacity: 0.55;
+  background: linear-gradient(180deg, transparent 50%, color-mix(in srgb, var(--u) 35%, #000000) 100%);
+  opacity: 0.6;
 }
 @keyframes ribbonFade { from { opacity: 0; } to { opacity: 1; } }
 .ribbon-light {
