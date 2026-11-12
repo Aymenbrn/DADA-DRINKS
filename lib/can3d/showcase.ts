@@ -1,16 +1,23 @@
-// Mise en avant d'une canette (section « Nouveauté » de l'accueil).
+// Vitrine d'une canette : section « Nouveauté » de l'accueil et « univers » de chaque fiche produit.
 // Volontairement sobre : la canette se tourne doucement vers le curseur, le reflet suit la souris,
-// un léger balancement au repos. Rien d'autre.
+// un léger balancement au repos. Sur les fiches, l'univers de la saveur flotte en profondeur.
 import * as THREE from "three";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+import type { Flavor } from "@/lib/flavors";
+import { getLabelImage } from "./labels";
+import { buildUniverse } from "./universe";
 
 export type ShowcaseOptions = {
-  /** Étiquette dépliée (face avant centrée à u = 0,25) */
-  label: string;
-  /** Couleur des parties hors étiquette (si l'étiquette tarde à charger) */
-  baseColor?: number;
+  flavor: Flavor;
+  /** Fruits / glaçons 3D autour de la canette */
+  universe?: boolean;
   onReady?: () => void;
 };
+
+/** Couleur du fond de section à l'endroit des objets lointains (même mélange que le CSS) */
+export function backdropColor(f: Flavor) {
+  return new THREE.Color(f.c).multiplyScalar(0.4).add(new THREE.Color(0x0a0a0a).multiplyScalar(0.6));
+}
 
 export function createShowcase(canvas: HTMLCanvasElement, opts: ShowcaseOptions) {
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -32,7 +39,7 @@ export function createShowcase(canvas: HTMLCanvasElement, opts: ShowcaseOptions)
   const key = new THREE.DirectionalLight(0xffffff, 2.2);
   key.position.set(-3, 4, 6);
   scene.add(key);
-  const rim = new THREE.DirectionalLight(0xffd7f0, 1.4);
+  const rim = new THREE.DirectionalLight(new THREE.Color(opts.flavor.hi), 1.4);
   rim.position.set(4, 2, -5);
   scene.add(rim);
   scene.add(new THREE.AmbientLight(0xffffff, 0.15));
@@ -82,12 +89,14 @@ export function createShowcase(canvas: HTMLCanvasElement, opts: ShowcaseOptions)
 
   // Corps imprimé : encre sur aluminium, vernis brillant
   const bodyMat = new THREE.MeshPhysicalMaterial({
-    color: opts.baseColor ?? 0x892d73, metalness: 0.45, roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.12, envMapIntensity: 0.55,
+    color: new THREE.Color(opts.flavor.c), metalness: 0.45, roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.12, envMapIntensity: 0.55,
   });
   const body = new THREE.Mesh(new THREE.CylinderGeometry(R, R, H, 160, 1, true), bodyMat);
   can.add(body);
 
-  new THREE.TextureLoader().load(opts.label, (tex) => {
+  getLabelImage(opts.flavor).then((img) => {
+    const tex = img instanceof HTMLCanvasElement ? new THREE.CanvasTexture(img) : new THREE.Texture(img);
+    tex.needsUpdate = true;
     tex.colorSpace = THREE.SRGBColorSpace;
     tex.wrapS = THREE.RepeatWrapping;
     tex.offset.x = 0.25; // face avant vers la caméra
@@ -96,7 +105,14 @@ export function createShowcase(canvas: HTMLCanvasElement, opts: ShowcaseOptions)
     bodyMat.color.set(0xffffff);
     bodyMat.needsUpdate = true;
     opts.onReady?.();
-  });
+  }).catch(() => opts.onReady?.());
+
+  // Univers de la saveur (fiches produits)
+  const universe = opts.universe ? buildUniverse(opts.flavor.slug) : null;
+  if (universe) {
+    scene.add(universe.group);
+    scene.fog = new THREE.Fog(backdropColor(opts.flavor), 16, 28); // les objets lointains se fondent dans le fond
+  }
 
   // Ombre de contact très douce
   const sc = document.createElement("canvas");
@@ -161,6 +177,7 @@ export function createShowcase(canvas: HTMLCanvasElement, opts: ShowcaseOptions)
     shadow.material.opacity = 0.9 - (reduceMotion ? 0 : Math.sin(t * 0.9) * 0.08);
     // Le reflet glisse sur le métal avec la souris
     key.position.set(-3 + cur.x * 4, 4 - cur.y * 2, 6);
+    universe?.update(dt, t, cur, reduceMotion);
 
     renderer.render(scene, camera);
   });
@@ -173,6 +190,7 @@ export function createShowcase(canvas: HTMLCanvasElement, opts: ShowcaseOptions)
       section.removeEventListener("pointermove", onMove);
       section.removeEventListener("pointerleave", onLeave);
       bodyMat.map?.dispose();
+      universe?.dispose();
       pmrem.dispose();
       renderer.dispose();
     },

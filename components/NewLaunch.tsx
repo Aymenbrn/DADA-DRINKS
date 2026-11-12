@@ -19,7 +19,7 @@ export default function NewLaunch() {
     if (!canvas) return;
     let scene: ReturnType<typeof createShowcase> | null = null;
     try {
-      scene = createShowcase(canvas, { label: "/labels/cola-cherry-label.jpg", onReady: () => setReady(true) });
+      scene = createShowcase(canvas, { flavor: f, onReady: () => setReady(true) });
     } catch {
       setFailed(true);
     }

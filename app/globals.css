@@ -459,3 +459,23 @@ button { font-family: inherit; }
   .launch-inner { grid-template-columns: minmax(0, 1fr); padding-block: 72px 24px; }
   .launch-stage { height: 460px; order: -1; }
 }
+
+/* ---------- Univers 3D de chaque saveur (fiches produits) ---------- */
+.universe {
+  position: relative; overflow: hidden; color: var(--paper);
+  background:
+    radial-gradient(60% 75% at 66% 52%, color-mix(in srgb, var(--u) 40%, #0a0a0a) 0%, #0a0a0a 78%),
+    #0a0a0a;
+}
+.universe-inner { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 32px; align-items: center; padding-block: 88px; }
+.universe-copy { display: flex; flex-direction: column; gap: 22px; position: relative; z-index: 1; }
+.universe-eyebrow { color: var(--u-hi); }
+.universe-title { font-size: clamp(48px, 6vw, 96px); }
+.universe-title .serif-i { color: var(--u-hi); }
+.universe-lede { margin: 0; max-width: 36ch; font-size: 17px; line-height: 1.6; color: var(--muted-on-dark); }
+.universe-btn { background: var(--paper); color: var(--ink); }
+.universe-stage { position: relative; height: clamp(480px, 56vw, 700px); }
+@media (max-width: 860px) {
+  .universe-inner { grid-template-columns: minmax(0, 1fr); padding-block: 64px 24px; }
+  .universe-stage { height: 480px; order: -1; }
+}
