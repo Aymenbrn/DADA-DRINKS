@@ -147,27 +147,73 @@ function slice(fleshOut: number, fleshIn: number, skin: number, R = 0.85, inner 
 }
 
 // ---------- Fruits ----------
+// ---------- Cerises ----------
+/** Une cerise : ronde un peu en cœur, creux profond à la queue, sillon sur un côté, petit bout dessous */
+function cherryGeo(r: number) {
+  const geo = new THREE.SphereGeometry(r, 56, 40);
+  const pos = geo.attributes.position, v = new THREE.Vector3();
+  for (let i = 0; i < pos.count; i++) {
+    v.fromBufferAttribute(pos, i);
+    let x = v.x * 1.08, y = v.y * 0.94, z = v.z * 1.04;
+    const ny = v.y / r, rad = Math.hypot(v.x, v.z) / r;
+    if (ny > 0.45) y -= (ny - 0.45) * r * 0.75 * (1 - rad * 0.6); // creux de la queue
+    if (ny < -0.85) y -= (-0.85 - ny) * r * 0.25; // petit bout
+    // sillon vertical sur la face avant
+    if (z > 0) {
+      const k = 0.035 * r * Math.exp(-Math.pow(v.x / (r * 0.12), 2)) * (z / r);
+      z -= k;
+    }
+    pos.setXYZ(i, x, y, z);
+  }
+  geo.computeVertexNormals();
+  // rouge très foncé près de la queue, plus vif sur les flancs, quelques nuances
+  paint(geo, (p) => {
+    const ny = p.y / r;
+    const t = Math.min(1, Math.max(0, 0.55 - ny * 0.5 + 0.08 * Math.sin(p.x * 30) * Math.sin(p.z * 26)));
+    return mixC(0x3e0208, 0xa8101f, t);
+  });
+  return geo;
+}
+let cherryMatCache: THREE.MeshPhysicalMaterial | null = null;
+const cherryMat = () =>
+  (cherryMatCache ??= new THREE.MeshPhysicalMaterial({
+    vertexColors: true, roughness: 0.16, clearcoat: 1, clearcoatRoughness: 0.04, envMapIntensity: 1.15, sheen: 0.2, sheenColor: new THREE.Color(0xff6070),
+  }));
+/** Queue : verte, un peu plus brune au point d'attache */
+function cherryStem(points: [number, number, number][]) {
+  return stem(points, 0.017, 0x6f8f2c);
+}
+
 function cherries(): THREE.Object3D {
   const g = new THREE.Group();
-  const mat = glossy(0x7a0c1a, 0.22);
-  for (const sx of [-0.2, 0.22]) {
-    const geo = new THREE.SphereGeometry(0.3, 40, 28);
-    const pos = geo.attributes.position;
-    for (let i = 0; i < pos.count; i++) {
-      const y = pos.getY(i);
-      if (y > 0.2) pos.setY(i, y - (y - 0.2) * 0.6); // petit creux à l'attache
-    }
-    geo.computeVertexNormals();
-    const m = new THREE.Mesh(geo, mat);
-    m.position.set(sx, sx > 0 ? -0.08 : 0, 0);
-    g.add(m);
-  }
-  g.add(stem([[-0.2, 0.2, 0], [-0.12, 0.6, 0], [0.02, 0.95, 0]]));
-  g.add(stem([[0.22, 0.12, 0], [0.18, 0.55, 0], [0.02, 0.95, 0]]));
-  const l = leaf(0x3b7f2a, 0.5, 0.18);
-  l.position.set(0.02, 0.95, 0);
-  l.rotation.z = -1.1;
+  const a = new THREE.Mesh(cherryGeo(0.3), cherryMat());
+  a.position.set(-0.22, 0, 0.02);
+  a.rotation.set(0.1, 0.4, 0.12);
+  const b = new THREE.Mesh(cherryGeo(0.28), cherryMat());
+  b.position.set(0.24, -0.12, -0.03);
+  b.rotation.set(-0.05, -0.6, -0.15);
+  g.add(a, b);
+  g.add(cherryStem([[-0.22, 0.2, 0.02], [-0.16, 0.55, 0.01], [-0.04, 0.85, 0], [0.02, 0.97, 0]]));
+  g.add(cherryStem([[0.24, 0.06, -0.03], [0.22, 0.45, -0.02], [0.12, 0.8, 0], [0.02, 0.97, 0]]));
+  const knot = new THREE.Mesh(new THREE.SphereGeometry(0.035, 12, 10), matte(0x5d4a2a, 0.8));
+  knot.position.set(0.02, 0.97, 0);
+  g.add(knot);
+  const l = mintLeaf(0.5);
+  l.scale.set(0.62, 1, 1); // feuille de cerisier : plus étroite
+  l.position.set(0.02, 0.97, 0);
+  l.rotation.z = -1.0;
+  l.rotation.y = 0.5;
   g.add(l);
+  return g;
+}
+
+/** Cerise seule avec sa queue */
+function cherrySingle(): THREE.Object3D {
+  const g = new THREE.Group();
+  const m = new THREE.Mesh(cherryGeo(0.3), cherryMat());
+  m.rotation.set(0.15, 0.3, 0.1);
+  g.add(m);
+  g.add(cherryStem([[0, 0.18, 0], [0.04, 0.5, 0], [0.14, 0.8, 0.02]]));
   return g;
 }
 
@@ -965,7 +1011,7 @@ type Recipe = {
 };
 
 const RECIPES: Record<string, Recipe> = {
-  cerise: { makers: [cherries], bubbles: 18, scale: 1.15, orbit: true },
+  cerise: { makers: [cherries, cherrySingle, cherries], bubbles: 18, scale: 1.15, orbit: true },
   mangue: { makers: [mango, mangoHalf, mangoCubes, mango, mangoHalf, () => leaf(0x3d7f2c, 0.8)], bubbles: 16, scale: 1.05, orbit: true },
   lychee: { makers: [lycheeBunch, lycheePeeled, lychee, lycheeHalf, lychee], bubbles: 14, scale: 1.25 },
   mojito: { makers: [limeWedge, bigMint, limeWedge, bigMint, lime], bubbles: 20, scale: 1.15 },
@@ -976,7 +1022,7 @@ const RECIPES: Record<string, Recipe> = {
   lemon: { makers: [lemonDimpled, lemonWedge, lemonRound, lemonDimpled, lemonWedge], bubbles: 18, scale: 1.1, orbit: true },
   cola: { makers: [bubbles], bubbles: 70, scale: 1.2 },
   "cola-zero": { makers: [bubbles], bubbles: 70, scale: 1.2 },
-  "cola-cherry": { makers: [cherries, bubbles, cherries, bubbles], bubbles: 60, scale: 1.15 },
+  "cola-cherry": { makers: [cherries, cherrySingle, cherries, bubbles, cherries, cherrySingle], bubbles: 60, scale: 1.15 },
   "ice-tea-peche": { makers: [peachHalf, teaLeafF, peachSliceF, ice, teaLeafF, peach], bubbles: 0, scale: 1.05, orbit: true },
 };
 
