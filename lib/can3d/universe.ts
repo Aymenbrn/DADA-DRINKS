@@ -95,20 +95,22 @@ function citrusSlice(rind: string, pith: string, flesh: string, line: string): T
   return new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, 0.07, 48), [side, face, face]);
 }
 
-/** Tranche en croissant (melon, pêche) : chair + bande de peau */
-function wedge(flesh: number, skin: number, r = 0.75, depth = 0.3, angle = 1.0): THREE.Object3D {
+/** Tranche en croissant (melon, pêche) : chair dégradée vers le cœur + bande de peau */
+function slice(fleshOut: number, fleshIn: number, skin: number, R = 0.85, inner = 0.48, angle = 2.3, depth = 0.22): THREE.Object3D {
   const g = new THREE.Group();
-  const s = new THREE.Shape();
-  s.moveTo(0, 0);
-  s.absarc(0, 0, r * 0.94, -angle / 2, angle / 2, false);
-  s.lineTo(0, 0);
-  const extrude = { depth, bevelEnabled: true, bevelSize: 0.03, bevelThickness: 0.03, bevelSegments: 3, curveSegments: 32 };
-  g.add(new THREE.Mesh(new THREE.ExtrudeGeometry(s, extrude), matte(flesh, 0.45)));
-  const band = new THREE.Shape();
-  band.absarc(0, 0, r, -angle / 2, angle / 2, false);
-  band.absarc(0, 0, r * 0.93, angle / 2, -angle / 2, true);
-  g.add(new THREE.Mesh(new THREE.ExtrudeGeometry(band, { ...extrude, bevelSize: 0.02 }), matte(skin, 0.55)));
-  g.children.forEach((m) => (m.position.set(-r * 0.5, 0, -depth / 2)));
+  const ring = (r0: number, r1: number) => {
+    const sh = new THREE.Shape();
+    sh.absarc(0, 0, r1, Math.PI / 2 - angle / 2, Math.PI / 2 + angle / 2, false);
+    sh.absarc(0, 0, r0, Math.PI / 2 + angle / 2, Math.PI / 2 - angle / 2, true);
+    return sh;
+  };
+  const extrude = { depth, bevelEnabled: true, bevelSize: 0.025, bevelThickness: 0.025, bevelSegments: 3, curveSegments: 40 };
+  const flesh = new THREE.ExtrudeGeometry(ring(R * inner, R * 0.93), extrude);
+  paint(flesh, (p) => mixC(fleshIn, fleshOut, (Math.hypot(p.x, p.y) - R * inner) / (R * (0.93 - inner))));
+  g.add(new THREE.Mesh(flesh, new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: 0.35, clearcoat: 0.8, clearcoatRoughness: 0.25 })));
+  const rind = new THREE.ExtrudeGeometry(ring(R * 0.92, R), { ...extrude, bevelSize: 0.02 });
+  g.add(new THREE.Mesh(rind, matte(skin, 0.55)));
+  g.children.forEach((m) => m.position.set(0, -R * 0.7, -depth / 2));
   return g;
 }
 
@@ -229,9 +231,9 @@ function strawberry(): THREE.Object3D {
   return g;
 }
 
-const melonWedge = () => wedge(0xf6a35a, 0x9fa36a, 0.8, 0.32, 0.9);
+const melonWedge = () => slice(0xff8a2a, 0xffc98f, 0x8f9a55);
 function melonBall(): THREE.Object3D {
-  return new THREE.Mesh(new THREE.SphereGeometry(0.2, 32, 24), glossy(0xf7a35c, 0.35));
+  return new THREE.Mesh(new THREE.SphereGeometry(0.2, 32, 24), glossy(0xff9440, 0.3));
 }
 
 function peach(): THREE.Object3D {
@@ -251,7 +253,7 @@ function peach(): THREE.Object3D {
   g.add(l);
   return g;
 }
-const peachSlice = () => wedge(0xf7b04c, 0xd2452f, 0.7, 0.24, 0.8);
+const peachSlice = () => slice(0xffa938, 0xffd27a, 0xc8382c, 0.6, 0.35, 2.0, 0.2);
 
 function apple(): THREE.Object3D {
   const g = new THREE.Group();
