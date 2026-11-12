@@ -68,31 +68,63 @@ function ice(): THREE.Object3D {
   return new THREE.Mesh(new RoundedBoxGeometry(s, s * 0.9, s, 3, s * 0.12), iceMat());
 }
 
-/** Rondelle d'agrume : écorce, peau blanche et quartiers dessinés */
-function citrusSlice(rind: string, pith: string, flesh: string, line: string): THREE.Object3D {
-  const size = 256;
-  const cv = document.createElement("canvas");
-  cv.width = cv.height = size;
-  const g = cv.getContext("2d")!;
-  const c = size / 2;
-  g.fillStyle = rind;
-  g.beginPath(); g.arc(c, c, c, 0, Math.PI * 2); g.fill();
-  g.fillStyle = pith;
-  g.beginPath(); g.arc(c, c, c * 0.9, 0, Math.PI * 2); g.fill();
+/** Couleurs d'un agrume coupé */
+type CitrusColors = { rind: string; rindDark: string; pith: string; flesh: string; fleshLight: string; membrane: string };
+const LIME: CitrusColors = { rind: "#3d8a22", rindDark: "#215a12", pith: "#eef6d6", flesh: "#9fd23a", fleshLight: "#d9f28a", membrane: "#f1f8dc" };
+const LEMON: CitrusColors = { rind: "#f2c418", rindDark: "#c99a06", pith: "#fff8dc", flesh: "#f7d33a", fleshLight: "#fff09a", membrane: "#fffbe6" };
+
+/** Coupe d'agrume dessinée finement : écorce, peau blanche, quartiers juteux (petites vésicules), membranes, cœur */
+function drawCitrus(g: CanvasRenderingContext2D, S: number, col: CitrusColors) {
+  const c = S / 2;
+  // écorce : bord plus foncé
+  const rg = g.createRadialGradient(c, c, c * 0.86, c, c, c);
+  rg.addColorStop(0, col.rind); rg.addColorStop(1, col.rindDark);
+  g.fillStyle = rg; g.beginPath(); g.arc(c, c, c, 0, Math.PI * 2); g.fill();
+  g.fillStyle = col.pith; g.beginPath(); g.arc(c, c, c * 0.9, 0, Math.PI * 2); g.fill();
   const n = 10;
+  let seed = 11;
+  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
   for (let i = 0; i < n; i++) {
-    const a0 = (i / n) * Math.PI * 2 + 0.04, a1 = ((i + 1) / n) * Math.PI * 2 - 0.04;
-    g.fillStyle = flesh;
-    g.beginPath(); g.moveTo(c, c); g.arc(c, c, c * 0.84, a0, a1); g.closePath(); g.fill();
+    const a0 = (i / n) * Math.PI * 2 + 0.035, a1 = ((i + 1) / n) * Math.PI * 2 - 0.035;
+    g.save();
+    g.beginPath(); g.moveTo(c + Math.cos((a0 + a1) / 2) * c * 0.06, c + Math.sin((a0 + a1) / 2) * c * 0.06);
+    g.arc(c, c, c * 0.85, a0, a1); g.closePath();
+    const fg = g.createRadialGradient(c, c, c * 0.05, c, c, c * 0.85);
+    fg.addColorStop(0, col.fleshLight); fg.addColorStop(0.6, col.flesh); fg.addColorStop(1, col.flesh);
+    g.fillStyle = fg; g.fill();
+    g.clip();
+    // vésicules de jus : petites gouttes allongées vers le centre
+    for (let k = 0; k < 70; k++) {
+      const a = a0 + rnd() * (a1 - a0), r = c * (0.15 + rnd() * 0.68);
+      const x = c + Math.cos(a) * r, y = c + Math.sin(a) * r;
+      g.fillStyle = rnd() > 0.5 ? "rgba(255,255,255,0.28)" : "rgba(0,0,0,0.08)";
+      g.beginPath(); g.ellipse(x, y, 2 + rnd() * 3, 6 + rnd() * 8, a, 0, Math.PI * 2); g.fill();
+    }
+    g.restore();
   }
-  g.strokeStyle = line;
-  g.lineWidth = 3;
-  g.beginPath(); g.arc(c, c, c * 0.08, 0, Math.PI * 2); g.stroke();
-  const tex = new THREE.CanvasTexture(cv);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  const face = new THREE.MeshPhysicalMaterial({ map: tex, roughness: 0.35, clearcoat: 0.6, clearcoatRoughness: 0.2 });
-  const side = matte(new THREE.Color(rind).getHex(), 0.5);
-  return new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, 0.07, 48), [side, face, face]);
+  // membranes et cœur
+  g.strokeStyle = col.membrane; g.lineWidth = S / 160;
+  for (let i = 0; i < n; i++) {
+    const a = (i / n) * Math.PI * 2;
+    g.beginPath(); g.moveTo(c + Math.cos(a) * c * 0.07, c + Math.sin(a) * c * 0.07); g.lineTo(c + Math.cos(a) * c * 0.86, c + Math.sin(a) * c * 0.86); g.stroke();
+  }
+  g.fillStyle = col.membrane; g.beginPath(); g.arc(c, c, c * 0.07, 0, Math.PI * 2); g.fill();
+  // reflet humide
+  const hl = g.createRadialGradient(c * 0.7, c * 0.65, 0, c * 0.7, c * 0.65, c * 0.6);
+  hl.addColorStop(0, "rgba(255,255,255,0.25)"); hl.addColorStop(1, "rgba(255,255,255,0)");
+  g.fillStyle = hl; g.beginPath(); g.arc(c, c, c * 0.85, 0, Math.PI * 2); g.fill();
+}
+const citrusFaceMat = (col: CitrusColors) =>
+  new THREE.MeshPhysicalMaterial({
+    map: canvasTex(512, (g, S) => drawCitrus(g, S, col)),
+    roughness: 0.28, clearcoat: 1, clearcoatRoughness: 0.12, sheen: 0.4, sheenColor: new THREE.Color(col.fleshLight), side: THREE.DoubleSide,
+  });
+
+/** Rondelle d'agrume : tranche épaisse, écorce sur la tranche, faces finement dessinées */
+function citrusSlice(col: CitrusColors): THREE.Object3D {
+  const face = citrusFaceMat(col);
+  const side = new THREE.MeshPhysicalMaterial({ color: new THREE.Color(col.rind), roughness: 0.45, clearcoat: 0.6 });
+  return new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, 0.09, 64), [side, face, face]);
 }
 
 /** Tranche en croissant (melon, pêche) : chair dégradée vers le cœur + bande de peau */
@@ -242,52 +274,133 @@ function lycheeBunch(): THREE.Object3D {
   return g;
 }
 
-/** Brin de menthe : une tige et des paires de feuilles opposées */
+/** Texture d'une feuille de menthe : ovale, bord denté, nervures creusées (couleur + transparence + relief) */
+let mintTexCache: { map: THREE.Texture; bump: THREE.Texture } | null = null;
+function mintTextures() {
+  if (mintTexCache) return mintTexCache;
+  const W = 256, Hh = 384;
+  const outline = (g: CanvasRenderingContext2D) => {
+    g.beginPath();
+    const N = 120, teeth = 15;
+    for (let i = 0; i <= N; i++) {
+      const t = i / N; // 0 → 1 : base, un côté, pointe, l'autre côté
+      const side = t < 0.5 ? 1 : -1;
+      const yy = t < 0.5 ? (1 - Math.cos(t * 2 * Math.PI)) / 2 : (1 - Math.cos((1 - t) * 2 * Math.PI)) / 2;
+      const wdt = Math.sin(Math.PI * Math.pow(yy, 0.8)) * (1 - 0.25 * yy); // ovale, plus large vers la base
+      const tooth = 1 + 0.07 * Math.abs(Math.sin(yy * teeth * Math.PI)); // dents de scie
+      const x = W / 2 + side * wdt * tooth * W * 0.46;
+      const py = Hh * 0.97 - yy * Hh * 0.94;
+      if (i === 0) g.moveTo(x, py); else g.lineTo(x, py);
+    }
+    g.closePath();
+  };
+  const veins = (g: CanvasRenderingContext2D, color: string, w: number) => {
+    g.strokeStyle = color; g.lineCap = "round";
+    g.lineWidth = w * 1.6;
+    g.beginPath(); g.moveTo(W / 2, Hh * 0.98); g.lineTo(W / 2, Hh * 0.06); g.stroke();
+    g.lineWidth = w;
+    for (let k = 0; k < 6; k++) {
+      const y0 = Hh * (0.85 - k * 0.13);
+      for (const sd of [-1, 1]) {
+        g.beginPath(); g.moveTo(W / 2, y0);
+        g.quadraticCurveTo(W / 2 + sd * W * 0.2, y0 - Hh * 0.06, W / 2 + sd * W * (0.36 - k * 0.03), y0 - Hh * 0.13); g.stroke();
+      }
+    }
+  };
+  // couleur
+  const cv = document.createElement("canvas"); cv.width = W; cv.height = Hh;
+  const g = cv.getContext("2d")!;
+  outline(g);
+  const gr = g.createLinearGradient(0, Hh, 0, 0);
+  gr.addColorStop(0, "#2f7f33"); gr.addColorStop(0.6, "#3f9a3c"); gr.addColorStop(1, "#57b247");
+  g.fillStyle = gr; g.fill();
+  g.save(); outline(g); g.clip();
+  // bosselage entre les nervures (aspect gaufré de la menthe)
+  for (let k = 0; k < 260; k++) {
+    const x = Math.random() * W, y = Math.random() * Hh;
+    g.fillStyle = Math.random() > 0.5 ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.07)";
+    g.beginPath(); g.arc(x, y, 3 + Math.random() * 6, 0, Math.PI * 2); g.fill();
+  }
+  veins(g, "rgba(170,225,140,0.75)", 2.4);
+  g.restore();
+  const map = new THREE.CanvasTexture(cv);
+  map.colorSpace = THREE.SRGBColorSpace;
+  // relief : nervures en creux
+  const bv = document.createElement("canvas"); bv.width = W; bv.height = Hh;
+  const b = bv.getContext("2d")!;
+  b.fillStyle = "#bbb"; b.fillRect(0, 0, W, Hh);
+  veins(b, "#333", 4);
+  const bump = new THREE.CanvasTexture(bv);
+  mintTexCache = { map, bump };
+  return mintTexCache;
+}
+
+/** Feuille de menthe : plan courbé (gouttière + ondulation), découpé par la texture */
+function mintLeaf(len: number): THREE.Object3D {
+  const { map, bump } = mintTextures();
+  const w = len * 0.66;
+  const geo = new THREE.PlaneGeometry(w, len, 12, 18);
+  const pos = geo.attributes.position;
+  for (let i = 0; i < pos.count; i++) {
+    const x = pos.getX(i), y = pos.getY(i);
+    const u = x / (w / 2), v = y / len + 0.5;
+    pos.setZ(i, -0.35 * w * u * u + 0.08 * len * Math.sin(v * Math.PI) - 0.12 * len * v * v + 0.015 * len * Math.sin(u * 9 + v * 7));
+  }
+  geo.translate(0, len / 2, 0); // base de la feuille à l'origine
+  geo.computeVertexNormals();
+  const mat = new THREE.MeshPhysicalMaterial({
+    map, alphaTest: 0.5, bumpMap: bump, bumpScale: 0.6,
+    roughness: 0.5, clearcoat: 0.35, clearcoatRoughness: 0.4, side: THREE.DoubleSide,
+  });
+  return new THREE.Mesh(geo, mat);
+}
+
+/** Brin de menthe : tige, paires de feuilles opposées et croisées, petit bouquet au sommet */
 function mint(): THREE.Object3D {
   const g = new THREE.Group();
-  g.add(stem([[0, -0.45, 0], [0.02, 0, 0], [0, 0.45, 0]], 0.018, 0x3f7a35));
-  const pairs = [[-0.3, 0.62], [0.02, 0.52], [0.3, 0.4]];
-  pairs.forEach(([y, len], i) => {
+  g.add(stem([[0, -0.5, 0], [0.02, 0, 0.01], [0, 0.48, 0]], 0.02, 0x4f7f2f));
+  const nodes = [[-0.38, 0.5], [-0.08, 0.44], [0.2, 0.36], [0.42, 0.24]];
+  nodes.forEach(([y, len], i) => {
     for (const side of [-1, 1]) {
-      const l = leaf(i === 2 ? 0x6cc46a : 0x4aa552, len, len * 0.45);
-      l.position.set(0, y, 0);
-      l.rotation.z = side * (1.05 - i * 0.15) + Math.PI; // les feuilles s'ouvrent vers le haut
-      l.rotation.x = (i % 2 ? 0.25 : -0.25);
-      g.add(l);
+      const l = mintLeaf(len);
+      const holder = new THREE.Group();
+      holder.position.set(0, y, 0);
+      holder.rotation.y = (i % 2) * (Math.PI / 2) + (side < 0 ? Math.PI : 0); // paires croisées
+      l.rotation.z = -(0.95 - i * 0.12); // la feuille s'écarte de la tige vers le haut
+      l.rotation.y = 0.2;
+      holder.add(l);
+      g.add(holder);
     }
   });
-  g.rotation.z = Math.PI; // remet le brin à l'endroit
+  const tip = mintLeaf(0.16);
+  tip.position.y = 0.48;
+  g.add(tip);
   const wrap = new THREE.Group();
   wrap.add(g);
   wrap.userData.steady = true; // reste face à l'écran, se balance doucement
   return wrap;
 }
 
-/** Quartier de citron vert : peau, chair et quartiers visibles sur les faces coupées */
-function citrusWedge(skin: number, rind: string, pith: string, flesh: string): THREE.Object3D {
-  const size = 256, c = size / 2;
-  const cv = document.createElement("canvas");
-  cv.width = cv.height = size;
-  const g2 = cv.getContext("2d")!;
-  g2.fillStyle = rind; g2.beginPath(); g2.arc(c, c, c, 0, Math.PI * 2); g2.fill();
-  g2.fillStyle = pith; g2.beginPath(); g2.arc(c, c, c * 0.88, 0, Math.PI * 2); g2.fill();
-  for (let i = 0; i < 10; i++) {
-    const a0 = (i / 10) * Math.PI * 2 + 0.05, a1 = ((i + 1) / 10) * Math.PI * 2 - 0.05;
-    g2.fillStyle = flesh; g2.beginPath(); g2.moveTo(c, c); g2.arc(c, c, c * 0.82, a0, a1); g2.closePath(); g2.fill();
-  }
-  const tex = new THREE.CanvasTexture(cv);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  const faceMat = new THREE.MeshPhysicalMaterial({ map: tex, roughness: 0.3, clearcoat: 0.8, clearcoatRoughness: 0.15, side: THREE.DoubleSide });
+/** Quartier d'agrume : peau grêlée et les deux faces coupées, détaillées */
+function citrusWedge(skin: number, col: CitrusColors): THREE.Object3D {
+  const faceMat = citrusFaceMat(col);
   const r = 0.36;
   const g = new THREE.Group();
-  const peel = new THREE.SphereGeometry(r, 40, 30, 0, Math.PI / 2);
+  const peel = new THREE.SphereGeometry(r, 48, 36, 0, Math.PI / 2);
   peel.scale(1, 1.15, 1);
-  g.add(new THREE.Mesh(peel, new THREE.MeshPhysicalMaterial({ color: skin, roughness: 0.45, clearcoat: 0.5 })));
+  const pos = peel.attributes.position, v = new THREE.Vector3();
+  for (let i = 0; i < pos.count; i++) {
+    v.fromBufferAttribute(pos, i);
+    const k = 1 - 0.015 * Math.abs(Math.sin(v.x * 80) * Math.sin(v.y * 80) * Math.sin(v.z * 80)); // peau grêlée
+    pos.setXYZ(i, v.x * k, v.y * k, v.z * k);
+  }
+  peel.computeVertexNormals();
+  g.add(new THREE.Mesh(peel, new THREE.MeshPhysicalMaterial({ color: skin, roughness: 0.42, clearcoat: 0.6, clearcoatRoughness: 0.25 })));
   // Les deux faces coupées (demi-disques)
-  const f1 = new THREE.CircleGeometry(r, 32, Math.PI / 2, Math.PI);
+  const f1 = new THREE.CircleGeometry(r, 48, Math.PI / 2, Math.PI);
   f1.scale(1, 1.15, 1);
   g.add(new THREE.Mesh(f1, faceMat));
-  const f2 = new THREE.CircleGeometry(r, 32, -Math.PI / 2, Math.PI);
+  const f2 = new THREE.CircleGeometry(r, 48, -Math.PI / 2, Math.PI);
   f2.scale(1, 1.15, 1);
   const m2 = new THREE.Mesh(f2, faceMat);
   m2.rotation.y = -Math.PI / 2;
@@ -298,13 +411,17 @@ function citrusWedge(skin: number, rind: string, pith: string, flesh: string): T
   wrap.userData.steady = true;
   return wrap;
 }
-const limeWedge = () => citrusWedge(0x3f8a24, "#3f8a24", "#e8f2cc", "#b9de62");
+const limeWedge = () => citrusWedge(0x3d8a22, LIME);
 const bigMint = () => {
   const m = mint();
   m.scale.setScalar(1.5);
   return m;
 };
-const lime = () => citrusSlice("#4a8f2a", "#e9f3cf", "#bfe06a", "#e9f3cf");
+const lime = () => {
+  const sl = citrusSlice(LIME);
+  sl.rotation.x = Math.PI / 2; // la tranche face à l'écran
+  return facing(sl);
+};
 
 // ---------- Fraise ----------
 // Profil en cœur (rayon, hauteur), lissé en spline : épaules larges, pointe arrondie
@@ -688,9 +805,9 @@ function lemonDimpled(): THREE.Object3D {
   g.add(l);
   return g;
 }
-const lemonWedge = () => citrusWedge(0xf1c40f, "#f1c40f", "#fbf3cf", "#f8dc4d");
+const lemonWedge = () => citrusWedge(0xf2c418, LEMON);
 const lemonRound = () => {
-  const s = citrusSlice("#f1c40f", "#fbf3cf", "#f8dc4d", "#fbf3cf");
+  const s = citrusSlice(LEMON);
   s.rotation.x = Math.PI / 2; // la tranche face à l'écran
   return facing(s);
 };
