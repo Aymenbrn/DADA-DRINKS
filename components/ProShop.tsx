@@ -31,7 +31,7 @@ export default function ProShop() {
               <h3>Packs de 24 canettes</h3>
               <p>Les {FLAVORS.length} saveurs Dada en packs de 24 : eaux fruitées, colas et Ice Tea, à commander à l’unité ou en volume.</p>
               <p className="pro-price"><small>le pack </small>{PACK_PRICE}</p>
-              <Link href="/professionnels#devis" className="btn btn-dark pro-cta">Demander un devis</Link>
+              <Link href="#devis" className="btn btn-dark pro-cta">Demander un devis</Link>
             </div>
           </li>
           {PRO_PRODUCTS.map((p) => (
@@ -48,15 +48,12 @@ export default function ProShop() {
                 <p>{p.desc}</p>
                 {p.freeCases && <p className="pro-gift">+ {p.freeCases} colis offerts</p>}
                 <p className="pro-price">{p.from && <small>à partir de </small>}{formatEUR(p.priceCents)}</p>
-                <Link href="/professionnels#devis" className="btn btn-dark pro-cta">Demander un devis</Link>
+                <Link href="#devis" className="btn btn-dark pro-cta">Demander un devis</Link>
               </div>
             </li>
           ))}
         </ul>
         <p className="fine-print">Tarifs repris du site actuel, hors frais de livraison. Conditions détaillées sur devis.</p>
-        <p style={{ marginTop: 18 }}>
-          <Link href="/professionnels" className="btn btn-accent">Tout l’espace professionnel</Link>
-        </p>
       </div>
     </section>
   );
