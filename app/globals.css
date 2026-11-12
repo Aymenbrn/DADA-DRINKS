@@ -51,6 +51,8 @@ button { font-family: inherit; }
 /* ---------- Header ---------- */
 .header { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; padding-block: 20px; }
 .logo { display: flex; align-items: baseline; gap: 6px; text-decoration: none; }
+.logo-img { display: block; height: 44px; width: auto; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25)); }
+@media (max-width: 860px) { .logo-img { height: 36px; } }
 .logo-dada { font-family: var(--display); font-size: 34px; letter-spacing: 0.04em; line-height: 1; }
 .logo-drinks { font-family: var(--serif); font-style: italic; font-size: 22px; display: inline-block; transform: rotate(-8deg); }
 .nav { display: flex; gap: 28px; flex-wrap: wrap; font-size: 15px; font-weight: 500; }

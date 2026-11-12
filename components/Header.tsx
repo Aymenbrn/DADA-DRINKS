@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -20,8 +21,7 @@ export default function Header() {
     <header className="site-header">
       <div className="container header">
         <Link href="/" className="logo" aria-label="Dada Drinks, accueil">
-          <span className="logo-dada">DADA</span>
-          <span className="logo-drinks">drinks</span>
+          <Image src="/brand/dada-logo.webp" alt="Dada" width={750} height={303} priority className="logo-img" />
         </Link>
 
         <nav id="main-nav" className={`nav${open ? " is-open" : ""}`} aria-label="Navigation principale">
