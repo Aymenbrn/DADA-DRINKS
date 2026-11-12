@@ -663,67 +663,6 @@ function bubbles(): THREE.Object3D {
 }
 
 
-/** Lit de cerises brillantes qui s'enfonce vers le fond, comme une photo de cerises prise en plongée :
- *  les premières en bas de l'écran, les suivantes de plus en plus loin et de plus en plus haut,
- *  le brouillard de la scène les estompe au loin. w, h : demi-largeur / demi-hauteur visibles (plan z = 0). */
-function cherryBed(w: number, h: number): THREE.Object3D {
-  const g = new THREE.Group();
-  const DIST = 21.6; // distance caméra → plan de l'univers
-  const pts: { x: number; y: number; z: number; r: number }[] = [];
-  let seed = 7;
-  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-  for (let z = -2.6, row = 0; z > -20; z -= 0.78, row++) {
-    const grow = 1 + -z / DIST;
-    const half = w * grow * 1.08;
-    const yBottom = -1.4 - h * grow;
-    const y0 = yBottom * 0.97 + (-z - 2.6) * 0.78; // la pente du tas
-    for (let x = -half + (row % 2) * 0.46; x < half; x += 0.92) {
-      pts.push({ x: x + (rnd() - 0.5) * 0.55, y: y0 + (rnd() - 0.5) * 0.5, z: z + (rnd() - 0.5) * 0.5, r: 0.47 + rnd() * 0.2 });
-    }
-  }
-
-  // Cerise : sphère légèrement aplatie, creusée à l'attache de la queue
-  const geo = new THREE.SphereGeometry(1, 22, 16);
-  const pos = geo.attributes.position;
-  for (let i = 0; i < pos.count; i++) {
-    const y = pos.getY(i);
-    pos.setY(i, y * 0.9 - (y > 0.6 ? (y - 0.6) * 0.55 : 0));
-  }
-  geo.computeVertexNormals();
-  const mat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.04, envMapIntensity: 1.1 });
-  const body = new THREE.InstancedMesh(geo, mat, pts.length);
-  const stemCurve = new THREE.CatmullRomCurve3([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0.05, 0.55, 0.05), new THREE.Vector3(0.22, 1.15, 0.12)]);
-  const stemGeo = new THREE.TubeGeometry(stemCurve, 10, 0.035, 5, false);
-  const stemMat = new THREE.MeshStandardMaterial({ color: 0x7d9a3c, roughness: 0.5 });
-  const withStem = pts.filter((_, i) => i % 3 === 0).length;
-  const stems = new THREE.InstancedMesh(stemGeo, stemMat, withStem);
-
-  const m = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), sc = new THREE.Vector3();
-  const stemLocal = new THREE.Matrix4();
-  const col = new THREE.Color();
-  const reds = [0x5e0410, 0x7a0712, 0x4a030c, 0x8f0c18, 0x690611];
-  let si = 0;
-  pts.forEach((p, i) => {
-    e.set(-0.5 + (rnd() - 0.5) * 0.9, rnd() * Math.PI * 2, (rnd() - 0.5) * 0.7); // queues tournées vers la caméra, en désordre
-    q.setFromEuler(e);
-    sc.setScalar(p.r);
-    m.compose(new THREE.Vector3(p.x, p.y, p.z), q, sc);
-    body.setMatrixAt(i, m);
-    col.setHex(reds[Math.floor(rnd() * reds.length)]).multiplyScalar(0.85 + rnd() * 0.3);
-    body.setColorAt(i, col);
-    if (i % 3 === 0) {
-      stemLocal.makeTranslation(0, 0.62, 0);
-      stems.setMatrixAt(si++, m.clone().multiply(stemLocal));
-    }
-  });
-  body.instanceMatrix.needsUpdate = true;
-  if (body.instanceColor) body.instanceColor.needsUpdate = true;
-  stems.instanceMatrix.needsUpdate = true;
-  g.add(body, stems);
-  g.userData.bed = true;
-  return g;
-}
-
 // ---------- Recettes par saveur ----------
 type Recipe = {
   makers: Maker[];
@@ -840,9 +779,6 @@ export function buildUniverse(slug: string, field?: { w: number; h: number }) {
       )
     : null;
   if (bubbles) group.add(bubbles);
-  // Accueil, Cola Cherry : un lit de cerises en 3D au fond de l'écran
-  const bed = field && (slug === "cola-cherry" || slug === "cerise") ? cherryBed(field.w, field.h) : null;
-  if (bed) group.add(bed);
   const d = new THREE.Object3D();
 
   return {
@@ -877,11 +813,6 @@ export function buildUniverse(slug: string, field?: { w: number; h: number }) {
           it.base.y + bob + mouse.y * 0.3 * it.depth,
           bz
         );
-      }
-      if (bed) {
-        // léger parallaxe : le fond bouge moins que les fruits qui flottent
-        bed.position.x += (-mouse.x * 0.35 - bed.position.x) * Math.min(1, dt * 3);
-        bed.position.y += (mouse.y * 0.2 - bed.position.y) * Math.min(1, dt * 3);
       }
       if (bubbles) {
         bubbleData.forEach((b, i) => {
