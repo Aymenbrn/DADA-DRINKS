@@ -21,7 +21,7 @@ export default function HomeCarousel() {
   const [index, setIndex] = useState(start);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [bg, setBg] = useState<{ key: number; c: string }[]>([{ key: 0, c: FLAVORS[start].c }]);
+  const [bg, setBg] = useState<{ key: number; c: string; hi: string }[]>([{ key: 0, c: FLAVORS[start].c, hi: FLAVORS[start].hi }]);
   const f = FLAVORS[index];
 
   useEffect(() => {
@@ -44,8 +44,8 @@ export default function HomeCarousel() {
 
   // Fond aux couleurs de la saveur : le nouveau fond se fond par-dessus l'ancien
   useEffect(() => {
-    setBg((layers) => [...layers.slice(-1), { key: (layers.at(-1)?.key ?? 0) + 1, c: f.c }]);
-  }, [f.c]);
+    setBg((layers) => [...layers.slice(-1), { key: (layers.at(-1)?.key ?? 0) + 1, c: f.c, hi: f.hi }]);
+  }, [f.c, f.hi]);
 
   // Flèches du clavier
   useEffect(() => {
@@ -68,7 +68,7 @@ export default function HomeCarousel() {
   return (
     <section className="ribbon" aria-roledescription="carrousel" aria-label="La gamme Dada en 3D" style={{ "--u-hi": f.hi } as CSSProperties}>
       {bg.map((l) => (
-        <div key={l.key} className="ribbon-bg" style={{ "--u": l.c } as CSSProperties} aria-hidden="true" />
+        <div key={l.key} className="ribbon-bg" style={{ "--u": l.c, "--uh": l.hi } as CSSProperties} aria-hidden="true" />
       ))}
       <div className="ribbon-light" aria-hidden="true" />
 
