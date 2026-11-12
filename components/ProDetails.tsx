@@ -89,7 +89,6 @@ export function ProQuote() {
                 { name: "email", label: "E-mail", type: "email", required: true, autoComplete: "email" },
                 { name: "phone", label: "Téléphone", type: "tel", autoComplete: "tel" },
                 { name: "city", label: "Ville", autoComplete: "address-level2" },
-                { name: "interest", label: "Vous êtes intéressé par", type: "select", options: ["Packs de 24 canettes", "Palette mixte", "Vitrine slim", "Vitrine moyen", "Vitrine big", "Plusieurs produits"], wide: true },
                 { name: "message", label: "Votre besoin (saveurs, volumes, fréquence…)", type: "textarea", required: true },
               ]}
             />
