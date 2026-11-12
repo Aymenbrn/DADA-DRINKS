@@ -733,7 +733,7 @@ function bubbles(): THREE.Object3D {
   const mat = bubbleMat();
   const n = 3 + Math.floor(Math.random() * 4);
   for (let i = 0; i < n; i++) {
-    const r = 0.08 + Math.random() * 0.22;
+    const r = 0.04 + Math.random() * 0.1;
     const b = new THREE.Mesh(new THREE.SphereGeometry(r, 32, 24), mat);
     b.position.set((Math.random() - 0.5) * 0.7, (Math.random() - 0.5) * 0.9, (Math.random() - 0.5) * 0.4);
     g.add(b);
@@ -821,7 +821,7 @@ export function buildBubbleField(w: number, h: number, n = 70) {
     x: (((i * 0.37) % 1) * 2 - 1) * w,
     y: (((i * 0.61) % 1) * 2 - 1) * h,
     z: -1 - ((i * 0.29) % 1) * 6,
-    r: 0.035 + ((i * 0.43) % 1) * 0.07,
+    r: 0.014 + ((i * 0.43) % 1) * 0.03,
     v: 0.25 + ((i * 0.53) % 1) * 0.35,
   }));
   const mesh = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 20, 14), bubbleMat(), n);
