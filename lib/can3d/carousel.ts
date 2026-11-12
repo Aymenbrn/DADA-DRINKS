@@ -30,10 +30,12 @@ function canGeometries() {
     ].map(([x, y]) => new THREE.Vector2(x, y)),
     96
   );
+  // fond « slim » : longue partie métal qui se resserre avant le dôme (comme la référence)
   const bottom = new THREE.LatheGeometry(
-    [[0.0, -HALF - 0.12], [0.45, -HALF - 0.16], [0.7, -HALF - 0.24], [0.78, -HALF - 0.26], [0.86, -HALF - 0.2], [0.94, -HALF - 0.1], [0.985, -HALF - 0.035], [R, -HALF]].map(
-      ([x, y]) => new THREE.Vector2(x, y)
-    ),
+    [
+      [0.0, -HALF - 0.53], [0.5, -HALF - 0.57], [0.72, -HALF - 0.62], [0.8, -HALF - 0.6], [0.83, -HALF - 0.55],
+      [0.86, -HALF - 0.44], [0.91, -HALF - 0.3], [0.96, -HALF - 0.16], [0.99, -HALF - 0.06], [R, -HALF],
+    ].map(([x, y]) => new THREE.Vector2(x, y)),
     96
   );
   const body = new THREE.CylinderGeometry(R, R, H, 128, 1, true);
@@ -129,7 +131,7 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
     score.position.set(0, HALF + 0.258, 0.4);
     spin.add(score);
     // silhouette plus fine (format slim)
-    spin.scale.set(0.93, 0.88, 0.93); // proportions de la référence : ~2,5 fois plus haute que large
+    spin.scale.set(0.72, 0.89, 0.72); // proportions de la référence : canette slim, ~3,4 fois plus haute que large
     group.userData.index = i;
     scene.add(group);
     return { group, spin, bodyMat, x: 0, y: 0, z: 0, s: 1 };
