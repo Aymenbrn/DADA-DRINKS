@@ -10,9 +10,9 @@ export default function Home() {
     <>
       <main>
         <HomeCarousel />
-        <Story />
         <Marquee />
         <Flavors />
+        <Story />
         <Collabs />
         <Pros />
       </main>
