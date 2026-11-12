@@ -515,6 +515,31 @@ button { font-family: inherit; }
   background: linear-gradient(118deg, transparent 38%, rgba(255,255,255,0.10) 47%, rgba(255,255,255,0.02) 55%, transparent 62%);
   mix-blend-mode: screen;
 }
+/* Décor plage : feuillages dans les coins, dune de sable en bas (derrière les canettes) */
+.beach { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.beach-corner { position: absolute; top: 0; width: clamp(220px, 30vw, 560px); height: auto; overflow: visible; filter: drop-shadow(0 10px 18px rgba(0,0,0,0.35)); }
+.beach-corner.is-left { left: 0; }
+.beach-corner.is-right { right: 0; }
+.beach-leaf { transform-box: view-box; transform-origin: 0 0; animation: leafSway var(--dur, 8s) ease-in-out var(--delay, 0s) infinite alternate; }
+@keyframes leafSway { from { transform: rotate(-2.2deg); } to { transform: rotate(2.6deg); } }
+.beach-sand { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: clamp(110px, 24%, 230px); display: block; }
+.beach-grains { position: absolute; inset: 0; }
+.beach-grains span {
+  position: absolute; border-radius: 50%; background: #e8cf9f; opacity: 0;
+  animation-name: sandGrain; animation-timing-function: cubic-bezier(.2,.6,.4,1); animation-iteration-count: infinite;
+}
+/* chaque grain reste au sol la plupart du temps et ne s'envole que sur la fin du cycle */
+@keyframes sandGrain {
+  0%, 84% { opacity: 0; transform: translate(0, 0); }
+  86% { opacity: 0.95; }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .beach-leaf, .beach-grains span { animation: none; }
+}
+@media (max-width: 860px) {
+  .beach-corner { width: 46vw; }
+}
 .ribbon-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity 0.8s ease; cursor: grab; touch-action: pan-y; }
 .ribbon-canvas:active { cursor: grabbing; }
 .ribbon-canvas.is-ready { opacity: 1; }

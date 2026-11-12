@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { CAT_LABELS, FLAVORS as ALL_FLAVORS, pad } from "@/lib/flavors";
 import { createCarousel } from "@/lib/can3d/carousel";
+import BeachDecor from "@/components/BeachDecor";
 
 /** La nouveauté mise en avant à chaque ouverture / actualisation de la page */
 const NEW_RELEASE = "cola-cherry";
@@ -71,6 +72,7 @@ export default function HomeCarousel() {
         <div key={l.key} className="ribbon-bg" style={{ "--u": l.c, "--uh": l.hi } as CSSProperties} aria-hidden="true" />
       ))}
       <div className="ribbon-light" aria-hidden="true" />
+      <BeachDecor />
 
       <canvas
         ref={canvasRef}
