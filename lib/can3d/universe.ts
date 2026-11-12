@@ -708,11 +708,35 @@ const ORBIT: [number, number, number, number][] = [
   [0.8, -2.9, 3.6, 1.1], [2.3, 3.4, 3.8, 1.1], [3.9, -3.3, 4.2, 1.15], [5.2, 3.6, 4.0, 1.1],
 ];
 
-export function buildUniverse(slug: string) {
-  const recipe = RECIPES[slug] ?? RECIPES.cerise;
-  const slots: [number, number, number, number][] = recipe.orbit
-    ? ORBIT.map(([a, y, r, s]) => [Math.cos(a) * r, y, Math.sin(a) * r, s])
-    : SLOTS;
+/** Plein écran (accueil) : les fruits sont semés sur toute la largeur, en profondeur,
+ *  en laissant dégagée la colonne de la canette du centre. w, h = demi-largeur/hauteur visibles. */
+function fieldSlots(w: number, h: number): [number, number, number, number][] {
+  const out: [number, number, number, number][] = [];
+  const cols = w > h * 1.2 ? 6 : 4, rows = 3;
+  let i = 0;
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++, i++) {
+      const u = ((c + 0.5) / cols) * 2 - 1, v = ((r + 0.5) / rows) * 2 - 1;
+      const j1 = ((i * 0.618) % 1) - 0.5, j2 = ((i * 0.381) % 1) - 0.5;
+      const x = (u + (j1 * 0.9) / cols) * w * 0.95;
+      const y = (v + (j2 * 0.8) / rows) * h * 0.9;
+      let z = ((i * 0.7548) % 1) * 4.5 - 3.5; // -3,5 … +1
+      if (Math.abs(x) < 2.8) z = -3.5 - ((i * 0.3) % 1) * 2; // derrière la canette du centre
+      out.push([x, y, z, 0.95 + ((i * 0.45) % 1) * 0.5]);
+    }
+  }
+  return out;
+}
+
+export function buildUniverse(slug: string, field?: { w: number; h: number }) {
+  const base = RECIPES[slug] ?? RECIPES.cerise;
+  const recipe: Recipe = field ? { ...base, orbit: false, bubbles: Math.round(base.bubbles * 1.8) } : base;
+  const slots: [number, number, number, number][] = field
+    ? fieldSlots(field.w, field.h)
+    : recipe.orbit
+      ? ORBIT.map(([a, y, r, s]) => [Math.cos(a) * r, y, Math.sin(a) * r, s])
+      : SLOTS;
+  const BW = field ? field.w : 4.5, BH = field ? field.h + 0.5 : 4.5;
   const group = new THREE.Group();
   const items: { obj: THREE.Object3D; base: THREE.Vector3; spin: THREE.Vector3; phase: number; depth: number; steady: boolean; rx: number; ry: number; rz: number }[] = [];
 
@@ -740,8 +764,8 @@ export function buildUniverse(slug: string) {
   // Bulles fines qui montent (boissons pétillantes)
   const nb = recipe.bubbles;
   const bubbleData = Array.from({ length: nb }, (_, i) => ({
-    x: ((i * 0.37) % 1) * 9 - 4.5,
-    y: ((i * 0.61) % 1) * 8 - 4,
+    x: (((i * 0.37) % 1) * 2 - 1) * BW,
+    y: (((i * 0.61) % 1) * 2 - 1) * BH,
     z: -1 - ((i * 0.29) % 1) * 6,
     r: 0.03 + ((i * 0.43) % 1) * 0.06,
     v: 0.25 + ((i * 0.53) % 1) * 0.35,
@@ -793,7 +817,7 @@ export function buildUniverse(slug: string) {
         bubbleData.forEach((b, i) => {
           if (!still) {
             b.y += b.v * dt;
-            if (b.y > 4.5) b.y = -4.5;
+            if (b.y > BH) b.y = -BH;
           }
           d.position.set(b.x + Math.sin(t + i) * 0.05 - mouse.x * 0.3, b.y, b.z);
           d.scale.setScalar(b.r);

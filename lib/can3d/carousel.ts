@@ -187,7 +187,10 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
   const universes: Uni[] = [];
   const showUniverse = (i: number) => {
     universes.forEach((x) => (x.target = 0));
-    const u = buildUniverse(flavors[i].slug);
+    // demi-largeur / demi-hauteur visibles au plan de l'univers, pour le semer sur tout l'écran
+    const dist = camera.position.z + 1.6;
+    const hh = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * dist;
+    const u = buildUniverse(flavors[i].slug, { w: (hh * camera.aspect) / UNI_S, h: hh / UNI_S });
     u.group.position.set(0, CAN_Y, -1.6);
     u.group.scale.setScalar(0.001);
     scene.add(u.group);
@@ -210,7 +213,6 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
     showUniverse(i);
     if (notify) opts.onSelect?.(i);
   };
-  showUniverse(opts.start);
 
   // ---------- Souris, clic, glisser, clavier ----------
   const mouse = new THREE.Vector2(), cur = new THREE.Vector2();
@@ -267,9 +269,19 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
     camera.fov = narrow ? 40 : 30;
     camera.updateProjectionMatrix();
   };
-  const ro = new ResizeObserver(resize);
+  // l'univers est semé à la taille de l'écran : on le resème si le format change nettement
+  let uniAspect = 0;
+  const ro = new ResizeObserver(() => {
+    resize();
+    if (uniAspect && Math.abs(camera.aspect - uniAspect) / uniAspect > 0.2) {
+      uniAspect = camera.aspect;
+      showUniverse(mod(sel, n));
+    }
+  });
   ro.observe(canvas);
   resize();
+  uniAspect = camera.aspect;
+  showUniverse(opts.start);
   let visible = true;
   const io = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; });
   io.observe(canvas);
@@ -284,23 +296,25 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
     pos += (sel - pos) * k(reduceMotion ? 60 : 5);
     cur.lerp(mouse, k(4));
 
-    // Arc de cercle : les canettes s'écartent du centre et reculent, la canette du centre avance sur le podium
-    const RING = narrow ? 8.5 : 12.5, STEP = narrow ? 0.34 : 0.3;
+    // Arc : les voisines, grandes, sortent à moitié de l'écran ; les suivantes sont hors champ
+    const halfW = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.position.z * camera.aspect;
+    const EDGE = Math.max(3.4, halfW * (narrow ? 0.98 : 0.86));
     cans.forEach((c, i) => {
       let d = i - pos;
       d = mod(d + n / 2, n) - n / 2; // la voisine la plus proche, d'un côté ou de l'autre
       const a = Math.abs(d);
       const focus = Math.max(0, 1 - a); // 1 au centre, 0 dès la voisine
-      const th = d * STEP;
       const out = Math.min(1, a); // 0 au centre → 1 dès la voisine
+      const far = Math.max(0, a - 1);
+      const th = Math.sign(d) * (out * 0.32 + far * 0.25);
       c.group.position.set(
-        RING * Math.sin(th) + Math.sign(d) * out * (narrow ? 1.2 : 1.9),
-        CAN_Y + out * 0.55 + (a - out) * 0.22,
-        RING * (Math.cos(th) - 1) - out * 2.2 + focus * 1.2
+        Math.sign(d) * (out * EDGE + far * halfW * 0.75),
+        CAN_Y + out * 0.35 + far * 0.4,
+        -out * 0.6 - far * 2.5 + focus * 1.2
       );
-      const s = 0.82 + focus * (CENTER_S - 0.82);
+      const s = 1.08 + focus * (CENTER_S - 1.08) - far * 0.1;
       c.group.scale.setScalar(s);
-      c.group.visible = a < 6.2;
+      c.group.visible = a < 3.2;
       // inclinaisons variées, comme posées en vrac ; la canette du centre penche franchement
       const lean = Math.sin(i * 2.3) * 0.22 + Math.sign(d || 1) * 0.06;
       c.group.rotation.set(

@@ -3,11 +3,13 @@
 import Link from "next/link";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useCart } from "@/components/cart/CartProvider";
-import { CAT_LABELS, FLAVORS, PACK_PRICE, flavorHref, pad } from "@/lib/flavors";
+import { CAT_LABELS, FLAVORS as ALL_FLAVORS, PACK_PRICE, flavorHref, pad } from "@/lib/flavors";
 import { createCarousel } from "@/lib/can3d/carousel";
 
-/** La nouveauté mise en avant à l'ouverture de la page */
+/** La nouveauté mise en avant à chaque ouverture / actualisation de la page */
 const NEW_RELEASE = "cola-cherry";
+/** Gamme de l'accueil : la canette Cerise n'y figure pas (le Cola Cherry porte l'univers de la cerise) */
+const FLAVORS = ALL_FLAVORS.filter((f) => f.slug !== "cerise");
 
 /**
  * Accueil : les 13 canettes Dada en ruban 3D. La nouveauté (Cola Cherry) est au centre,
@@ -97,7 +99,12 @@ export default function HomeCarousel() {
 
       {/* Le goût, en grand, sous la canette */}
       <div className="ribbon-center" aria-live="polite">
-        {isNew ? <span className="ribbon-new">NOUVEAUTÉ</span> : null}
+        {isNew ? (
+          <p className="ribbon-new">
+            <span className="ribbon-new-tag">NOUVEAUTÉ</span>
+            <span className="ribbon-new-sub">La nouvelle saveur Dada</span>
+          </p>
+        ) : null}
         <h1 className="ribbon-name" key={f.slug}>
           <span className="sr-only">Dada </span>
           {f.name}

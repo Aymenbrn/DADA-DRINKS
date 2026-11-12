@@ -533,10 +533,18 @@ button { font-family: inherit; }
   width: min(92vw, 760px); display: flex; flex-direction: column; align-items: center; text-align: center; pointer-events: none;
 }
 .ribbon-center > * { pointer-events: auto; }
-.ribbon-new {
-  margin-bottom: 6px; padding: 5px 10px; font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 0.16em;
+.ribbon-new { margin: 0 0 10px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.ribbon-new-tag {
+  padding: 8px 20px 7px; font-family: var(--font-montserrat), var(--sans), sans-serif; font-size: clamp(18px, 2vw, 28px); font-weight: 900; font-style: italic; letter-spacing: 0.08em;
   background: var(--u-hi); color: #0a0a0a; transform: skewX(-10deg); transition: background 0.6s;
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--u-hi) 60%, transparent); animation: ribbonPulse 2.4s ease-out infinite;
 }
+.ribbon-new-sub { font-family: var(--mono); font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.9); text-shadow: 0 1px 6px rgba(0,0,0,0.5); }
+@keyframes ribbonPulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--u-hi) 65%, transparent); }
+  70%, 100% { box-shadow: 0 0 0 18px color-mix(in srgb, var(--u-hi) 0%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) { .ribbon-new-tag { animation: none; } }
 .ribbon-name {
   margin: 0; font-family: var(--font-montserrat), var(--sans), sans-serif; font-weight: 900; font-style: italic; text-transform: uppercase;
   font-size: clamp(46px, min(8.4vw, 11vh), 124px); line-height: 0.95; letter-spacing: -0.02em; white-space: nowrap;
