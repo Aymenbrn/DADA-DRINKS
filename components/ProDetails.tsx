@@ -97,3 +97,24 @@ export function ProQuote() {
         </section>
   );
 }
+
+/** Accroche de l'espace pro (même contenu que l'en-tête de /professionnels), pour l'accueil en mode « Pro » */
+export function ProIntro() {
+  return (
+    <section className="page-hero">
+      <div className="container page-hero-inner">
+        <p className="eyebrow" style={{ color: "var(--muted-on-dark)" }}>PROFESSIONNELS · B TO B</p>
+        <h2 className="h-xl page-hero-title">
+          Mettez du Dada<span className="serif-i"> dans vos rayons.</span>
+        </h2>
+        <p className="page-hero-lede">
+          Restaurants, snacks, épiceries, grossistes et grande distribution : commandez en volume, équipez-vous d’une vitrine et profitez de tarifs dédiés.
+        </p>
+        <div className="hero-actions">
+          <a href="#devis" className="btn btn-accent">Demander un devis</a>
+          <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="btn btn-ghost">WhatsApp · {WHATSAPP_DISPLAY}</a>
+        </div>
+      </div>
+    </section>
+  );
+}
