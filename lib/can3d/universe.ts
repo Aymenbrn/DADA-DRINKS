@@ -549,16 +549,80 @@ function peach(): THREE.Object3D {
   return g;
 }
 
+// ---------- Pomme ----------
+// Profil lissé : creux marqué autour de la queue, épaules rondes, petit creux dessous
+const APPLE_PROF = [[0, -0.37], [0.07, -0.4], [0.18, -0.43], [0.31, -0.37], [0.41, -0.22], [0.46, -0.02], [0.45, 0.16], [0.39, 0.3], [0.27, 0.37], [0.15, 0.35], [0.07, 0.28], [0, 0.24]];
+const applePts = () => new THREE.SplineCurve(APPLE_PROF.map(([x, y]) => new THREE.Vector2(x, y))).getPoints(56);
+
+/** Peau de pomme verte : dégradé vert → jaune, joue dorée, stries, lenticelles, roussi autour de la queue */
+let appleSkinTex: THREE.Texture | null = null;
+function appleSkin() {
+  if (appleSkinTex) return appleSkinTex;
+  const W = 1024, Hh = 512;
+  const cv = document.createElement("canvas"); cv.width = W; cv.height = Hh;
+  const g = cv.getContext("2d")!;
+  // v (hauteur dans le profil) : 0 en bas → 1 en haut ; u : tour de la pomme
+  const base = g.createLinearGradient(0, Hh, 0, 0);
+  base.addColorStop(0, "#9bc53d"); base.addColorStop(0.45, "#7cbc36"); base.addColorStop(0.85, "#6aa82e"); base.addColorStop(1, "#8a8a3a");
+  g.fillStyle = base; g.fillRect(0, 0, W, Hh);
+  // joue dorée/rosée d'un côté
+  const blush = g.createRadialGradient(W * 0.3, Hh * 0.5, 0, W * 0.3, Hh * 0.5, W * 0.28);
+  blush.addColorStop(0, "rgba(232,200,70,0.55)"); blush.addColorStop(0.6, "rgba(220,160,60,0.18)"); blush.addColorStop(1, "rgba(220,160,60,0)");
+  g.fillStyle = blush; g.fillRect(0, 0, W, Hh);
+  let seed = 5;
+  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  // stries verticales fines
+  for (let i = 0; i < 160; i++) {
+    const x = rnd() * W;
+    g.strokeStyle = rnd() > 0.5 ? "rgba(255,255,200,0.07)" : "rgba(40,90,20,0.08)";
+    g.lineWidth = 2 + rnd() * 5;
+    g.beginPath(); g.moveTo(x, Hh * 0.1); g.bezierCurveTo(x + 10, Hh * 0.4, x - 10, Hh * 0.6, x + rnd() * 8, Hh * 0.92); g.stroke();
+  }
+  // lenticelles (petits points clairs)
+  for (let i = 0; i < 900; i++) {
+    g.fillStyle = `rgba(240,245,200,${0.25 + rnd() * 0.35})`;
+    g.beginPath(); g.ellipse(rnd() * W, Hh * (0.08 + rnd() * 0.84), 1.2 + rnd() * 1.6, 1 + rnd() * 1.2, 0, 0, Math.PI * 2); g.fill();
+  }
+  // roussi autour de la queue (haut du profil) et sous la pomme
+  const top = g.createLinearGradient(0, 0, 0, Hh * 0.18);
+  top.addColorStop(0, "rgba(120,100,40,0.75)"); top.addColorStop(1, "rgba(120,100,40,0)");
+  g.fillStyle = top; g.fillRect(0, 0, W, Hh * 0.18);
+  const bot = g.createLinearGradient(0, Hh, 0, Hh * 0.9);
+  bot.addColorStop(0, "rgba(110,95,40,0.6)"); bot.addColorStop(1, "rgba(110,95,40,0)");
+  g.fillStyle = bot; g.fillRect(0, Hh * 0.9, W, Hh * 0.1);
+  appleSkinTex = new THREE.CanvasTexture(cv);
+  appleSkinTex.colorSpace = THREE.SRGBColorSpace;
+  appleSkinTex.wrapS = THREE.RepeatWrapping;
+  appleSkinTex.anisotropy = 4;
+  return appleSkinTex;
+}
+const appleSkinMat = () =>
+  new THREE.MeshPhysicalMaterial({ map: appleSkin(), roughness: 0.38, clearcoat: 0.7, clearcoatRoughness: 0.28, sheen: 0.25, sheenColor: new THREE.Color(0xeaf5c0) });
+
+/** Queue de pomme : fine, courbée, bout plus foncé */
+function appleStem() {
+  return stem([[0, 0.25, 0], [0.015, 0.36, 0.005], [0.05, 0.46, 0.01], [0.09, 0.52, 0.015]], 0.016, 0x5b3d1f);
+}
+
 function apple(): THREE.Object3D {
   const g = new THREE.Group();
-  const prof = [[0, -0.36], [0.16, -0.42], [0.36, -0.28], [0.45, -0.02], [0.42, 0.22], [0.26, 0.36], [0.1, 0.32], [0, 0.25]];
-  const geo = new THREE.LatheGeometry(prof.map(([x, y]) => new THREE.Vector2(x, y)), 56);
-  paint(geo, (p) => mixC(0x6fb43a, 0xb9d257, (p.y + 0.4) / 0.9 + p.x * 0.3));
-  g.add(new THREE.Mesh(geo, new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: 0.3, clearcoat: 0.8 })));
-  g.add(stem([[0, 0.26, 0], [0.02, 0.4, 0], [0.06, 0.5, 0]], 0.022, 0x5a3f22));
-  const l = leaf(0x3f8f2c, 0.36, 0.14);
-  l.position.set(0.05, 0.45, 0);
-  l.rotation.z = -1.2;
+  const geo = new THREE.LatheGeometry(applePts(), 96);
+  // légers lobes (5 bosses vers le bas) et petite asymétrie
+  const pos = geo.attributes.position, v = new THREE.Vector3();
+  for (let i = 0; i < pos.count; i++) {
+    v.fromBufferAttribute(pos, i);
+    const ang = Math.atan2(v.z, v.x);
+    const low = Math.max(0, -v.y) / 0.43;
+    const k = 1 + 0.03 * low * Math.cos(ang * 5) + 0.025 * Math.cos(ang - 0.6);
+    pos.setXYZ(i, v.x * k, v.y + 0.015 * Math.cos(ang), v.z * k);
+  }
+  geo.computeVertexNormals();
+  g.add(new THREE.Mesh(geo, appleSkinMat()));
+  g.add(appleStem());
+  const l = leaf(0x4a9a35, 0.42, 0.17);
+  l.position.set(0.07, 0.47, 0.01);
+  l.rotation.z = -1.25;
+  l.rotation.x = 0.35;
   g.add(l);
   return g;
 }
@@ -759,26 +823,57 @@ function peachHalf(): THREE.Object3D {
 }
 const peachSliceF = () => facing(slice(0xffa938, 0xffd27a, 0xc8382c, 0.6, 0.35, 2.0, 0.2));
 
-// Pomme coupée : chair crème, trognon en étoile et pépins
-const appleProf = [[0, -0.36], [0.16, -0.42], [0.36, -0.28], [0.45, -0.02], [0.42, 0.22], [0.26, 0.36], [0.1, 0.32], [0, 0.25]];
+// Pomme coupée : chair crème, trognon en étoile, pépins, fine peau verte
 const appleFace = () =>
   canvasTex(512, (g, S) => {
-    g.fillStyle = "#6fb43a"; g.fillRect(0, 0, S, S);
-    g.fillStyle = "#f6f0d2";
-    g.beginPath(); g.ellipse(S / 2, S * 0.5, S * 0.47, S * 0.45, 0, 0, Math.PI * 2); g.fill();
-    g.strokeStyle = "rgba(200,190,140,0.6)"; g.lineWidth = 4;
-    g.beginPath(); g.ellipse(S / 2, S * 0.5, S * 0.17, S * 0.22, 0, 0, Math.PI * 2); g.stroke();
-    g.fillStyle = "#5a3a1e"; // pépins
-    for (const [dx, dy, a] of [[-0.06, -0.05, 0.4], [0.06, -0.05, -0.4], [-0.05, 0.07, -0.4], [0.05, 0.07, 0.4]]) {
-      g.save(); g.translate(S / 2 + dx * S, S * 0.5 + dy * S); g.rotate(a);
-      g.beginPath(); g.ellipse(0, 0, 10, 18, 0, 0, Math.PI * 2); g.fill(); g.restore();
+    const c = S / 2;
+    g.fillStyle = "#6fae35"; g.fillRect(0, 0, S, S);
+    // chair : crème, plus claire au centre, légère oxydation dorée vers le bord
+    const fl = g.createRadialGradient(c, c * 1.02, S * 0.05, c, c, S * 0.47);
+    fl.addColorStop(0, "#fffbe8"); fl.addColorStop(0.7, "#f7efcc"); fl.addColorStop(0.95, "#eedfa6"); fl.addColorStop(1, "#d9e39a");
+    g.fillStyle = fl;
+    g.beginPath(); g.ellipse(c, c, S * 0.465, S * 0.455, 0, 0, Math.PI * 2); g.fill();
+    // grain de la chair
+    for (let i = 0; i < 500; i++) {
+      g.fillStyle = `rgba(255,255,255,${Math.random() * 0.25})`;
+      g.beginPath(); g.arc(c + (Math.random() - 0.5) * S * 0.85, c + (Math.random() - 0.5) * S * 0.85, 1 + Math.random() * 2, 0, Math.PI * 2); g.fill();
     }
-    g.strokeStyle = "rgba(140,120,70,0.6)"; g.lineWidth = 5;
-    g.beginPath(); g.moveTo(S / 2, S * 0.08); g.lineTo(S / 2, S * 0.3); g.stroke();
+    // ligne des faisceaux (anneau pointillé) autour du trognon
+    g.fillStyle = "rgba(190,170,110,0.6)";
+    for (let i = 0; i < 10; i++) {
+      const a = (i / 10) * Math.PI * 2;
+      g.beginPath(); g.arc(c + Math.cos(a) * S * 0.2, c + Math.sin(a) * S * 0.22, 3.5, 0, Math.PI * 2); g.fill();
+    }
+    // trognon en étoile à 5 branches
+    g.save(); g.translate(c, c);
+    g.fillStyle = "rgba(225,210,160,0.9)"; g.strokeStyle = "rgba(180,160,100,0.8)"; g.lineWidth = 2.5;
+    g.beginPath();
+    for (let i = 0; i < 10; i++) {
+      const a = (i / 10) * Math.PI * 2 - Math.PI / 2, r = i % 2 ? S * 0.045 : S * 0.13;
+      g.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+    }
+    g.closePath(); g.fill(); g.stroke();
+    // pépins dans les loges
+    for (let i = 0; i < 5; i++) {
+      const a = (i / 5) * Math.PI * 2 - Math.PI / 2;
+      g.save(); g.rotate(a); g.translate(S * 0.085, 0);
+      const pg = g.createLinearGradient(-12, 0, 12, 0);
+      pg.addColorStop(0, "#3a2210"); pg.addColorStop(1, "#7a4a22");
+      g.fillStyle = pg;
+      g.beginPath(); g.moveTo(-13, 0); g.quadraticCurveTo(0, -9, 14, 0); g.quadraticCurveTo(0, 9, -13, 0); g.fill();
+      g.restore();
+    }
+    g.restore();
+    // reflet humide
+    const hl = g.createRadialGradient(c * 0.75, c * 0.7, 0, c * 0.75, c * 0.7, S * 0.3);
+    hl.addColorStop(0, "rgba(255,255,255,0.22)"); hl.addColorStop(1, "rgba(255,255,255,0)");
+    g.fillStyle = hl; g.fillRect(0, 0, S, S);
   });
 function appleHalf(): THREE.Object3D {
-  const h = halfLathe(appleProf, new THREE.MeshPhysicalMaterial({ color: 0x7cc243, roughness: 0.3, clearcoat: 0.8 }), appleFace());
-  h.children[0].add(stem([[0, 0.26, -0.02], [0.02, 0.4, -0.02], [0.06, 0.5, -0.02]], 0.022, 0x5a3f22));
+  const h = halfLathe(applePts().map((p) => [p.x, p.y]), appleSkinMat(), appleFace());
+  const st = appleStem();
+  st.position.z = -0.03;
+  h.children[0].add(st);
   return h;
 }
 
