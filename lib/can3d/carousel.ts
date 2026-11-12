@@ -76,7 +76,7 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
   const scene = new THREE.Scene();
   const pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-  scene.fog = new THREE.Fog(backdropColor(flavors[opts.start]), 24, 44);
+  scene.fog = new THREE.Fog(backdropColor(flavors[opts.start]), 22, 38); // le fond du tas de fruits s'estompe
 
   const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
   const LOOK_Y = -1.15;

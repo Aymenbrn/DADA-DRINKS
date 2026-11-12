@@ -678,7 +678,7 @@ function cherryBed(w: number, h: number): THREE.Object3D {
     const yBottom = -1.4 - h * grow;
     const y0 = yBottom * 0.97 + (-z - 2.6) * 0.78; // la pente du tas
     for (let x = -half + (row % 2) * 0.46; x < half; x += 0.92) {
-      pts.push({ x: x + (rnd() - 0.5) * 0.3, y: y0 + (rnd() - 0.5) * 0.35, z: z + (rnd() - 0.5) * 0.3, r: 0.5 + rnd() * 0.12 });
+      pts.push({ x: x + (rnd() - 0.5) * 0.55, y: y0 + (rnd() - 0.5) * 0.5, z: z + (rnd() - 0.5) * 0.5, r: 0.47 + rnd() * 0.2 });
     }
   }
 
@@ -701,7 +701,7 @@ function cherryBed(w: number, h: number): THREE.Object3D {
   const m = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), sc = new THREE.Vector3();
   const stemLocal = new THREE.Matrix4();
   const col = new THREE.Color();
-  const reds = [0x8c0712, 0xa30c18, 0x6e0510, 0xb8121f, 0x7a0a14];
+  const reds = [0x5e0410, 0x7a0712, 0x4a030c, 0x8f0c18, 0x690611];
   let si = 0;
   pts.forEach((p, i) => {
     e.set(-0.5 + (rnd() - 0.5) * 0.9, rnd() * Math.PI * 2, (rnd() - 0.5) * 0.7); // queues tournées vers la caméra, en désordre
@@ -709,7 +709,7 @@ function cherryBed(w: number, h: number): THREE.Object3D {
     sc.setScalar(p.r);
     m.compose(new THREE.Vector3(p.x, p.y, p.z), q, sc);
     body.setMatrixAt(i, m);
-    col.setHex(reds[i % reds.length]).multiplyScalar(0.9 + rnd() * 0.25);
+    col.setHex(reds[Math.floor(rnd() * reds.length)]).multiplyScalar(0.85 + rnd() * 0.3);
     body.setColorAt(i, col);
     if (i % 3 === 0) {
       stemLocal.makeTranslation(0, 0.62, 0);

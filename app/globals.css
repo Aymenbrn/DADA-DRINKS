@@ -518,6 +518,12 @@ button { font-family: inherit; }
 .ribbon-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity 0.8s ease; cursor: grab; touch-action: pan-y; }
 .ribbon-canvas:active { cursor: grabbing; }
 .ribbon-canvas.is-ready { opacity: 1; }
+/* voile sombre en bas : le texte reste lisible, le premier plan s'adoucit (comme une faible profondeur de champ) */
+.ribbon-shade {
+  position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  background:
+    linear-gradient(180deg, transparent 52%, color-mix(in srgb, var(--u-hi) 8%, rgba(8,4,8,0.55)) 78%, rgba(6,3,6,0.82) 100%);
+}
 
 .ribbon-arrow {
   position: absolute; z-index: 3; top: 44%; transform: translate(-50%, -50%);
