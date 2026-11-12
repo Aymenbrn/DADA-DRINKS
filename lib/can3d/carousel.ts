@@ -129,7 +129,7 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
     score.position.set(0, HALF + 0.258, 0.4);
     spin.add(score);
     // silhouette plus fine (format slim)
-    spin.scale.set(0.9, 1.04, 0.9);
+    spin.scale.set(0.93, 0.88, 0.93); // proportions de la référence : ~2,5 fois plus haute que large
     group.userData.index = i;
     scene.add(group);
     return { group, spin, bodyMat, x: 0, y: 0, z: 0, s: 1 };
