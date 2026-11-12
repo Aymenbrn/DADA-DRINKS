@@ -801,11 +801,12 @@ function fieldSlots(w: number, h: number): [number, number, number, number][] {
       const j1 = ((i * 0.618) % 1) - 0.5, j2 = ((i * 0.381) % 1) - 0.5;
       const x = (u + (j1 * 0.9) / cols) * w * 0.95;
       const y = (v + (j2 * 0.8) / rows) * h * 0.9;
-      const z = ((i * 0.7548) % 1) * 4.5 - 3.5; // -3,5 … +1
+      // tous derrière la couronne de canettes (elles sont vers z ≈ -2…+1) : aucun fruit ne les traverse
+      const z = -4.6 - ((i * 0.7548) % 1) * 4;
       // les fruits restent sur les côtés : la colonne centrale (canette, nom) est laissée libre
       const gap = w * 0.3;
       const sx = Math.sign(x || (i % 2 ? 1 : -1)) * (gap + Math.abs(x) * (1 - gap / (w * 0.95)));
-      out.push([sx, y, z, 0.95 + ((i * 0.45) % 1) * 0.5]);
+      out.push([sx, y, z, (0.95 + ((i * 0.45) % 1) * 0.5) * 1.35]); // plus loin → un peu plus gros
     }
   }
   return out;
@@ -875,7 +876,8 @@ export function buildUniverse(slug: string, field?: { w: number; h: number }) {
   slots.forEach(([x, y, z, s], i) => {
     const maker = recipe.makers[i % recipe.makers.length];
     if (field && maker === bubbleCluster) return; // accueil : ces bulles-là sont dans le champ permanent
-    const obj = maker();
+    // accueil : mangues entières plutôt que des moitiés vues de face (elles ressemblaient à des disques)
+    const obj = field && maker === mangoHalf ? mango() : maker();
     obj.scale.setScalar(s * (recipe.scale ?? 1) * (0.9 + ((i * 37) % 10) / 50));
     const steady = !!obj.userData.steady;
     if (steady) obj.rotation.set(0.25 * Math.sin(i * 1.7), 0.35 * Math.cos(i * 1.3), 0.5 * Math.sin(i * 2.3));
