@@ -19,7 +19,9 @@ export default function NewLaunch() {
     if (!canvas) return;
     let scene: ReturnType<typeof createShowcase> | null = null;
     try {
-      scene = createShowcase(canvas, { flavor: f, onReady: () => setReady(true) });
+      scene = createShowcase(canvas, { flavor: f });
+      // la scène s’affiche tout de suite ; l’étiquette se pose dès qu’elle est chargée
+      requestAnimationFrame(() => setReady(true));
     } catch {
       setFailed(true);
     }

@@ -32,7 +32,9 @@ function UniverseScene({ slug }: { slug: string }) {
     if (!canvas) return;
     let scene: ReturnType<typeof createShowcase> | null = null;
     try {
-      scene = createShowcase(canvas, { flavor: f, universe: true, shift: 0.17, onReady: () => setReady(true) });
+      scene = createShowcase(canvas, { flavor: f, universe: true, shift: 0.17 });
+      // la scène s’affiche tout de suite ; l’étiquette se pose dès qu’elle est chargée
+      requestAnimationFrame(() => setReady(true));
     } catch {
       setFailed(true);
     }
