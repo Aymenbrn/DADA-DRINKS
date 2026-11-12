@@ -306,37 +306,107 @@ const bigMint = () => {
 };
 const lime = () => citrusSlice("#4a8f2a", "#e9f3cf", "#bfe06a", "#e9f3cf");
 
+// ---------- Fraise ----------
+// Profil en cœur (rayon, hauteur), lissé en spline : épaules larges, pointe arrondie
+const STRAW_PROF = [[0, -0.47], [0.07, -0.45], [0.16, -0.37], [0.25, -0.22], [0.32, -0.05], [0.35, 0.1], [0.34, 0.22], [0.29, 0.3], [0.18, 0.345], [0.06, 0.356], [0, 0.35]];
+const strawCurve = () => new THREE.SplineCurve(STRAW_PROF.map(([x, y]) => new THREE.Vector2(x, y))).getPoints(48);
+/** Rayon de la fraise à une hauteur donnée */
+function strawRadius(y: number, pts: THREE.Vector2[]) {
+  for (let j = 0; j < pts.length - 1; j++) {
+    const a = pts[j], b = pts[j + 1];
+    if ((y >= a.y && y <= b.y) || (y <= a.y && y >= b.y)) return a.x + ((y - a.y) / (b.y - a.y || 1)) * (b.x - a.x);
+  }
+  return 0.3;
+}
+/** Graines (akènes) réparties en spirale régulière */
+function strawSeeds(pts: THREE.Vector2[], n = 120) {
+  const out: { p: THREE.Vector3; n: THREE.Vector3 }[] = [];
+  for (let i = 0; i < n; i++) {
+    const t = (i + 0.5) / n;
+    const y = -0.43 + t * 0.71; // de la pointe jusque sous la collerette
+    const a = i * 2.39996;
+    const r = strawRadius(y, pts);
+    const nrm = new THREE.Vector3(Math.cos(a), 0.25 - t * 0.5, Math.sin(a)).normalize();
+    out.push({ p: new THREE.Vector3(Math.cos(a) * r, y, Math.sin(a) * r), n: nrm });
+  }
+  return out;
+}
+/** Sépale : petite feuille pointue, base à l'origine, couchée dans le plan XZ */
+function sepal(len: number, w: number, color: number) {
+  const s = new THREE.Shape();
+  s.moveTo(-w * 0.35, 0);
+  s.quadraticCurveTo(-w, len * 0.4, 0, len);
+  s.quadraticCurveTo(w, len * 0.4, w * 0.35, 0);
+  s.lineTo(-w * 0.35, 0);
+  const geo = new THREE.ShapeGeometry(s, 10);
+  const pos = geo.attributes.position;
+  for (let i = 0; i < pos.count; i++) {
+    const x = pos.getX(i), y = pos.getY(i);
+    pos.setZ(i, -2.2 * x * x + 0.05 * Math.sin((y / len) * Math.PI)); // creusée en gouttière
+  }
+  geo.computeVertexNormals();
+  return new THREE.Mesh(geo, leafMat(color));
+}
+/** Collerette verte (calice) + petit pédoncule */
+function strawCalyx(full = true): THREE.Object3D {
+  const g = new THREE.Group();
+  const n = 9;
+  for (let i = 0; i < n; i++) {
+    if (!full && Math.cos((i / n) * Math.PI * 2) < 0.2) continue; // fraise coupée : seulement les sépales côté peau
+    const holder = new THREE.Group();
+    holder.rotation.y = (i / n) * Math.PI * 2 + (i % 2) * 0.12;
+    const sp = sepal(0.2 + (i % 3) * 0.035, 0.07, i % 2 ? 0x3f8f2f : 0x4fa236);
+    sp.rotation.x = -Math.PI / 2 + 0.28 + (i % 3) * 0.12; // couchées, légèrement retombantes
+    holder.add(sp);
+    g.add(holder);
+  }
+  const st = stem([[0, 0, 0], [0.01, 0.1, 0.01], [0.04, 0.19, 0.02]], 0.022, 0x5f8f2c);
+  g.add(st);
+  g.position.y = 0.345;
+  return g;
+}
+
 function strawberry(): THREE.Object3D {
   const g = new THREE.Group();
-  const prof = [[0, -0.46], [0.12, -0.38], [0.26, -0.18], [0.33, 0.04], [0.31, 0.2], [0.2, 0.3], [0, 0.32]];
-  const geo = new THREE.LatheGeometry(prof.map(([x, y]) => new THREE.Vector2(x, y)), 48);
-  g.add(new THREE.Mesh(geo, glossy(0xc8102e, 0.28)));
-  // Graines
-  const seeds = new THREE.InstancedMesh(new THREE.SphereGeometry(0.012, 6, 4), matte(0xf0d27a, 0.4), 70);
-  const d = new THREE.Object3D();
-  for (let i = 0; i < 70; i++) {
-    const t = (i * 0.618) % 1;
-    const y = -0.38 + t * 0.62;
-    const a = i * 2.399;
-    // rayon du profil à cette hauteur
-    let r = 0.3;
-    for (let j = 0; j < prof.length - 1; j++) {
-      const [x0, y0] = prof[j], [x1, y1] = prof[j + 1];
-      if (y >= y0 && y <= y1) r = x0 + ((y - y0) / (y1 - y0)) * (x1 - x0);
+  const pts = strawCurve();
+  const geo = new THREE.LatheGeometry(pts, 72);
+  const seeds = strawSeeds(pts);
+  // petits creux autour de chaque graine, et légère irrégularité de la forme
+  const pos = geo.attributes.position;
+  const v = new THREE.Vector3();
+  for (let i = 0; i < pos.count; i++) {
+    v.fromBufferAttribute(pos, i);
+    const rr = Math.hypot(v.x, v.z);
+    if (rr < 1e-4) continue;
+    let dent = 0;
+    for (const sd of seeds) {
+      const d2 = v.distanceToSquared(sd.p);
+      if (d2 < 0.0025) dent += 0.012 * Math.exp(-d2 / 0.0005);
     }
-    d.position.set(Math.cos(a) * (r + 0.004), y, Math.sin(a) * (r + 0.004));
-    d.scale.set(1, 1.6, 1);
+    const ang = Math.atan2(v.z, v.x);
+    const k = 1 + 0.035 * Math.sin(ang * 3 + v.y * 4) - dent / rr;
+    pos.setXYZ(i, v.x * k, v.y, v.z * k);
+  }
+  geo.computeVertexNormals();
+  // rouge profond, plus clair vers la collerette, pointe un peu plus vive
+  paint(geo, (p) => {
+    const top = Math.max(0, (p.y - 0.2) / 0.15);
+    return mixC(0xb0061c, 0xe2192f, (0.35 - p.y) * 1.1).lerp(C(0xf3b0a4), top * 0.75);
+  });
+  g.add(new THREE.Mesh(geo, new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: 0.32, clearcoat: 1, clearcoatRoughness: 0.12, envMapIntensity: 0.9 })));
+
+  // graines jaunes, posées à plat dans leurs creux
+  const seedMesh = new THREE.InstancedMesh(new THREE.SphereGeometry(0.016, 8, 6), new THREE.MeshPhysicalMaterial({ color: 0xf2cf62, roughness: 0.35, clearcoat: 0.6 }), seeds.length);
+  const d = new THREE.Object3D();
+  seeds.forEach((sd, i) => {
+    d.position.copy(sd.p).addScaledVector(sd.n, -0.004);
+    d.lookAt(d.position.clone().add(sd.n));
+    d.scale.set(0.8, 1.25, 0.55);
     d.updateMatrix();
-    seeds.setMatrixAt(i, d.matrix);
-  }
-  g.add(seeds);
-  for (let i = 0; i < 6; i++) {
-    const l = leaf(0x3d8b2f, 0.26, 0.1);
-    l.position.y = 0.32;
-    l.rotation.y = (i / 6) * Math.PI * 2;
-    l.rotation.x = 1.2;
-    g.add(l);
-  }
+    seedMesh.setMatrixAt(i, d.matrix);
+  });
+  g.add(seedMesh);
+  g.add(strawCalyx());
   return g;
 }
 
@@ -481,33 +551,42 @@ function mangoHalf(): THREE.Object3D {
   return halfEllipsoid(0.48, 1.3, 0.92, 0.6, skin, mangoFace());
 }
 
-// Fraise coupée en deux : bord rouge, cœur clair
-const strawberryProf = [[0, -0.46], [0.12, -0.38], [0.26, -0.18], [0.33, 0.04], [0.31, 0.2], [0.2, 0.3], [0, 0.32]];
+// Fraise coupée en deux : bord rouge, chair rose veinée de rouge, cœur blanc
 const strawberryFace = () =>
   canvasTex(512, (g, S) => {
-    g.fillStyle = "#c8102e"; g.fillRect(0, 0, S, S);
-    const gr = g.createLinearGradient(0, S, 0, 0);
-    gr.addColorStop(0, "#e83a4f"); gr.addColorStop(1, "#ff8a93");
+    g.fillStyle = "#b80a22"; g.fillRect(0, 0, S, S);
+    // chair : rose clair, plus rouge vers le bord
+    const gr = g.createRadialGradient(S / 2, S * 0.52, S * 0.05, S / 2, S * 0.5, S * 0.46);
+    gr.addColorStop(0, "#ffd9d6"); gr.addColorStop(0.55, "#f88a8f"); gr.addColorStop(0.85, "#e3313f"); gr.addColorStop(1, "#c4122a");
     g.fillStyle = gr;
-    g.beginPath(); g.ellipse(S / 2, S * 0.48, S * 0.36, S * 0.42, 0, 0, Math.PI * 2); g.fill();
-    g.fillStyle = "rgba(255,235,235,0.85)"; // cœur blanc
-    g.beginPath(); g.ellipse(S / 2, S * 0.55, S * 0.08, S * 0.3, 0, 0, Math.PI * 2); g.fill();
-    g.strokeStyle = "rgba(255,225,225,0.5)"; g.lineWidth = 4;
-    for (let k = 0; k < 14; k++) {
-      const a = (k / 14) * Math.PI * 2;
-      g.beginPath(); g.moveTo(S / 2, S * 0.55); g.lineTo(S / 2 + Math.cos(a) * S * 0.34, S * 0.5 + Math.sin(a) * S * 0.38); g.stroke();
+    g.beginPath(); g.ellipse(S / 2, S * 0.5, S * 0.43, S * 0.47, 0, 0, Math.PI * 2); g.fill();
+    // veines rouges qui partent du cœur vers les graines
+    g.strokeStyle = "rgba(214,40,60,0.55)"; g.lineCap = "round";
+    for (let k = 0; k < 22; k++) {
+      const a = (k / 22) * Math.PI * 2;
+      g.lineWidth = 3 + (k % 3);
+      g.beginPath();
+      g.moveTo(S / 2 + Math.cos(a) * S * 0.07, S * 0.5 + Math.sin(a) * S * 0.2);
+      g.quadraticCurveTo(S / 2 + Math.cos(a + 0.15) * S * 0.25, S * 0.5 + Math.sin(a + 0.15) * S * 0.33, S / 2 + Math.cos(a) * S * 0.42, S * 0.5 + Math.sin(a) * S * 0.45);
+      g.stroke();
+    }
+    // cœur blanc allongé
+    const core = g.createRadialGradient(S / 2, S * 0.45, 0, S / 2, S * 0.45, S * 0.3);
+    core.addColorStop(0, "rgba(255,248,244,0.95)"); core.addColorStop(1, "rgba(255,230,228,0)");
+    g.fillStyle = core;
+    g.beginPath(); g.ellipse(S / 2, S * 0.47, S * 0.09, S * 0.33, 0, 0, Math.PI * 2); g.fill();
+    // graines visibles sur le pourtour
+    g.fillStyle = "#f2cf62";
+    for (let k = 0; k < 26; k++) {
+      const a = (k / 26) * Math.PI * 2;
+      g.beginPath(); g.ellipse(S / 2 + Math.cos(a) * S * 0.425, S * 0.5 + Math.sin(a) * S * 0.465, 4, 6, a, 0, Math.PI * 2); g.fill();
     }
   });
 function strawberryHalf(): THREE.Object3D {
-  const h = halfLathe(strawberryProf, glossy(0xc8102e, 0.28), strawberryFace());
+  const pts = strawCurve();
+  const h = halfLathe(pts.map((p) => [p.x, p.y]), glossy(0xc20d25, 0.3), strawberryFace());
   const inner = h.children[0];
-  for (let i = 0; i < 5; i++) {
-    const l = leaf(0x3d8b2f, 0.24, 0.1);
-    l.position.y = 0.32;
-    l.rotation.y = Math.PI + (i / 4 - 0.5) * 2.4;
-    l.rotation.x = 1.2;
-    inner.add(l);
-  }
+  inner.add(strawCalyx(false));
   return h;
 }
 
