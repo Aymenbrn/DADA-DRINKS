@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import PageHero from "@/components/PageHero";
+import AudienceSwitch from "@/components/AudienceSwitch";
 import ContactForm from "@/components/ContactForm";
 import { PRO_PRODUCTS, ESTABLISHMENT_TYPES } from "@/lib/pro";
 import { formatEUR } from "@/lib/flavors";
@@ -33,6 +34,7 @@ export default function ProfessionnelsPage() {
         accent="dans vos rayons."
         lede="Restaurants, snacks, épiceries, grossistes et grande distribution : commandez en volume, équipez-vous d’une vitrine et profitez de tarifs dédiés."
       >
+        <AudienceSwitch value="pro" className="pro-switch" />
         <div className="hero-actions">
           <a href="#devis" className="btn btn-accent">Demander un devis</a>
           <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="btn btn-ghost">WhatsApp · {WHATSAPP_DISPLAY}</a>
