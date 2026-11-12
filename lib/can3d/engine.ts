@@ -407,7 +407,11 @@ async function buildLabel(f) {
 
 async function getLabel(f) {
   if (labelCache.has(f.slug)) return labelCache.get(f.slug);
-  const tex = await buildLabel(f);
+  let tex = null;
+  if (f.labelFull) {
+    try { tex = prepTex(await loader.loadAsync(f.labelFull)); } catch { tex = null; }
+  }
+  if (!tex) tex = await buildLabel(f);
   labelCache.set(f.slug, tex);
   return tex;
 }

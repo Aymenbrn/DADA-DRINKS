@@ -1,4 +1,5 @@
 import Hero from "@/components/Hero";
+import NewLaunch from "@/components/NewLaunch";
 import Story from "@/components/Story";
 import Marquee from "@/components/Marquee";
 import Flavors from "@/components/Flavors";
@@ -10,6 +11,7 @@ export default function Home() {
     <>
       <main>
         <Hero />
+        <NewLaunch />
         <Story />
         <Marquee />
         <Flavors />

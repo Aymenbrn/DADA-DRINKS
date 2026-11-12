@@ -24,6 +24,8 @@ export type Flavor = {
   /** Étiquette avec la vraie illustration du fruit (sinon fruit stylisé provisoire) */
   art?: boolean;
   label?: string;
+  /** Étiquette complète déjà dépliée (photo officielle), utilisée telle quelle sur la canette 3D */
+  labelFull?: string;
   /** Accroche courte (cartes de l'accueil) */
   note: string;
   /** Description de la fiche produit (d'après le site actuel) */
@@ -129,8 +131,8 @@ export const FLAVORS: Flavor[] = [
   },
   {
     slug: "cola-cherry", name: "Cola Cherry", en: "Cherry Cola", cat: "cola",
-    c: "#6E0F2B", ink: "#FFFFFF", hi: "#F0708F", rgb: "170,20,50",
-    liq: 0x6a1420, atten: 0x200308, surf: 0x8a2030, dark: true,
+    c: "#892D73", ink: "#FFFFFF", hi: "#E58AD0", rgb: "137,45,115",
+    liq: 0x6a1420, atten: 0x200308, surf: 0x8a2030, dark: true, art: true, labelFull: "/labels/cola-cherry-label.jpg",
     note: "Cola, cerise, caractère.",
     desc: "Un cola aux notes de cerise intensément fruitées. À savourer bien frais.",
     ingr: null,
