@@ -19,40 +19,33 @@ export type CarouselOptions = {
 const R = 1, H = 4.62, HALF = H / 2;
 const mod = (a: number, n: number) => ((a % n) + n) % n;
 
-/** Géométries partagées par toutes les canettes — format « slim » (comme la référence) :
- *  épaule courte, bord roulé brillant, couvercle creusé, languette rivetée, fond bombé. */
+/** Géométries partagées par toutes les canettes */
 function canGeometries() {
   const top = new THREE.LatheGeometry(
     [
-      [R, HALF], [0.996, HALF + 0.04], [0.975, HALF + 0.1], [0.94, HALF + 0.16], [0.905, HALF + 0.22],
-      [0.89, HALF + 0.27], [0.895, HALF + 0.305], [0.893, HALF + 0.335], [0.875, HALF + 0.35],
-      [0.852, HALF + 0.338], [0.84, HALF + 0.3], [0.83, HALF + 0.262], [0.8, HALF + 0.252], [0.0, HALF + 0.252],
+      [R, HALF], [0.998, HALF + 0.05], [0.975, HALF + 0.14], [0.93, HALF + 0.23], [0.885, HALF + 0.3],
+      [0.865, HALF + 0.34], [0.872, HALF + 0.375], [0.866, HALF + 0.405], [0.835, HALF + 0.41],
+      [0.81, HALF + 0.37], [0.79, HALF + 0.335], [0.0, HALF + 0.335],
     ].map(([x, y]) => new THREE.Vector2(x, y)),
     96
   );
-  // fond « slim » : longue partie métal qui se resserre avant le dôme (comme la référence)
   const bottom = new THREE.LatheGeometry(
-    [
-      [0.0, -HALF - 0.53], [0.5, -HALF - 0.57], [0.72, -HALF - 0.62], [0.8, -HALF - 0.6], [0.83, -HALF - 0.55],
-      [0.86, -HALF - 0.44], [0.91, -HALF - 0.3], [0.96, -HALF - 0.16], [0.99, -HALF - 0.06], [R, -HALF],
-    ].map(([x, y]) => new THREE.Vector2(x, y)),
+    [[0.0, -HALF - 0.17], [0.5, -HALF - 0.2], [0.76, -HALF - 0.29], [0.83, -HALF - 0.3], [0.9, -HALF - 0.22], [0.965, -HALF - 0.1], [R, -HALF]].map(
+      ([x, y]) => new THREE.Vector2(x, y)
+    ),
     96
   );
   const body = new THREE.CylinderGeometry(R, R, H, 128, 1, true);
-  // languette : anneau pour le doigt + nez arrondi, rivetée au centre du couvercle
   const tabShape = new THREE.Shape();
-  tabShape.absarc(0, 0.2, 0.22, Math.PI, 0, true);
-  tabShape.lineTo(0.2, -0.2);
-  tabShape.absarc(0, -0.2, 0.2, 0, Math.PI, true);
-  tabShape.lineTo(-0.22, 0.2);
+  tabShape.absarc(0, 0.18, 0.2, Math.PI, 0, true);
+  tabShape.lineTo(0.2, -0.22);
+  tabShape.absarc(0, -0.22, 0.2, 0, Math.PI, true);
+  tabShape.lineTo(-0.2, 0.18);
   const hole = new THREE.Path();
-  hole.absellipse(0, 0.24, 0.13, 0.09, 0, Math.PI * 2, false);
+  hole.absellipse(0, 0.2, 0.1, 0.07, 0, Math.PI * 2, false);
   tabShape.holes.push(hole);
-  const tab = new THREE.ExtrudeGeometry(tabShape, { depth: 0.02, bevelEnabled: true, bevelSize: 0.014, bevelThickness: 0.012, bevelSegments: 3 });
-  const rivet = new THREE.CylinderGeometry(0.05, 0.06, 0.03, 24);
-  // contour de l'ouverture (embossé sur le couvercle)
-  const score = new THREE.TorusGeometry(0.2, 0.012, 6, 48);
-  return { top, bottom, body, tab, rivet, score };
+  const tab = new THREE.ExtrudeGeometry(tabShape, { depth: 0.025, bevelEnabled: true, bevelSize: 0.012, bevelThickness: 0.01, bevelSegments: 2 });
+  return { top, bottom, body, tab };
 }
 
 /** Réduit une étiquette pour la texture (13 canettes à l'écran) */
@@ -120,18 +113,8 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
     spin.add(new THREE.Mesh(geo.bottom, metalDark));
     const tab = new THREE.Mesh(geo.tab, metal);
     tab.rotation.x = -Math.PI / 2;
-    tab.position.set(0, HALF + 0.27, 0.06);
+    tab.position.set(0, HALF + 0.35, 0.12);
     spin.add(tab);
-    const rivet = new THREE.Mesh(geo.rivet, metal);
-    rivet.position.set(0, HALF + 0.268, 0);
-    spin.add(rivet);
-    const score = new THREE.Mesh(geo.score, metalDark);
-    score.rotation.x = Math.PI / 2;
-    score.scale.set(1.15, 1.45, 1);
-    score.position.set(0, HALF + 0.258, 0.4);
-    spin.add(score);
-    // silhouette plus fine (format slim)
-    spin.scale.set(0.72, 0.89, 0.72); // proportions de la référence : canette slim, ~3,4 fois plus haute que large
     group.userData.index = i;
     scene.add(group);
     return { group, spin, bodyMat, x: 0, y: 0, z: 0, s: 1 };
