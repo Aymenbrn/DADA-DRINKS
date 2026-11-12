@@ -70,7 +70,9 @@ async function recolored(f: Flavor) {
   g.textAlign = "center";
   g.textBaseline = "middle";
   for (const off of [0, 1024]) {
-    g.fillStyle = f.c;
+    // on efface avec la teinte réelle du métal juste à côté (pas de rectangle visible)
+    const [sr, sg, sb] = g.getImageData((290 + off) * k, 1490 * k, 1, 1).data;
+    g.fillStyle = `rgb(${sr},${sg},${sb})`;
     g.fillRect((300 + off) * k, 1440 * k, 480 * k, 96 * k);
     g.fillStyle = "#ecebef";
     g.fillText(f.name.toUpperCase(), (540 + off) * k, 1500 * k);
