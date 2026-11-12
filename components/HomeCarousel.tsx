@@ -1,7 +1,7 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { useCart } from "@/components/cart/CartProvider";
 import { CAT_LABELS, FLAVORS as ALL_FLAVORS, pad } from "@/lib/flavors";
 import { createCarousel } from "@/lib/can3d/carousel";
 
@@ -21,9 +21,7 @@ export default function HomeCarousel() {
   const [index, setIndex] = useState(start);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [added, setAdded] = useState(false);
   const [bg, setBg] = useState<{ key: number; c: string }[]>([{ key: 0, c: FLAVORS[start].c }]);
-  const { add } = useCart();
   const f = FLAVORS[index];
 
   useEffect(() => {
@@ -127,18 +125,7 @@ export default function HomeCarousel() {
         </div>
         <p className="ribbon-hint">Glisser ou cliquer pour découvrir</p>
           <div className="ribbon-actions">
-            <button
-              type="button"
-              className="btn ribbon-buy"
-              aria-label={`Remplir le frigo : ajouter un pack de Dada ${f.name} au panier`}
-              onClick={() => {
-                add(f.slug);
-                setAdded(true);
-                window.setTimeout(() => setAdded(false), 1600);
-              }}
-            >
-              {added ? "Frigo rempli ✓" : "Remplir le frigo"}
-            </button>
+            <Link href="/boutique" className="btn ribbon-buy">Remplir le frigo</Link>
           </div>
 
       </div>
