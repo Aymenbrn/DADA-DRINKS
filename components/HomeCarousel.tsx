@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useCart } from "@/components/cart/CartProvider";
-import { CAT_LABELS, FLAVORS as ALL_FLAVORS, PACK_PRICE, flavorHref, pad } from "@/lib/flavors";
+import { CAT_LABELS, FLAVORS as ALL_FLAVORS, pad } from "@/lib/flavors";
 import { createCarousel } from "@/lib/can3d/carousel";
 
 /** La nouveauté mise en avant à chaque ouverture / actualisation de la page */
@@ -22,6 +21,7 @@ export default function HomeCarousel() {
   const [index, setIndex] = useState(start);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [added, setAdded] = useState(false);
   const [bg, setBg] = useState<{ key: number; c: string }[]>([{ key: 0, c: FLAVORS[start].c }]);
   const { add } = useCart();
   const f = FLAVORS[index];
@@ -127,11 +127,19 @@ export default function HomeCarousel() {
         </div>
         <p className="ribbon-hint">Glisser ou cliquer pour découvrir</p>
           <div className="ribbon-actions">
-            <button type="button" className="btn ribbon-buy" onClick={() => add(f.slug)}>
-              Ajouter au panier · {PACK_PRICE}
+            <button
+              type="button"
+              className="btn ribbon-buy"
+              aria-label={`Remplir le frigo : ajouter un pack de Dada ${f.name} au panier`}
+              onClick={() => {
+                add(f.slug);
+                setAdded(true);
+                window.setTimeout(() => setAdded(false), 1600);
+              }}
+            >
+              {added ? "Frigo rempli ✓" : "Remplir le frigo"}
             </button>
-            <Link href={flavorHref(f.slug)} className="btn btn-ghost ribbon-more">Voir la fiche</Link>
-        </div>
+          </div>
 
       </div>
     </section>

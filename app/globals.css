@@ -571,7 +571,11 @@ button { font-family: inherit; }
 .ribbon-eyebrow { margin: 0; font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.16em; color: rgba(255,255,255,0.85); }
 .ribbon-lede { margin: 0; font-size: 14.5px; line-height: 1.5; color: rgba(255,255,255,0.78); }
 .ribbon-actions { display: flex; gap: 8px; margin-top: 12px; }
-.ribbon-buy { background: #fff; color: #0a0a0a; height: 40px; padding: 0 18px; font-size: 13.5px; }
+.ribbon-buy {
+  background: #fff; color: #0a0a0a; height: 52px; padding: 0 34px; font-size: 16px; font-weight: 800; letter-spacing: 0.01em;
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--u-hi) 50%, transparent), 0 8px 24px rgba(0,0,0,0.35); transition: transform 0.2s, box-shadow 0.3s;
+}
+.ribbon-buy:hover { transform: translateY(-2px); box-shadow: 0 0 0 6px color-mix(in srgb, var(--u-hi) 45%, transparent), 0 10px 28px rgba(0,0,0,0.4); }
 .ribbon-more { height: 40px; padding: 0 18px; font-size: 13.5px; color: #fff; border: 1px solid rgba(255,255,255,0.55); }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
