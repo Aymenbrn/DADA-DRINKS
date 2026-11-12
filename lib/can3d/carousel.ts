@@ -166,7 +166,8 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
   podium.add(ring);
   podium.position.set(0, PODIUM_TOP, 1.2);
   podium.rotation.x = 0.06;
-  scene.add(podium);
+  // socle retiré à la demande : la canette flotte au-dessus du sable
+  podium.visible = false;
 
   // Ombre douce sous la canette du centre
   const sc = document.createElement("canvas");
