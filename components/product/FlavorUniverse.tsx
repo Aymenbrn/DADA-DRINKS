@@ -16,7 +16,7 @@ export default function FlavorUniverse() {
 
 const UNIVERSE_TEXT: Record<string, string> = {
   fruit: "Ses fruits, sa couleur, ses bulles : passez la souris pour entrer dans l’univers de la saveur.",
-  cola: "Des glaçons, des bulles, et la canette au centre : passez la souris pour la faire tourner.",
+  cola: "Des bulles, rien que des bulles, et la canette au centre : passez la souris pour la faire tourner.",
   the: "Pêche, feuilles de thé et glaçons : passez la souris pour entrer dans l’univers de la saveur.",
 };
 

@@ -281,6 +281,25 @@ function lemon(): THREE.Object3D {
 
 const teaLeaf = () => leaf(0x35502a, 0.6, 0.22);
 
+/** Grappe de bulles (colas) : sphères transparentes qui ne gardent que leurs reflets */
+const bubbleMat = () =>
+  new THREE.MeshPhysicalMaterial({
+    color: 0xffffff, roughness: 0.02, metalness: 0, transmission: 1, thickness: 0.15, ior: 1.15,
+    clearcoat: 1, clearcoatRoughness: 0.02, specularIntensity: 1, envMapIntensity: 2.2,
+  });
+function bubbles(): THREE.Object3D {
+  const g = new THREE.Group();
+  const mat = bubbleMat();
+  const n = 3 + Math.floor(Math.random() * 4);
+  for (let i = 0; i < n; i++) {
+    const r = 0.08 + Math.random() * 0.22;
+    const b = new THREE.Mesh(new THREE.SphereGeometry(r, 32, 24), mat);
+    b.position.set((Math.random() - 0.5) * 0.7, (Math.random() - 0.5) * 0.9, (Math.random() - 0.5) * 0.4);
+    g.add(b);
+  }
+  return g;
+}
+
 // ---------- Recettes par saveur ----------
 type Recipe = { makers: Maker[]; bubbles: number; scale?: number };
 
@@ -294,8 +313,8 @@ const RECIPES: Record<string, Recipe> = {
   peche: { makers: [peach, peachSlice, peach], bubbles: 18 },
   pomme: { makers: [apple, apple, () => leaf(0x3f8f2c, 0.5)], bubbles: 18 },
   lemon: { makers: [lemon, lemonSlice, lemon, lemonSlice], bubbles: 20 },
-  cola: { makers: [ice, ice, ice], bubbles: 40 },
-  "cola-zero": { makers: [ice, ice, ice], bubbles: 40 },
+  cola: { makers: [bubbles], bubbles: 70, scale: 1.2 },
+  "cola-zero": { makers: [bubbles], bubbles: 70, scale: 1.2 },
   "cola-cherry": { makers: [cherries, ice, cherries, ice], bubbles: 32, scale: 1.15 },
   "ice-tea-peche": { makers: [peachSlice, ice, teaLeaf, peachSlice, ice], bubbles: 0 },
 };
