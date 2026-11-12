@@ -1,10 +1,10 @@
-// Accueil : ruban 3D des canettes Dada, en diagonale.
-// La canette du centre est mise en avant (plus grande, elle suit la souris) et l'univers de sa saveur
+// Accueil : les canettes Dada disposées en arc de cercle autour d'une canette centrale,
+// posée sur un podium métallique, plus grande, inclinée, qui suit la souris ; l'univers de sa saveur
 // flotte derrière elle. Flèches, clavier, clic sur une canette ou glisser pour changer de saveur.
 import * as THREE from "three";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import type { Flavor } from "@/lib/flavors";
-import { getLabelImage } from "./labels";
+import { getRibbonLabel } from "./labels";
 import { buildUniverse } from "./universe";
 import { backdropColor } from "./showcase";
 
@@ -76,11 +76,12 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
   const scene = new THREE.Scene();
   const pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-  scene.fog = new THREE.Fog(backdropColor(flavors[opts.start]), 19, 34);
+  scene.fog = new THREE.Fog(backdropColor(flavors[opts.start]), 24, 44);
 
   const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
-  camera.position.set(0, 0.6, 18);
-  camera.lookAt(0, 0.2, 0);
+  const LOOK_Y = -1.15;
+  camera.position.set(0, 0.9, 20);
+  camera.lookAt(0, LOOK_Y, 0);
 
   const key = new THREE.DirectionalLight(0xffffff, 2.2);
   key.position.set(-4, 5, 7);
@@ -126,7 +127,7 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
     let first = true;
     for (const i of order) {
       try {
-        const img = await getLabelImage(flavors[i]);
+        const img = await getRibbonLabel(flavors[i]);
         if (disposed) return;
         const c = cans[i];
         c.bodyMat.map = toTexture(img, maxAniso);
@@ -142,6 +143,27 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
     }
   })();
 
+  // ---------- Podium métallique sous la canette du centre ----------
+  const CENTER_S = 1.24, CAN_Y = 0.25;
+  const PODIUM_TOP = CAN_Y - (HALF + 0.3) * CENTER_S - 0.02;
+  const podium = new THREE.Group();
+  const podMat = new THREE.MeshStandardMaterial({ color: 0x9a9da3, metalness: 1, roughness: 0.28, envMapIntensity: 0.9 });
+  const podTop = new THREE.MeshStandardMaterial({ color: 0x2a2b2e, metalness: 0.9, roughness: 0.35, envMapIntensity: 0.6 });
+  const drum = new THREE.Mesh(new THREE.CylinderGeometry(2.35, 2.5, 0.55, 96), [podMat, podTop, podMat]);
+  drum.position.y = -0.275;
+  podium.add(drum);
+  const step = new THREE.Mesh(new THREE.CylinderGeometry(2.85, 2.95, 0.3, 96), podMat);
+  step.position.y = -0.7;
+  podium.add(step);
+  const ringMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(flavors[opts.start].hi), toneMapped: false });
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(2.42, 0.035, 12, 128), ringMat);
+  ring.rotation.x = Math.PI / 2;
+  ring.position.y = -0.52;
+  podium.add(ring);
+  podium.position.set(0, PODIUM_TOP, 1.2);
+  podium.rotation.x = 0.06;
+  scene.add(podium);
+
   // Ombre douce sous la canette du centre
   const sc = document.createElement("canvas");
   sc.width = sc.height = 128;
@@ -156,19 +178,20 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
     new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(sc), transparent: true, depthWrite: false })
   );
   shadow.rotation.x = -Math.PI / 2;
-  shadow.position.set(0, -HALF * 1.18 - 0.8, 1.4);
+  shadow.position.set(0, PODIUM_TOP + 0.01, 1.2);
   scene.add(shadow);
 
   // ---------- Univers de la saveur au centre ----------
+  const UNI_S = 0.92;
   type Uni = { u: ReturnType<typeof buildUniverse>; scale: number; target: number };
   const universes: Uni[] = [];
   const showUniverse = (i: number) => {
     universes.forEach((x) => (x.target = 0));
     const u = buildUniverse(flavors[i].slug);
-    u.group.position.set(0, 0.2, 0);
+    u.group.position.set(0, CAN_Y, -1.6);
     u.group.scale.setScalar(0.001);
     scene.add(u.group);
-    universes.push({ u, scale: 0.001, target: 1 });
+    universes.push({ u, scale: 0.001, target: UNI_S });
   };
 
   // ---------- Sélection ----------
@@ -176,12 +199,14 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
   let pos = sel; // position animée du ruban
   const fogTarget = backdropColor(flavors[opts.start]);
   const rimTarget = new THREE.Color(flavors[opts.start].hi);
+  const ringTarget = new THREE.Color(flavors[opts.start].hi);
   const select = (next: number, notify = true) => {
     if (next === sel) return;
     sel = next;
     const i = mod(sel, n);
     fogTarget.copy(backdropColor(flavors[i]));
     rimTarget.set(flavors[i].hi);
+    ringTarget.set(flavors[i].hi);
     showUniverse(i);
     if (notify) opts.onSelect?.(i);
   };
@@ -259,18 +284,30 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
     pos += (sel - pos) * k(reduceMotion ? 60 : 5);
     cur.lerp(mouse, k(4));
 
-    const spacing = narrow ? 2.5 : 2.75;
+    // Arc de cercle : les canettes s'écartent du centre et reculent, la canette du centre avance sur le podium
+    const RING = narrow ? 8.5 : 12.5, STEP = narrow ? 0.34 : 0.3;
     cans.forEach((c, i) => {
       let d = i - pos;
       d = mod(d + n / 2, n) - n / 2; // la voisine la plus proche, d'un côté ou de l'autre
       const a = Math.abs(d);
       const focus = Math.max(0, 1 - a); // 1 au centre, 0 dès la voisine
-      // Diagonale montante vers la droite, qui s'éloigne de la caméra (comme un ruban)
-      c.group.position.set(d * spacing, d * 0.5 + 0.2, -a * 1.5 - d * d * 0.06 + focus * 1.4);
-      const s = 0.92 + focus * 0.26;
+      const th = d * STEP;
+      const out = Math.min(1, a); // 0 au centre → 1 dès la voisine
+      c.group.position.set(
+        RING * Math.sin(th) + Math.sign(d) * out * (narrow ? 1.2 : 1.9),
+        CAN_Y + out * 0.55 + (a - out) * 0.22,
+        RING * (Math.cos(th) - 1) - out * 2.2 + focus * 1.2
+      );
+      const s = 0.82 + focus * (CENTER_S - 0.82);
       c.group.scale.setScalar(s);
-      c.group.visible = a < 5.5;
-      c.group.rotation.set(focus * cur.y * 0.12, -d * 0.22, -0.16 + d * 0.015 - focus * cur.x * 0.05);
+      c.group.visible = a < 6.2;
+      // inclinaisons variées, comme posées en vrac ; la canette du centre penche franchement
+      const lean = Math.sin(i * 2.3) * 0.22 + Math.sign(d || 1) * 0.06;
+      c.group.rotation.set(
+        focus * cur.y * 0.12,
+        -th * 0.55,
+        out * lean + focus * (-0.2 - cur.x * 0.06)
+      );
       // la canette du centre tourne doucement vers le curseur, les autres restent de face
       const idle = reduceMotion ? 0 : Math.sin(t * 0.45) * 0.18;
       const targetSpin = focus * (idle + cur.x * 0.55);
@@ -282,6 +319,8 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
     // Couleurs de la saveur (fond lointain, contre-jour)
     (scene.fog as THREE.Fog).color.lerp(fogTarget, k(4));
     rim.color.lerp(rimTarget, k(4));
+    ringMat.color.lerp(ringTarget, k(4));
+    podium.rotation.y = cur.x * 0.15;
 
     // Univers : l'ancien s'efface, le nouveau apparaît
     for (let j = universes.length - 1; j >= 0; j--) {
@@ -324,6 +363,10 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
         c.bodyMat.dispose();
       });
       Object.values(geo).forEach((g) => g.dispose());
+      podium.traverse((o) => (o as THREE.Mesh).geometry?.dispose());
+      podMat.dispose();
+      podTop.dispose();
+      ringMat.dispose();
       pmrem.dispose();
       renderer.dispose();
     },

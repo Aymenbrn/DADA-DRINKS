@@ -62,15 +62,15 @@ export default function HomeCarousel() {
   }, []);
 
   const isNew = f.slug === NEW_RELEASE;
+  const pct = FLAVORS.length > 1 ? (index / (FLAVORS.length - 1)) * 100 : 0;
+  const rail = `linear-gradient(90deg, ${FLAVORS.map((x, i) => `${x.hi} ${((i / (FLAVORS.length - 1)) * 100).toFixed(1)}%`).join(", ")})`;
 
   return (
     <section className="ribbon" aria-roledescription="carrousel" aria-label="La gamme Dada en 3D" style={{ "--u-hi": f.hi } as CSSProperties}>
       {bg.map((l) => (
         <div key={l.key} className="ribbon-bg" style={{ "--u": l.c } as CSSProperties} aria-hidden="true" />
       ))}
-      <div className="ribbon-progress" aria-hidden="true">
-        <span style={{ width: `${((index + 1) / FLAVORS.length) * 100}%` }} />
-      </div>
+      <div className="ribbon-light" aria-hidden="true" />
 
       <canvas
         ref={canvasRef}
@@ -80,45 +80,70 @@ export default function HomeCarousel() {
       />
       {failed && <p className="launch-fallback">La 3D n’est pas disponible sur cet appareil.</p>}
 
-      <div className="ribbon-arrows">
-        <button type="button" className="ribbon-arrow" aria-label="Canette précédente" onClick={() => apiRef.current?.prev()}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
-        </button>
-        <button type="button" className="ribbon-arrow" aria-label="Canette suivante" onClick={() => apiRef.current?.next()}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6" /></svg>
-        </button>
-      </div>
+      {/* Flèches en pointillés, juste à côté de la canette du centre */}
+      <button type="button" className="ribbon-arrow is-prev" aria-label="Canette précédente" onClick={() => apiRef.current?.prev()}>
+        <DottedChevron dir={-1} />
+      </button>
+      <button type="button" className="ribbon-arrow is-next" aria-label="Canette suivante" onClick={() => apiRef.current?.next()}>
+        <DottedChevron dir={1} />
+      </button>
 
-      <div className="ribbon-copy" aria-live="polite">
+      <div className="ribbon-meta">
         <p className="ribbon-eyebrow">
-          {isNew ? <span className="ribbon-new">NOUVEAUTÉ</span> : null}
           {CAT_LABELS[f.cat].toUpperCase()} — N° {pad(index)} / {FLAVORS.length}
         </p>
-        <h1 className="ribbon-title">
-          Dada <em>{f.name}.</em>
-        </h1>
         <p className="ribbon-lede">{isNew ? "La nouvelle sortie Dada : un cola aux notes de cerise intensément fruitées." : f.note}</p>
-        <div className="ribbon-actions">
-          <button type="button" className="btn ribbon-buy" onClick={() => add(f.slug)}>
-            Ajouter au panier · {PACK_PRICE}
-          </button>
-          <Link href={flavorHref(f.slug)} className="btn btn-ghost">Découvrir</Link>
-        </div>
       </div>
 
-      <ul className="ribbon-dots" aria-label="Choisir une saveur">
-        {FLAVORS.map((x, i) => (
-          <li key={x.slug}>
-            <button
-              type="button"
-              aria-label={`Dada ${x.name}`}
-              aria-current={i === index ? "true" : undefined}
-              onClick={() => apiRef.current?.goTo(i)}
-              style={{ "--dot": x.hi } as CSSProperties}
-            />
-          </li>
-        ))}
-      </ul>
+      <div className="ribbon-actions">
+        <button type="button" className="btn ribbon-buy" onClick={() => add(f.slug)}>
+          Ajouter au panier · {PACK_PRICE}
+        </button>
+        <Link href={flavorHref(f.slug)} className="btn btn-ghost ribbon-more">Voir la fiche</Link>
+      </div>
+
+      {/* Le goût, en grand, sous la canette */}
+      <div className="ribbon-center" aria-live="polite">
+        {isNew ? <span className="ribbon-new">NOUVEAUTÉ</span> : null}
+        <h1 className="ribbon-name" key={f.slug}>
+          <span className="sr-only">Dada </span>
+          {f.name}
+        </h1>
+        <div className="ribbon-slider" style={{ "--rail": rail, "--pct": `${pct}%` } as CSSProperties}>
+          <div className="ribbon-rail" aria-hidden="true" />
+          <span className="ribbon-knob" aria-hidden="true" />
+          <ul aria-label="Choisir une saveur">
+            {FLAVORS.map((x, i) => (
+              <li key={x.slug}>
+                <button
+                  type="button"
+                  aria-label={`Dada ${x.name}`}
+                  aria-current={i === index ? "true" : undefined}
+                  onClick={() => apiRef.current?.goTo(i)}
+                />
+              </li>
+            ))}
+          </ul>
+        </div>
+        <p className="ribbon-hint">Glisser ou cliquer pour découvrir</p>
+      </div>
     </section>
+  );
+}
+
+/** Chevron dessiné en points, comme sur la référence */
+function DottedChevron({ dir }: { dir: 1 | -1 }) {
+  const pts: [number, number][] = [];
+  for (let k = 0; k < 5; k++) {
+    const x = dir === 1 ? 8 + k * 4 : 32 - k * 4;
+    pts.push([x, 4 + k * 4]);
+    if (k < 4) pts.push([x, 36 - k * 4]);
+  }
+  return (
+    <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true">
+      {pts.map(([x, y], i) => (
+        <circle key={i} cx={x} cy={y} r={i === pts.length - 1 ? 2.3 : 1.7} fill="currentColor" />
+      ))}
+    </svg>
   );
 }

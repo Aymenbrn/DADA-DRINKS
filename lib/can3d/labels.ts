@@ -40,8 +40,21 @@ const hexToRgb = (hex: string) => {
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 };
 
-/** Design officiel recoloré (Cola, Cola Zero) */
-async function recolored(f: Flavor) {
+/** Teinte de canette assez soutenue pour garder le logo blanc lisible (Lemon, Melon…) */
+function deepTone(hex: string) {
+  let [r, g, b] = hexToRgb(hex);
+  const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+  if (lum > 0.5) {
+    const k = 0.5 / lum;
+    r *= k; g *= k; b *= k;
+  }
+  // un peu plus de saturation pour l'aspect métal anodisé
+  const m = (r + g + b) / 3;
+  return [r, g, b].map((v) => Math.max(0, Math.min(255, m + (v - m) * 1.15)));
+}
+
+/** Design officiel recoloré (Cola, Cola Zero ; toute la gamme sur l'accueil) */
+async function recolored(f: Flavor, ribbon = false) {
   const [img] = await Promise.all([loadImg(OFFICIAL), fontsReady()]);
   const W = img.width, H = img.height;
   const c = document.createElement("canvas");
@@ -51,8 +64,10 @@ async function recolored(f: Flavor) {
   g.drawImage(img, 0, 0);
   const data = g.getImageData(0, 0, W, H);
   const px = data.data;
-  const [tr, tg, tb] = hexToRgb(f.c);
+  const [tr, tg, tb] = ribbon ? deepTone(f.c) : hexToRgb(f.c);
+  const keep = ribbon && f.slug === "cola-cherry";
   for (let i = 0; i < px.length; i += 4) {
+    if (keep) break;
     const r = px[i], gg = px[i + 1], b = px[i + 2];
     if (r > 170 && gg > 140 && b < 100) continue; // le croissant jaune du logo reste tel quel
     const a = Math.min(1, Math.max(0, (gg - 45) / (232 - 45))); // part de blanc (logo, texte)
@@ -70,12 +85,31 @@ async function recolored(f: Flavor) {
   g.textAlign = "center";
   g.textBaseline = "middle";
   for (const off of [0, 1024]) {
+    if (keep) break;
     // on efface avec la teinte réelle du métal juste à côté (pas de rectangle visible)
     const [sr, sg, sb] = g.getImageData((290 + off) * k, 1490 * k, 1, 1).data;
     g.fillStyle = `rgb(${sr},${sg},${sb})`;
     g.fillRect((300 + off) * k, 1440 * k, 480 * k, 96 * k);
     g.fillStyle = "#ecebef";
     g.fillText(f.name.toUpperCase(), (540 + off) * k, 1500 * k);
+  }
+
+  // Accueil : mention verticale le long du logo, comme sur les canettes de la référence
+  if (ribbon) {
+    g.save();
+    g.font = `900 ${34 * k}px ${labelFont()}, system-ui, sans-serif`;
+    g.textAlign = "center";
+    g.textBaseline = "middle";
+    g.fillStyle = "rgba(240,240,244,0.82)";
+    const txt = `SAVEUR ${f.name.toUpperCase()} · ${f.en.toUpperCase()}`.split("").join(String.fromCharCode(8202));
+    for (const off of [0, 1024]) {
+      g.save();
+      g.translate((830 + off) * k, 760 * k);
+      g.rotate(-Math.PI / 2);
+      g.fillText(txt, 0, 0, 1100 * k);
+      g.restore();
+    }
+    g.restore();
   }
   return c;
 }
@@ -150,6 +184,18 @@ async function fromTemplate(f: Flavor) {
     g.restore();
   }
   return c;
+}
+
+const ribbonCache = new Map<string, Promise<HTMLCanvasElement>>();
+
+/** Étiquettes de l'accueil : toute la gamme dans le design officiel (grand logo DADA), à la couleur de chaque saveur */
+export function getRibbonLabel(f: Flavor) {
+  let p = ribbonCache.get(f.slug);
+  if (!p) {
+    p = recolored(f, true);
+    ribbonCache.set(f.slug, p);
+  }
+  return p;
 }
 
 /** Image de l'étiquette d'une saveur (mise en cache) */
