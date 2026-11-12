@@ -139,13 +139,6 @@ function cherries(): THREE.Object3D {
   return g;
 }
 
-function mango(): THREE.Object3D {
-  const geo = new THREE.SphereGeometry(0.55, 48, 32);
-  geo.scale(1.3, 0.85, 0.78);
-  paint(geo, (p) => (p.x < 0 ? mixC(0x8aa83a, 0xf2b33d, (p.x + 0.7) / 0.7) : mixC(0xf2b33d, 0xe5532b, p.x / 0.6)));
-  return new THREE.Mesh(geo, new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: 0.42, clearcoat: 0.4 }));
-}
-
 function mangoCubes(): THREE.Object3D {
   const g = new THREE.Group();
   const mat = new THREE.MeshPhysicalMaterial({ color: 0xffa21f, roughness: 0.3, clearcoat: 0.7, transmission: 0 });
@@ -312,7 +305,6 @@ const bigMint = () => {
   return m;
 };
 const lime = () => citrusSlice("#4a8f2a", "#e9f3cf", "#bfe06a", "#e9f3cf");
-const lemonSlice = () => citrusSlice("#f1c40f", "#fbf3cf", "#f8dc4d", "#fbf3cf");
 
 function strawberry(): THREE.Object3D {
   const g = new THREE.Group();
@@ -348,7 +340,6 @@ function strawberry(): THREE.Object3D {
   return g;
 }
 
-const melonWedge = () => slice(0xff8a2a, 0xffc98f, 0x8f9a55);
 function melonBall(): THREE.Object3D {
   return new THREE.Mesh(new THREE.SphereGeometry(0.2, 32, 24), glossy(0xff9440, 0.3));
 }
@@ -370,7 +361,6 @@ function peach(): THREE.Object3D {
   g.add(l);
   return g;
 }
-const peachSlice = () => slice(0xffa938, 0xffd27a, 0xc8382c, 0.6, 0.35, 2.0, 0.2);
 
 function apple(): THREE.Object3D {
   const g = new THREE.Group();
@@ -386,17 +376,246 @@ function apple(): THREE.Object3D {
   return g;
 }
 
-function lemon(): THREE.Object3D {
+
+
+// ---------- Fruits coupés : la chair face à l'écran ----------
+
+/** Canvas → texture */
+function canvasTex(size: number, draw: (g: CanvasRenderingContext2D, s: number) => void) {
+  const cv = document.createElement("canvas");
+  cv.width = cv.height = size;
+  draw(cv.getContext("2d")!, size);
+  const t = new THREE.CanvasTexture(cv);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+const fleshMat = (map: THREE.Texture) =>
+  new THREE.MeshPhysicalMaterial({ map, roughness: 0.32, clearcoat: 0.9, clearcoatRoughness: 0.2, side: THREE.DoubleSide });
+
+/** UV d'une ShapeGeometry ramenées entre 0 et 1 */
+function fitUV(geo: THREE.BufferGeometry) {
+  geo.computeBoundingBox();
+  const b = geo.boundingBox!;
+  const uv = geo.attributes.uv;
+  const pos = geo.attributes.position;
+  for (let i = 0; i < uv.count; i++) {
+    uv.setXY(i, (pos.getX(i) - b.min.x) / (b.max.x - b.min.x), (pos.getY(i) - b.min.y) / (b.max.y - b.min.y));
+  }
+  return geo;
+}
+
+/** Objet qui reste face à l'écran et se balance doucement */
+function facing(obj: THREE.Object3D): THREE.Object3D {
+  const w = new THREE.Group();
+  w.add(obj);
+  w.userData.steady = true;
+  return w;
+}
+
+/** Demi-fruit ellipsoïdal (mangue, pêche, melon) : la face coupée regarde l'écran */
+function halfEllipsoid(r: number, sx: number, sy: number, sz: number, skin: THREE.Material, face: THREE.Texture) {
+  const g = new THREE.Group();
+  const back = new THREE.SphereGeometry(r, 56, 40, Math.PI, Math.PI); // moitié arrière (z ≤ 0)
+  back.scale(sx, sy, sz);
+  g.add(new THREE.Mesh(back, skin));
+  const f = new THREE.CircleGeometry(r, 64);
+  f.scale(sx, sy, 1);
+  g.add(new THREE.Mesh(f, fleshMat(face)));
+  return facing(g);
+}
+
+/** Demi-fruit de révolution (pomme, fraise) : profil tourné + face coupée */
+function halfLathe(prof: number[][], skin: THREE.Material, face: THREE.Texture) {
+  const g = new THREE.Group();
+  const pts = prof.map(([x, y]) => new THREE.Vector2(x, y));
+  const shell = new THREE.LatheGeometry(pts, 48, Math.PI / 2, Math.PI); // moitié arrière
+  g.add(new THREE.Mesh(shell, skin));
+  const sh = new THREE.Shape();
+  sh.moveTo(prof[0][0], prof[0][1]);
+  for (const [x, y] of prof) sh.lineTo(x, y);
+  for (let i = prof.length - 1; i >= 0; i--) sh.lineTo(-prof[i][0], prof[i][1]);
+  g.add(new THREE.Mesh(fitUV(new THREE.ShapeGeometry(sh, 24)), fleshMat(face)));
+  return facing(g);
+}
+
+// Mangue : forme en haricot, peau verte → jaune → rouge, petits points clairs
+function mangoGeo() {
+  const geo = new THREE.SphereGeometry(0.5, 72, 52);
+  const pos = geo.attributes.position;
+  for (let i = 0; i < pos.count; i++) {
+    let x = pos.getX(i) * 1.38, y = pos.getY(i) * 0.95, z = pos.getZ(i) * 0.78;
+    y += 0.2 * Math.pow(x / 0.69, 2) - 0.1; // courbe en haricot
+    if (x > 0.45) y -= (x - 0.45) * 0.35; // le « bec »
+    pos.setXYZ(i, x, y, z);
+  }
+  geo.computeVertexNormals();
+  paint(geo, (p) => {
+    const t = (p.x + 0.69) / 1.38;
+    const c = t < 0.45 ? mixC(0x6f9a35, 0xe9b43c, t / 0.45) : mixC(0xe9b43c, 0xd9452c, (t - 0.45) / 0.55 + p.y * 0.4);
+    const h = Math.abs(Math.sin(p.x * 91.7 + p.y * 47.3 + p.z * 13.1) * 43758.5) % 1;
+    return h > 0.985 ? c.lerp(C(0xfff1c2), 0.6) : c; // lenticelles
+  });
+  return geo;
+}
+function mango(): THREE.Object3D {
+  return new THREE.Mesh(mangoGeo(), new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: 0.38, clearcoat: 0.5 }));
+}
+const mangoFace = () =>
+  canvasTex(512, (g, S) => {
+    const c = S / 2;
+    g.fillStyle = "#e5a531"; g.beginPath(); g.arc(c, c, c, 0, Math.PI * 2); g.fill();
+    const gr = g.createRadialGradient(c, c, 0, c, c, c * 0.95);
+    gr.addColorStop(0, "#ffad12"); gr.addColorStop(1, "#ffc94a");
+    g.fillStyle = gr; g.beginPath(); g.arc(c, c, c * 0.95, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = "rgba(190,90,0,0.35)"; g.lineWidth = 6; // découpe en hérisson
+    for (let k = -4; k <= 4; k++) {
+      g.beginPath(); g.moveTo(c + k * 52, 0); g.lineTo(c + k * 52, S); g.stroke();
+      g.beginPath(); g.moveTo(0, c + k * 52); g.lineTo(S, c + k * 52); g.stroke();
+    }
+  });
+function mangoHalf(): THREE.Object3D {
+  const skin = new THREE.MeshPhysicalMaterial({ color: 0xdf8a2e, roughness: 0.4, clearcoat: 0.5 });
+  return halfEllipsoid(0.48, 1.3, 0.92, 0.6, skin, mangoFace());
+}
+
+// Fraise coupée en deux : bord rouge, cœur clair
+const strawberryProf = [[0, -0.46], [0.12, -0.38], [0.26, -0.18], [0.33, 0.04], [0.31, 0.2], [0.2, 0.3], [0, 0.32]];
+const strawberryFace = () =>
+  canvasTex(512, (g, S) => {
+    g.fillStyle = "#c8102e"; g.fillRect(0, 0, S, S);
+    const gr = g.createLinearGradient(0, S, 0, 0);
+    gr.addColorStop(0, "#e83a4f"); gr.addColorStop(1, "#ff8a93");
+    g.fillStyle = gr;
+    g.beginPath(); g.ellipse(S / 2, S * 0.48, S * 0.36, S * 0.42, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "rgba(255,235,235,0.85)"; // cœur blanc
+    g.beginPath(); g.ellipse(S / 2, S * 0.55, S * 0.08, S * 0.3, 0, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = "rgba(255,225,225,0.5)"; g.lineWidth = 4;
+    for (let k = 0; k < 14; k++) {
+      const a = (k / 14) * Math.PI * 2;
+      g.beginPath(); g.moveTo(S / 2, S * 0.55); g.lineTo(S / 2 + Math.cos(a) * S * 0.34, S * 0.5 + Math.sin(a) * S * 0.38); g.stroke();
+    }
+  });
+function strawberryHalf(): THREE.Object3D {
+  const h = halfLathe(strawberryProf, glossy(0xc8102e, 0.28), strawberryFace());
+  const inner = h.children[0];
+  for (let i = 0; i < 5; i++) {
+    const l = leaf(0x3d8b2f, 0.24, 0.1);
+    l.position.y = 0.32;
+    l.rotation.y = Math.PI + (i / 4 - 0.5) * 2.4;
+    l.rotation.x = 1.2;
+    inner.add(l);
+  }
+  return h;
+}
+
+// Melon : demi-melon avec ses graines, écorce brodée
+const melonFace = () =>
+  canvasTex(512, (g, S) => {
+    const c = S / 2;
+    g.fillStyle = "#9da06a"; g.beginPath(); g.arc(c, c, c, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "#e7e3a8"; g.beginPath(); g.arc(c, c, c * 0.93, 0, Math.PI * 2); g.fill();
+    const gr = g.createRadialGradient(c, c, c * 0.3, c, c, c * 0.88);
+    gr.addColorStop(0, "#ff8c2e"); gr.addColorStop(1, "#ffb15e");
+    g.fillStyle = gr; g.beginPath(); g.arc(c, c, c * 0.88, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "#f08a35"; g.beginPath(); g.arc(c, c, c * 0.38, 0, Math.PI * 2); g.fill(); // cavité
+    g.fillStyle = "#f5e6c0";
+    for (let k = 0; k < 26; k++) {
+      const a = k * 2.4, r = c * (0.12 + (k % 5) * 0.05);
+      g.save(); g.translate(c + Math.cos(a) * r, c + Math.sin(a) * r); g.rotate(a);
+      g.beginPath(); g.ellipse(0, 0, 13, 6, 0, 0, Math.PI * 2); g.fill(); g.restore();
+    }
+  });
+const melonSkinTex = () =>
+  canvasTex(512, (g, S) => {
+    g.fillStyle = "#a9a46a"; g.fillRect(0, 0, S, S);
+    g.strokeStyle = "rgba(235,228,190,0.8)"; g.lineWidth = 3; // réseau brodé du cantaloup
+    for (let k = 0; k < 420; k++) {
+      const x = (k * 97.3) % S, y = (k * 57.1) % S, a = k * 1.7;
+      g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(a) * 26, y + Math.sin(a) * 26); g.stroke();
+    }
+  });
+function melonHalf(): THREE.Object3D {
+  const skin = new THREE.MeshStandardMaterial({ map: melonSkinTex(), roughness: 0.8 });
+  return halfEllipsoid(0.62, 1, 0.95, 1, skin, melonFace());
+}
+const melonSlice = () => facing(slice(0xff8a2a, 0xffc98f, 0x8f9a55));
+
+// Pêche coupée : chair jaune orangé, rouge autour du noyau
+const peachFace = () =>
+  canvasTex(512, (g, S) => {
+    const c = S / 2;
+    g.fillStyle = "#d2432f"; g.beginPath(); g.arc(c, c, c, 0, Math.PI * 2); g.fill();
+    const gr = g.createRadialGradient(c, c, c * 0.25, c, c, c * 0.95);
+    gr.addColorStop(0, "#e2512f"); gr.addColorStop(0.35, "#ffad3a"); gr.addColorStop(1, "#ffc75e");
+    g.fillStyle = gr; g.beginPath(); g.arc(c, c, c * 0.95, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "#7a3a1e"; g.beginPath(); g.ellipse(c, c, c * 0.24, c * 0.32, 0, 0, Math.PI * 2); g.fill(); // noyau
+    g.strokeStyle = "rgba(60,25,10,0.7)"; g.lineWidth = 5;
+    for (let k = 0; k < 7; k++) {
+      g.beginPath(); g.moveTo(c - c * 0.16, c - c * 0.25 + k * c * 0.08); g.quadraticCurveTo(c, c - c * 0.22 + k * c * 0.08, c + c * 0.16, c - c * 0.25 + k * c * 0.08); g.stroke();
+    }
+  });
+function peachHalf(): THREE.Object3D {
+  const skin = new THREE.MeshPhysicalMaterial({ color: 0xe0703a, roughness: 0.7, sheen: 1, sheenColor: C(0xffd8bf), sheenRoughness: 0.8 });
+  return halfEllipsoid(0.45, 1, 1, 0.95, skin, peachFace());
+}
+const peachSliceF = () => facing(slice(0xffa938, 0xffd27a, 0xc8382c, 0.6, 0.35, 2.0, 0.2));
+
+// Pomme coupée : chair crème, trognon en étoile et pépins
+const appleProf = [[0, -0.36], [0.16, -0.42], [0.36, -0.28], [0.45, -0.02], [0.42, 0.22], [0.26, 0.36], [0.1, 0.32], [0, 0.25]];
+const appleFace = () =>
+  canvasTex(512, (g, S) => {
+    g.fillStyle = "#6fb43a"; g.fillRect(0, 0, S, S);
+    g.fillStyle = "#f6f0d2";
+    g.beginPath(); g.ellipse(S / 2, S * 0.5, S * 0.47, S * 0.45, 0, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = "rgba(200,190,140,0.6)"; g.lineWidth = 4;
+    g.beginPath(); g.ellipse(S / 2, S * 0.5, S * 0.17, S * 0.22, 0, 0, Math.PI * 2); g.stroke();
+    g.fillStyle = "#5a3a1e"; // pépins
+    for (const [dx, dy, a] of [[-0.06, -0.05, 0.4], [0.06, -0.05, -0.4], [-0.05, 0.07, -0.4], [0.05, 0.07, 0.4]]) {
+      g.save(); g.translate(S / 2 + dx * S, S * 0.5 + dy * S); g.rotate(a);
+      g.beginPath(); g.ellipse(0, 0, 10, 18, 0, 0, Math.PI * 2); g.fill(); g.restore();
+    }
+    g.strokeStyle = "rgba(140,120,70,0.6)"; g.lineWidth = 5;
+    g.beginPath(); g.moveTo(S / 2, S * 0.08); g.lineTo(S / 2, S * 0.3); g.stroke();
+  });
+function appleHalf(): THREE.Object3D {
+  const h = halfLathe(appleProf, new THREE.MeshPhysicalMaterial({ color: 0x7cc243, roughness: 0.3, clearcoat: 0.8 }), appleFace());
+  h.children[0].add(stem([[0, 0.26, -0.02], [0.02, 0.4, -0.02], [0.06, 0.5, -0.02]], 0.022, 0x5a3f22));
+  return h;
+}
+
+// Citron : peau légèrement grêlée, quartiers et rondelles tournés vers l'écran
+function lemonDimpled(): THREE.Object3D {
   const prof = [[0, -0.55], [0.06, -0.47], [0.28, -0.3], [0.35, 0], [0.28, 0.3], [0.06, 0.47], [0, 0.55]];
-  const geo = new THREE.LatheGeometry(prof.map(([x, y]) => new THREE.Vector2(x, y)), 48);
-  const m = new THREE.Mesh(geo, new THREE.MeshPhysicalMaterial({ color: 0xf3cf2a, roughness: 0.45, clearcoat: 0.5 }));
+  const geo = new THREE.LatheGeometry(prof.map(([x, y]) => new THREE.Vector2(x, y)), 64);
+  const pos = geo.attributes.position;
+  const v = new THREE.Vector3();
+  for (let i = 0; i < pos.count; i++) {
+    v.fromBufferAttribute(pos, i);
+    const n = Math.sin(v.x * 70) * Math.sin(v.y * 70) * Math.sin(v.z * 70);
+    const k = 1 - 0.012 * Math.abs(n);
+    pos.setXYZ(i, v.x * k, v.y, v.z * k);
+  }
+  geo.computeVertexNormals();
+  const m = new THREE.Mesh(geo, new THREE.MeshPhysicalMaterial({ color: 0xf3cf2a, roughness: 0.42, clearcoat: 0.5 }));
   m.rotation.z = Math.PI / 2;
   const g = new THREE.Group();
   g.add(m);
+  const l = leaf(0x3d7f2c, 0.45, 0.16);
+  l.position.set(-0.55, 0.05, 0);
+  l.rotation.z = 2.2;
+  g.add(l);
   return g;
 }
+const lemonWedge = () => citrusWedge(0xf1c40f, "#f1c40f", "#fbf3cf", "#f8dc4d");
+const lemonRound = () => {
+  const s = citrusSlice("#f1c40f", "#fbf3cf", "#f8dc4d", "#fbf3cf");
+  s.rotation.x = Math.PI / 2; // la tranche face à l'écran
+  return facing(s);
+};
 
-const teaLeaf = () => leaf(0x35502a, 0.6, 0.22);
+// Thé : feuilles de thé, face à l'écran
+const teaLeafF = () => facing(leaf(0x3c5a2a, 0.7, 0.26));
+
 
 /** Grappe de bulles (colas) : sphères transparentes qui ne gardent que leurs reflets */
 // Bulle d'air : centre transparent, liseré lumineux sur le bord et un petit reflet
@@ -451,18 +670,18 @@ type Recipe = {
 
 const RECIPES: Record<string, Recipe> = {
   cerise: { makers: [cherries], bubbles: 18, scale: 1.15, orbit: true },
-  mangue: { makers: [mango, mangoCubes, mango, () => leaf(0x3d7f2c)], bubbles: 18 },
+  mangue: { makers: [mango, mangoHalf, mangoCubes, mango, mangoHalf, () => leaf(0x3d7f2c, 0.8)], bubbles: 16, scale: 1.05, orbit: true },
   lychee: { makers: [lycheeBunch, lycheePeeled, lychee, lycheeHalf, lychee], bubbles: 14, scale: 1.25 },
   mojito: { makers: [limeWedge, bigMint, limeWedge, bigMint, lime], bubbles: 20, scale: 1.15 },
-  fraise: { makers: [strawberry, strawberry, () => leaf(0x3d8b2f, 0.5)], bubbles: 18, scale: 1.25 },
-  melon: { makers: [melonWedge, melonBall, melonWedge, melonBall], bubbles: 18 },
-  peche: { makers: [peach, peachSlice, peach], bubbles: 18 },
-  pomme: { makers: [apple, apple, () => leaf(0x3f8f2c, 0.5)], bubbles: 18 },
-  lemon: { makers: [lemon, lemonSlice, lemon, lemonSlice], bubbles: 20 },
+  fraise: { makers: [strawberry, strawberryHalf, strawberry, strawberryHalf, strawberry], bubbles: 16, scale: 1.25, orbit: true },
+  melon: { makers: [melonHalf, melonSlice, melonBall, melonSlice, melonBall], bubbles: 16, scale: 1.05, orbit: true },
+  peche: { makers: [peach, peachHalf, peachSliceF, peach, peachHalf], bubbles: 16, scale: 1.1, orbit: true },
+  pomme: { makers: [apple, appleHalf, apple, appleHalf, () => leaf(0x3f8f2c, 0.6)], bubbles: 16, scale: 1.15, orbit: true },
+  lemon: { makers: [lemonDimpled, lemonWedge, lemonRound, lemonDimpled, lemonWedge], bubbles: 18, scale: 1.1, orbit: true },
   cola: { makers: [bubbles], bubbles: 70, scale: 1.2 },
   "cola-zero": { makers: [bubbles], bubbles: 70, scale: 1.2 },
   "cola-cherry": { makers: [cherries, bubbles, cherries, bubbles], bubbles: 60, scale: 1.15 },
-  "ice-tea-peche": { makers: [peachSlice, ice, teaLeaf, peachSlice, ice], bubbles: 0 },
+  "ice-tea-peche": { makers: [peachHalf, teaLeafF, peachSliceF, ice, teaLeafF, peach], bubbles: 0, scale: 1.05, orbit: true },
 };
 
 // Emplacements autour de la canette (x, y, z, échelle) : surtout derrière, deux petits devant
