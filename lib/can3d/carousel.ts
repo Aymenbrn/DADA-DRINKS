@@ -298,7 +298,7 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
 
     // Arc : les voisines, grandes, sortent à moitié de l'écran ; les suivantes sont hors champ
     const halfW = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.position.z * camera.aspect;
-    const EDGE = Math.max(3.4, halfW * (narrow ? 0.98 : 0.86));
+    const EDGE = Math.max(3.6, halfW * (narrow ? 1.12 : 0.98));
     cans.forEach((c, i) => {
       let d = i - pos;
       d = mod(d + n / 2, n) - n / 2; // la voisine la plus proche, d'un côté ou de l'autre

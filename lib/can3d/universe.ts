@@ -712,7 +712,7 @@ const ORBIT: [number, number, number, number][] = [
  *  en laissant dégagée la colonne de la canette du centre. w, h = demi-largeur/hauteur visibles. */
 function fieldSlots(w: number, h: number): [number, number, number, number][] {
   const out: [number, number, number, number][] = [];
-  const cols = w > h * 1.2 ? 6 : 4, rows = 3;
+  const cols = w > h * 1.2 ? 6 : 4, rows = 4;
   let i = 0;
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++, i++) {
