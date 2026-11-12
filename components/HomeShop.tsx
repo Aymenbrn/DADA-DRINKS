@@ -20,8 +20,8 @@ export default function HomeShop() {
       {side === "pro" ? (
         <>
           <ProShop />
-          <ProIntro />
           <ProReasons />
+          <ProIntro />
           <ProTrust />
           <ProQuote />
         </>
