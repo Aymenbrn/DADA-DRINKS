@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ARTICLES, formatMonth, getArticle } from "@/lib/news";
+import { ARTICLES, formatMonth, getArticle, sourceText } from "@/lib/news";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -37,6 +37,12 @@ export default async function ArticlePage({ params }: Props) {
         <div className="prose">
           {a.body.map((p, i) => <p key={i}>{p}</p>)}
         </div>
+        {a.source && (
+          <p className="article-source">
+            Source :{" "}
+            <a href={a.source.url} target="_blank" rel="noopener noreferrer">{sourceText(a.source)} ↗</a>
+          </p>
+        )}
       </article>
       <section className="container article-more">
         <h2 className="eyebrow" style={{ color: "var(--muted-on-light)" }}>À LIRE AUSSI</h2>

@@ -12,11 +12,14 @@ export type NewsItem = {
   external?: string;
   /** Visuel repris de la page « Nos actualités » du site actuel */
   image?: string;
+  /** Article ou vidéo externe qui parle de Dada sur ce sujet */
+  source?: { label: string; url: string };
 };
 
 export const NEWS: NewsItem[] = [
   {
     slug: "pfl-europe-lyon-2025",
+    source: { label: "Footwear Magazine", url: "https://footwearmagazine.com/pfl-dada-drinks-french-mma-nantes-lyon/" },
     date: "2025-12",
     title: "PFL Europe à Lyon : Dada Drinks au cœur des finales",
     tag: "Sport",
@@ -29,6 +32,7 @@ export const NEWS: NewsItem[] = [
   },
   {
     slug: "pfl-europe-2025",
+    source: { label: "Business Wire", url: "https://www.businesswire.com/news/home/20250917441490/en" },
     date: "2025-09",
     title: "Dada Drinks, partenaire de la PFL Europe à Nantes et à Lyon",
     tag: "Sport",
@@ -41,6 +45,7 @@ export const NEWS: NewsItem[] = [
   },
   {
     slug: "dada-cola",
+    source: { label: "la boutique Dada Drinks", url: "https://www.dadadrinks.com/shop-brine/dada-cola-pack-de-24-canettes" },
     image: "https://images.squarespace-cdn.com/content/v1/64218fe88bd257683c3684a0/0adb3591-bcee-4e86-a742-bd5f8eec87ff/articles+site.png?format=1000w",
     date: null,
     title: "Dada Drinks dévoile sa nouvelle star : le Dada Cola",
@@ -53,6 +58,7 @@ export const NEWS: NewsItem[] = [
   },
   {
     slug: "racing-club-de-france",
+    source: { label: "Racing Foot", url: "https://www.racingfoot.fr/news/dada-drinks-nouveau-partenaire-majeur-du-racing-jusquen-2026/" },
     date: "2024-12",
     title: "Dada Drinks, nouveau partenaire majeur du Racing Club de France Football",
     tag: "Sport",
@@ -65,6 +71,7 @@ export const NEWS: NewsItem[] = [
   },
   {
     slug: "ahmed-el-moussaoui",
+    source: { label: "YouTube", url: "https://www.youtube.com/watch?v=6gqA0SK_Lko" },
     date: "2024-02",
     title: "Ahmed El Moussaoui vêtu de Dada pour son combat face à Bakary Samaké",
     tag: "Sport",
@@ -73,6 +80,7 @@ export const NEWS: NewsItem[] = [
   },
   {
     slug: "cedric-doumbe-2024",
+    source: { label: "dadadrinks.com", url: "https://www.dadadrinks.com/article-cdric-dumbe" },
     date: "2024-02",
     title: "Cédric Doumbé annonce sa collaboration avec Dada Drinks pour 2024",
     tag: "Sport",
@@ -81,6 +89,7 @@ export const NEWS: NewsItem[] = [
   },
   {
     slug: "cedric-doumbe",
+    source: { label: "dadadrinks.com", url: "https://www.dadadrinks.com/article-cdric-dumbe" },
     date: "2023-10",
     title: "Dada Drinks, partenaire officiel de Cédric Doumbé",
     tag: "Sport",
@@ -94,6 +103,7 @@ export const NEWS: NewsItem[] = [
   },
   {
     slug: "campagne-taxis",
+    source: { label: "dadadrinks.com", url: "https://www.dadadrinks.com/article-campagne-taxis" },
     image: "https://images.squarespace-cdn.com/content/v1/64218fe88bd257683c3684a0/dfd84f79-f156-4b05-8ed0-54f6fc514ff1/Dadadrinks+-+Taxis+HD3+-+Septembre+2023.jpg?format=1000w",
     date: "2023-09",
     title: "Dada Drinks s'affiche sur les taxis parisiens avec JCDecaux",
@@ -131,6 +141,7 @@ export const NEWS: NewsItem[] = [
   },
   {
     slug: "fianso",
+    source: { label: "YouTube", url: "https://www.youtube.com/watch?v=XZ6q-w7XXQE" },
     date: "2023-02",
     title: "Fianso et son Dada dans son dernier clip",
     tag: "Musique",
@@ -139,6 +150,7 @@ export const NEWS: NewsItem[] = [
   },
   {
     slug: "jul-clip",
+    source: { label: "YouTube", url: "https://www.youtube.com/watch?v=iFY615_FQOw" },
     image: "/news/jul-canette.jpg",
     date: "2023-01",
     title: "Jul dévoile son clip en collaboration avec Dada",
@@ -157,3 +169,8 @@ export function formatMonth(date: string | null): string {
 
 export const ARTICLES = NEWS.filter((n) => n.body);
 export const getArticle = (slug: string) => ARTICLES.find((n) => n.slug === slug);
+
+/** Libellé du lien externe : « Voir sur YouTube », « Lire sur Racing Foot »… */
+export function sourceText(src: { label: string; url: string }): string {
+  return src.label === "YouTube" ? "Voir la vidéo sur YouTube" : `Lire sur ${src.label}`;
+}

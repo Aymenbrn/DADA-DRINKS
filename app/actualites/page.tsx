@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
-import { NEWS, formatMonth } from "@/lib/news";
+import { NEWS, formatMonth, sourceText } from "@/lib/news";
 
 export const metadata: Metadata = {
   title: "Actualités",
@@ -19,7 +19,14 @@ export default function ActualitesPage() {
             <span className="tag-inline">{first.tag.toUpperCase()} · {formatMonth(first.date)}</span>
             <h2 className="h-xl">{first.title}</h2>
             <p>{first.excerpt}</p>
-            <Link href={`/actualites/${first.slug}`} className="btn btn-dark">Lire l’article</Link>
+            <div className="news-feature-actions">
+              <Link href={`/actualites/${first.slug}`} className="btn btn-dark">Lire l’article</Link>
+              {first.source && (
+                <a href={first.source.url} target="_blank" rel="noopener noreferrer" className="news-source">
+                  {sourceText(first.source)} ↗
+                </a>
+              )}
+            </div>
           </article>
           <ul className="news-list">
             {rest.map((n) => {
@@ -46,6 +53,11 @@ export default function ActualitesPage() {
                       )}
                     </h3>
                     <p>{n.excerpt}</p>
+                    {n.source && (
+                      <a href={n.source.url} target="_blank" rel="noopener noreferrer" className="news-source">
+                        {sourceText(n.source)} ↗
+                      </a>
+                    )}
                   </div>
                 </li>
               );
