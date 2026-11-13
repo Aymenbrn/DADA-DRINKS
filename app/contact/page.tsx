@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <main>
-      <PageHero eyebrow="CONTACT" title="Une question ?" accent="On vous répond." />
+      <PageHero eyebrow="CONTACT" title={"Une question\u00a0?"} accent="On vous répond." accentOnNewLine />
       <section className="section page-light">
         <div className="container split">
           <div className="contact-side">
