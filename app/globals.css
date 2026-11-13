@@ -789,3 +789,6 @@ button.pill { cursor: pointer; border: 0; font-family: inherit; }
   background: linear-gradient(90deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0) 22%, rgba(255,255,255,0.22) 42%, rgba(255,255,255,0) 58%, rgba(0,0,0,0.3) 100%);
 }
 .rcan-bottom { width: 82%; height: 0.28em; min-height: 3px; border-radius: 1px 1px 4px 4px; background: linear-gradient(90deg, #7d8086, #d9dbde 45%, #8f9298); }
+/* Accueil plein écran : la scène occupe tout l'écran sous l'en-tête, la boutique n'apparaît qu'en défilant */
+.ribbon { height: calc(100svh - 72px); min-height: 560px; max-height: none; }
+@supports (height: 100dvh) { .ribbon { height: calc(100dvh - 72px); } }
