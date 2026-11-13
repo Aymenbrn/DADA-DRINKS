@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useCart } from "@/components/cart/CartProvider";
-import { CAT_LABELS, FLAVORS, PACK_PRICE, flavorHref, getFlavor, pad } from "@/lib/flavors";
+import { CAT_LABELS, DEFAULT_PACK, FLAVORS, PACK_SIZES, flavorHref, formatEUR, getFlavor, packCents, pad } from "@/lib/flavors";
 import { createShowcase } from "@/lib/can3d/showcase";
 
 /** Section « univers » de la fiche produit : la canette entourée des fruits de la saveur, en 3D. */
@@ -24,6 +24,7 @@ function UniverseScene({ slug }: { slug: string }) {
   const [failed, setFailed] = useState(false);
   const { add, count, openCart } = useCart();
   const [qty, setQty] = useState(1);
+  const [pack, setPack] = useState<number>(DEFAULT_PACK);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -89,22 +90,30 @@ function UniverseScene({ slug }: { slug: string }) {
           </div>
           <p className="universe-lede">{f.desc}</p>
           <div className="pdp-buy-row">
+            <div className="pdp-packs" role="radiogroup" aria-label="Format du pack">
+              {PACK_SIZES.map((n) => (
+                <button key={n} type="button" role="radio" aria-checked={pack === n} className={pack === n ? "is-on" : undefined} onClick={() => setPack(n)}>
+                  <strong>{n}</strong>
+                  <span>canettes</span>
+                </button>
+              ))}
+            </div>
             <p className="pdp-price">
-              {PACK_PRICE}
-              <small>le pack de 24 canettes · 1,33 € la canette</small>
+              {formatEUR(packCents(pack))}
+              <small>le pack de {pack} canettes · 1,33 € la canette</small>
             </p>
             <div className="pdp-qty" role="group" aria-label="Nombre de packs">
               <button type="button" aria-label="Un pack de moins" onClick={() => setQty((q) => Math.max(1, q - 1))}>−</button>
               <span aria-live="polite">{qty}</span>
               <button type="button" aria-label="Un pack de plus" onClick={() => setQty((q) => Math.min(99, q + 1))}>+</button>
             </div>
-            <button type="button" className="pdp-buy" onClick={() => { add(f.slug, qty); setQty(1); }}>
+            <button type="button" className="pdp-buy" onClick={() => { add(f.slug, qty, pack); setQty(1); }}>
               Ajouter au panier
             </button>
           </div>
           <dl className="pdp-specs">
             <div><dt>FORMAT</dt><dd>Canette</dd></div>
-            <div><dt>PACK</dt><dd>24 canettes</dd></div>
+            <div><dt>PACK</dt><dd>{pack} canettes</dd></div>
             <div><dt>SERVICE</dt><dd>Très frais</dd></div>
           </dl>
         </div>

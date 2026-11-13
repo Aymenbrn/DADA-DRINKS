@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import RibbonCan from "@/components/RibbonCan";
 import { useCart } from "@/components/cart/CartProvider";
-import { PACK_PRICE_CENTS, flavorHref, formatEUR, getFlavor } from "@/lib/flavors";
+import { flavorHref, formatEUR, getFlavor, packCents } from "@/lib/flavors";
 
 export default function CartView() {
   const { lines, count, totalCents, ready, setQty, remove } = useCart();
@@ -23,7 +23,7 @@ export default function CartView() {
         <p className="cart-empty">Chargement du panier…</p>
       ) : lines.length === 0 ? (
         <div className="cart-empty">
-          <p>Votre panier est vide. Treize saveurs vous attendent.</p>
+          <p>Votre panier est vide. Douze saveurs vous attendent.</p>
           <Link href="/#saveurs" className="btn btn-dark">Aller à la boutique</Link>
         </div>
       ) : (
@@ -33,21 +33,21 @@ export default function CartView() {
               const f = getFlavor(l.slug);
               if (!f) return null;
               return (
-                <li key={l.slug} className="cart-line">
+                <li key={`${l.slug}-${l.pack}`} className="cart-line">
                   <Link href={flavorHref(f.slug)} className="cart-thumb" aria-label={`Voir la fiche Dada ${f.name}`}>
                     <RibbonCan flavor={f} width={28} />
                   </Link>
                   <div className="cart-info">
                     <Link href={flavorHref(f.slug)} className="cart-name">Dada {f.name}</Link>
-                    <span className="cart-sub">Pack de 24 canettes · {formatEUR(PACK_PRICE_CENTS)}</span>
+                    <span className="cart-sub">Pack de {l.pack} canettes · {formatEUR(packCents(l.pack))}</span>
                   </div>
                   <div className="qty" role="group" aria-label={`Quantité de Dada ${f.name}`}>
-                    <button type="button" aria-label="Un pack de moins" onClick={() => setQty(l.slug, l.qty - 1)}>−</button>
+                    <button type="button" aria-label="Un pack de moins" onClick={() => setQty(l.slug, l.qty - 1, l.pack)}>−</button>
                     <span aria-live="polite">{l.qty}</span>
-                    <button type="button" aria-label="Un pack de plus" onClick={() => setQty(l.slug, l.qty + 1)}>+</button>
+                    <button type="button" aria-label="Un pack de plus" onClick={() => setQty(l.slug, l.qty + 1, l.pack)}>+</button>
                   </div>
-                  <span className="cart-price">{formatEUR(l.qty * PACK_PRICE_CENTS)}</span>
-                  <button type="button" className="link-btn" onClick={() => remove(l.slug)} aria-label={`Retirer Dada ${f.name} du panier`}>
+                  <span className="cart-price">{formatEUR(l.qty * packCents(l.pack))}</span>
+                  <button type="button" className="link-btn" onClick={() => remove(l.slug, l.pack)} aria-label={`Retirer Dada ${f.name} du panier`}>
                     Retirer
                   </button>
                 </li>

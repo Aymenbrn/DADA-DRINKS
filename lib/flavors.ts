@@ -150,6 +150,11 @@ export const PACK_PRICE_CENTS = 3200;
 export const formatEUR = (cents: number) =>
   `${(cents / 100).toFixed(2).replace(".", ",").replace(/\B(?=(\d{3})+(?!\d))/g, "\u202f")} €`;
 export const PACK_PRICE = formatEUR(PACK_PRICE_CENTS);
+
+/** Formats proposés aux particuliers, au même prix à la canette que le pack de 24 (32 € / 24) */
+export const PACK_SIZES = [6, 12, 24, 32] as const;
+export const DEFAULT_PACK = 24;
+export const packCents = (size: number) => Math.round((PACK_PRICE_CENTS * size) / 24);
 export const PACK_SIZE = 24;
 
 export const getFlavor = (slug: string) => FLAVORS.find((f) => f.slug === slug);

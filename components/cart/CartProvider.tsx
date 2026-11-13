@@ -1,10 +1,11 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { PACK_PRICE_CENTS, getFlavor } from "@/lib/flavors";
+import { DEFAULT_PACK, PACK_SIZES, getFlavor, packCents } from "@/lib/flavors";
 import CartDrawer from "@/components/cart/CartDrawer";
 
-export type CartLine = { slug: string; qty: number };
+/** Une ligne = une saveur dans un format de pack (6, 12, 24 ou 32 canettes) */
+export type CartLine = { slug: string; qty: number; pack: number };
 
 type CartContextValue = {
   lines: CartLine[];
@@ -13,9 +14,9 @@ type CartContextValue = {
   totalCents: number;
   /** false tant que le panier enregistré dans le navigateur n'est pas relu */
   ready: boolean;
-  add: (slug: string, qty?: number) => void;
-  setQty: (slug: string, qty: number) => void;
-  remove: (slug: string) => void;
+  add: (slug: string, qty?: number, pack?: number) => void;
+  setQty: (slug: string, qty: number, pack: number) => void;
+  remove: (slug: string, pack: number) => void;
   clear: () => void;
   /** Volet du panier sur le côté */
   drawerOpen: boolean;
@@ -43,10 +44,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         const parsed: unknown = JSON.parse(raw);
         if (Array.isArray(parsed)) {
           setLines(
-            parsed.filter(
-              (l): l is CartLine =>
-                !!l && typeof l.slug === "string" && typeof l.qty === "number" && l.qty > 0 && !!getFlavor(l.slug)
-            )
+            parsed
+              .filter((l) => !!l && typeof l.slug === "string" && typeof l.qty === "number" && l.qty > 0 && !!getFlavor(l.slug))
+              .map((l) => ({
+                slug: l.slug as string,
+                qty: l.qty as number,
+                pack: (PACK_SIZES as readonly number[]).includes(l.pack) ? (l.pack as number) : DEFAULT_PACK, // anciens paniers : pack de 24
+              }))
           );
         }
       }
@@ -71,32 +75,34 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     return () => clearTimeout(t);
   }, [toast]);
 
-  const add = useCallback((slug: string, qty = 1) => {
+  const add = useCallback((slug: string, qty = 1, pack: number = DEFAULT_PACK) => {
     if (!getFlavor(slug)) return;
     setLines((prev) => {
-      const i = prev.findIndex((l) => l.slug === slug);
-      if (i < 0) return [...prev, { slug, qty: Math.min(MAX_QTY, qty) }];
+      const i = prev.findIndex((l) => l.slug === slug && l.pack === pack);
+      if (i < 0) return [...prev, { slug, qty: Math.min(MAX_QTY, qty), pack }];
       const next = prev.slice();
-      next[i] = { slug, qty: Math.min(MAX_QTY, next[i].qty + qty) };
+      next[i] = { slug, pack, qty: Math.min(MAX_QTY, next[i].qty + qty) };
       return next;
     });
-    setToast(`Dada ${getFlavor(slug)?.name} ajoutée au panier`);
+    setToast(`Dada ${getFlavor(slug)?.name} (pack de ${pack}) ajoutée au panier`);
   }, []);
 
-  const setQty = useCallback((slug: string, qty: number) => {
+  const setQty = useCallback((slug: string, qty: number, pack: number) => {
+    const same = (l: CartLine) => l.slug === slug && l.pack === pack;
     setLines((prev) =>
       qty <= 0
-        ? prev.filter((l) => l.slug !== slug)
-        : prev.map((l) => (l.slug === slug ? { slug, qty: Math.min(MAX_QTY, Math.round(qty)) } : l))
+        ? prev.filter((l) => !same(l))
+        : prev.map((l) => (same(l) ? { ...l, qty: Math.min(MAX_QTY, Math.round(qty)) } : l))
     );
   }, []);
 
-  const remove = useCallback((slug: string) => setLines((prev) => prev.filter((l) => l.slug !== slug)), []);
+  const remove = useCallback((slug: string, pack: number) => setLines((prev) => prev.filter((l) => !(l.slug === slug && l.pack === pack))), []);
   const clear = useCallback(() => setLines([]), []);
 
   const value = useMemo<CartContextValue>(() => {
     const count = lines.reduce((n, l) => n + l.qty, 0);
-    return { lines, count, totalCents: count * PACK_PRICE_CENTS, ready, add, setQty, remove, clear, drawerOpen, openCart, closeCart };
+    const totalCents = lines.reduce((n, l) => n + l.qty * packCents(l.pack), 0);
+    return { lines, count, totalCents, ready, add, setQty, remove, clear, drawerOpen, openCart, closeCart };
   }, [lines, ready, add, setQty, remove, clear, drawerOpen, openCart, closeCart]);
 
   return (

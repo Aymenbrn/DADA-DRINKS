@@ -188,6 +188,13 @@ button { font-family: inherit; }
 .pdp-badge { align-self: flex-start; margin: 0; font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; padding: 6px 10px; background: var(--paper); color: var(--ink); transform: rotate(-2deg); }
 .pdp-lede { margin: 0; font-size: 14px; line-height: 1.55; color: var(--muted-on-dark); max-width: 34ch; }
 .pdp-buy-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.pdp-packs { flex-basis: 100%; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; max-width: 420px; }
+.pdp-packs button { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 6px; border-radius: 14px; border: 1.5px solid rgba(244,242,238,0.3); background: transparent; color: var(--paper); cursor: pointer; font: inherit; transition: background 0.2s, border-color 0.2s, color 0.2s; }
+.pdp-packs button strong { font-size: 20px; font-weight: 800; line-height: 1; }
+.pdp-packs button span { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.75; }
+.pdp-packs button:hover { border-color: rgba(244,242,238,0.7); }
+.pdp-packs button.is-on { background: var(--paper); border-color: var(--paper); color: #0a0a0a; }
+.pdp-price { min-width: 7.5ch; }
 .pdp-price { margin: 0; font-size: 30px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
 .pdp-price small { display: block; font-size: 12px; font-weight: 500; letter-spacing: 0; color: var(--paper); }
 .pdp-buy { height: 52px; padding: 0 24px; border-radius: 999px; border: 0; cursor: pointer; font: 700 16px var(--sans); color: var(--ink); background: var(--accent); transition: background 0.5s, transform 0.2s; }

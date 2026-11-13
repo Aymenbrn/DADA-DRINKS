@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef } from "react";
 import RibbonCan from "@/components/RibbonCan";
 import { useCart } from "@/components/cart/CartProvider";
-import { PACK_PRICE_CENTS, flavorHref, formatEUR, getFlavor } from "@/lib/flavors";
+import { flavorHref, formatEUR, getFlavor, packCents } from "@/lib/flavors";
 
 /** Panier en petit volet sur le côté : s'ouvre depuis le bouton « Panier », sans quitter la page */
 export default function CartDrawer() {
@@ -52,23 +52,23 @@ export default function CartDrawer() {
                 const f = getFlavor(l.slug);
                 if (!f) return null;
                 return (
-                  <li key={l.slug} className="cart-drawer-line">
+                  <li key={`${l.slug}-${l.pack}`} className="cart-drawer-line">
                     <Link href={flavorHref(f.slug)} className="cart-drawer-thumb" onClick={closeCart} aria-label={`Voir la fiche Dada ${f.name}`} style={{ background: f.c }}>
                       <RibbonCan flavor={f} width={20} />
                     </Link>
                     <div className="cart-drawer-info">
                       <Link href={flavorHref(f.slug)} onClick={closeCart} className="cart-drawer-name">Dada {f.name}</Link>
-                      <span className="cart-drawer-sub">Pack de 24 · {formatEUR(PACK_PRICE_CENTS)}</span>
+                      <span className="cart-drawer-sub">Pack de {l.pack} · {formatEUR(packCents(l.pack))}</span>
                       <div className="cart-drawer-row">
                         <div className="qty qty-sm" role="group" aria-label={`Quantité de Dada ${f.name}`}>
-                          <button type="button" aria-label="Un pack de moins" onClick={() => setQty(l.slug, l.qty - 1)}>−</button>
+                          <button type="button" aria-label="Un pack de moins" onClick={() => setQty(l.slug, l.qty - 1, l.pack)}>−</button>
                           <span aria-live="polite">{l.qty}</span>
-                          <button type="button" aria-label="Un pack de plus" onClick={() => setQty(l.slug, l.qty + 1)}>+</button>
+                          <button type="button" aria-label="Un pack de plus" onClick={() => setQty(l.slug, l.qty + 1, l.pack)}>+</button>
                         </div>
-                        <button type="button" className="link-btn" onClick={() => remove(l.slug)} aria-label={`Retirer Dada ${f.name} du panier`}>Retirer</button>
+                        <button type="button" className="link-btn" onClick={() => remove(l.slug, l.pack)} aria-label={`Retirer Dada ${f.name} du panier`}>Retirer</button>
                       </div>
                     </div>
-                    <span className="cart-drawer-price">{formatEUR(l.qty * PACK_PRICE_CENTS)}</span>
+                    <span className="cart-drawer-price">{formatEUR(l.qty * packCents(l.pack))}</span>
                   </li>
                 );
               })}
