@@ -3,7 +3,7 @@ import type { CSSProperties, ReactNode } from "react";
 /**
  * Décor de l'accueil, redessiné d'après la planche « feuillages tropicaux + dune de sable » :
  * feuilles de monstera et palmes dans les coins hauts (elles se balancent doucement),
- * dune de sable fixe en bas, d'où s'envolent de temps en temps quelques grains.
+ * dune de sable fixe en bas.
  * Le fond lui-même reste celui de la section, aux couleurs de la canette du centre.
  */
 
@@ -110,35 +110,6 @@ function Leaves({ specs, prefix }: { specs: LeafSpec[]; prefix: string }) {
   );
 }
 
-/** Grains de sable : de petites rafales qui soulèvent quelques grains de la dune, de temps en temps */
-const GRAINS = (() => {
-  const r = rng(42);
-  const out: { left: number; bottom: number; dx: number; dy: number; mx: number; my: number; size: number; dur: number; delay: number }[] = [];
-  const GUSTS = 9;
-  for (let gust = 0; gust < GUSTS; gust++) {
-    const left = 5 + r() * 90, bottom = 5 + r() * 9;
-    const dur = 7 + r() * 5; // une rafale par cycle, décalées entre elles
-    const delay = -((gust / GUSTS) * dur) - r() * 2;
-    const dir = r() > 0.45 ? 1 : -1;
-    const count = 7 + Math.floor(r() * 5);
-    for (let k = 0; k < count; k++) {
-      const dx = dir * (90 + r() * 220), dy = -(60 + r() * 150);
-      out.push({
-        left: left + (r() - 0.5) * 5,
-        bottom: bottom + (r() - 0.5) * 3,
-        dx,
-        dy,
-        mx: dx * (0.35 + r() * 0.2),
-        my: dy * (0.75 + r() * 0.3), // monte vite puis se laisse porter
-        size: 2.2 + r() * 3.2,
-        dur,
-        delay: delay - k * 0.06,
-      });
-    }
-  }
-  return out;
-})();
-
 export default function BeachDecor() {
   return (
     <div className="beach" aria-hidden="true">
@@ -173,25 +144,6 @@ export default function BeachDecor() {
         })}
       </svg>
 
-      <div className="beach-grains">
-        {GRAINS.map((g, i) => (
-          <span
-            key={i}
-            style={{
-              left: `${g.left}%`,
-              bottom: `${g.bottom}%`,
-              width: g.size,
-              height: g.size,
-              "--dx": `${g.dx}px`,
-              "--dy": `${g.dy}px`,
-              "--mx": `${g.mx}px`,
-              "--my": `${g.my}px`,
-              animationDuration: `${g.dur}s`,
-              animationDelay: `${g.delay}s`,
-            } as CSSProperties}
-          />
-        ))}
-      </div>
     </div>
   );
 }

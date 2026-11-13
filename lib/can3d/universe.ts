@@ -222,38 +222,62 @@ function slice(fleshOut: number, fleshIn: number, skin: number, R = 0.85, inner 
 // ---------- Cerises ----------
 /** Une cerise : ronde un peu en cœur, creux profond à la queue, sillon sur un côté, petit bout dessous */
 function cherryGeo(r: number) {
-  const geo = new THREE.SphereGeometry(r, 56, 40);
+  const geo = new THREE.SphereGeometry(r, 72, 52);
   const pos = geo.attributes.position, v = new THREE.Vector3();
   for (let i = 0; i < pos.count; i++) {
     v.fromBufferAttribute(pos, i);
-    let x = v.x * 1.08, y = v.y * 0.94, z = v.z * 1.04;
+    let x = v.x * 1.08, y = v.y * 0.93, z = v.z * 1.04;
     const ny = v.y / r, rad = Math.hypot(v.x, v.z) / r;
-    if (ny > 0.45) y -= (ny - 0.45) * r * 0.75 * (1 - rad * 0.6); // creux de la queue
-    if (ny < -0.85) y -= (-0.85 - ny) * r * 0.25; // petit bout
+    if (ny > 0.42) y -= (ny - 0.42) * r * 0.8 * (1 - rad * 0.6); // creux de la queue
+    if (ny < -0.88) y -= (-0.88 - ny) * r * 0.2; // petit bout
     // sillon vertical sur la face avant
-    if (z > 0) {
-      const k = 0.035 * r * Math.exp(-Math.pow(v.x / (r * 0.12), 2)) * (z / r);
-      z -= k;
-    }
+    if (z > 0) z -= 0.04 * r * Math.exp(-Math.pow(v.x / (r * 0.13), 2)) * (z / r);
     pos.setXYZ(i, x, y, z);
   }
   geo.computeVertexNormals();
-  // rouge très foncé près de la queue, plus vif sur les flancs, quelques nuances
-  paint(geo, (p) => {
-    const ny = p.y / r;
-    const t = Math.min(1, Math.max(0, 0.55 - ny * 0.5 + 0.08 * Math.sin(p.x * 30) * Math.sin(p.z * 26)));
-    return mixC(0x3e0208, 0xa8101f, t);
-  });
   return geo;
 }
+/** Peau de cerise : rouge sombre profond, plus noir près de la queue, marbrures et minuscules points clairs */
+const cherryTex = () =>
+  sphereTex("cherry", 512, 256, (x, y, z) => {
+    const n = fbm(x * 2.5 + 2, y * 2.5, z * 2.5), n2 = fbm(x * 7, y * 7 + 1, z * 7);
+    const c = mixC(0x8c0a1a, 0xb3142a, smooth(0.2, 0.8, 0.5 - y * 0.4 + (n - 0.5) * 0.8));
+    lerpC(c, 0x3a0208, smooth(0.35, 0.95, y) * 0.85); // presque noir autour de la queue
+    lerpC(c, 0x5a0610, smooth(0.55, 0.8, n2) * 0.45); // marbrures sombres
+    lerpC(c, 0xd2364a, smooth(0.62, 0.8, fbm(x * 3, y * 9, z * 3)) * 0.25 * (1 - Math.max(0, y))); // stries plus claires
+    lerpC(c, 0xe7a0a0, dots(x, y, z, 90, 0.35, 0.22) * 0.35); // points clairs
+    return c;
+  });
 let cherryMatCache: THREE.MeshPhysicalMaterial | null = null;
 const cherryMat = () =>
   (cherryMatCache ??= new THREE.MeshPhysicalMaterial({
-    vertexColors: true, roughness: 0.16, clearcoat: 1, clearcoatRoughness: 0.04, envMapIntensity: 1.15, sheen: 0.2, sheenColor: new THREE.Color(0xff6070),
+    map: cherryTex(), roughness: 0.14, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 1.2, sheen: 0.15, sheenColor: new THREE.Color(0xff6070),
   }));
-/** Queue : verte, un peu plus brune au point d'attache */
-function cherryStem(points: [number, number, number][]) {
-  return stem(points, 0.017, 0x6f8f2c);
+/**
+ * Queue de cerise réaliste : fine, s'affine vers le haut, vert tendre à la base (collerette au contact du fruit),
+ * virant au vert-brun puis au brun boisé à l'extrémité.
+ */
+function cherryStem(points: [number, number, number][], r0 = 0.019, r1 = 0.011) {
+  const curve = new THREE.CatmullRomCurve3(points.map((p) => new THREE.Vector3(...p)));
+  const TS = 40, RS = 10;
+  const geo = new THREE.TubeGeometry(curve, TS, 1, RS, false);
+  const pos = geo.attributes.position, P = new THREE.Vector3(), v = new THREE.Vector3();
+  const col = new Float32Array(pos.count * 3);
+  for (let i = 0; i < pos.count; i++) {
+    const seg = Math.floor(i / (RS + 1)), t = seg / TS;
+    curve.getPointAt(t, P);
+    v.fromBufferAttribute(pos, i).sub(P);
+    // base évasée, puis s'affine ; petit renflement au bout
+    const r = (r0 + (r1 - r0) * t) * (1 + 0.6 * Math.max(0, 1 - t / 0.05)) * (1 + 0.35 * Math.max(0, (t - 0.94) / 0.06));
+    v.multiplyScalar(r).add(P);
+    pos.setXYZ(i, v.x, v.y, v.z);
+    const c = t < 0.6 ? mixC(0x86a33c, 0x6f7f2c, t / 0.6) : mixC(0x6f7f2c, 0x5b3d22, (t - 0.6) / 0.4);
+    lerpC(c, 0x4a3018, (hash3(seg, 3, 1) > 0.85 ? 0.25 : 0)); // petites nuances
+    col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
+  }
+  geo.setAttribute("color", new THREE.BufferAttribute(col, 3));
+  geo.computeVertexNormals();
+  return new THREE.Mesh(geo, new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: 0.5, clearcoat: 0.3, clearcoatRoughness: 0.4 }));
 }
 
 function cherries(): THREE.Object3D {
@@ -265,13 +289,15 @@ function cherries(): THREE.Object3D {
   b.position.set(0.24, -0.12, -0.03);
   b.rotation.set(-0.05, -0.6, -0.15);
   g.add(a, b);
-  g.add(cherryStem([[-0.22, 0.2, 0.02], [-0.16, 0.55, 0.01], [-0.04, 0.85, 0], [0.02, 0.97, 0]]));
-  g.add(cherryStem([[0.24, 0.06, -0.03], [0.22, 0.45, -0.02], [0.12, 0.8, 0], [0.02, 0.97, 0]]));
-  const knot = new THREE.Mesh(new THREE.SphereGeometry(0.035, 12, 10), matte(0x5d4a2a, 0.8));
-  knot.position.set(0.02, 0.97, 0);
+  // deux queues souples qui se rejoignent au point d'attache
+  g.add(cherryStem([[-0.22, 0.17, 0.02], [-0.19, 0.42, 0.03], [-0.11, 0.7, 0.01], [-0.02, 0.9, 0], [0.02, 0.97, 0]]));
+  g.add(cherryStem([[0.24, 0.03, -0.03], [0.25, 0.32, -0.02], [0.18, 0.62, 0], [0.08, 0.86, 0], [0.02, 0.97, 0]]));
+  // point d'attache boisé, avec ses petites écailles
+  const knot = new THREE.Mesh(new THREE.SphereGeometry(0.03, 14, 10), new THREE.MeshStandardMaterial({ color: 0x4e3620, roughness: 0.85 }));
+  knot.scale.set(1, 1.3, 1);
+  knot.position.set(0.02, 0.975, 0);
   g.add(knot);
-  const l = mintLeaf(0.5);
-  l.scale.set(0.62, 1, 1); // feuille de cerisier : plus étroite
+  const l = texturedLeaf(0.55, "lance", 0.32); // feuille de cerisier : ovale allongée, finement dentée
   l.position.set(0.02, 0.97, 0);
   l.rotation.z = -1.0;
   l.rotation.y = 0.5;
@@ -285,7 +311,7 @@ function cherrySingle(): THREE.Object3D {
   const m = new THREE.Mesh(cherryGeo(0.3), cherryMat());
   m.rotation.set(0.15, 0.3, 0.1);
   g.add(m);
-  g.add(cherryStem([[0, 0.18, 0], [0.04, 0.5, 0], [0.14, 0.8, 0.02]]));
+  g.add(cherryStem([[0, 0.16, 0], [0.02, 0.38, 0.01], [0.07, 0.62, 0.01], [0.15, 0.82, 0.02]]));
   return g;
 }
 
@@ -1010,36 +1036,78 @@ function mangoHalf(): THREE.Object3D {
   return halfEllipsoid(0.48, 1.3, 0.92, 0.6, skin, mangoFace());
 }
 
+/** Trace dans un canvas le contour d'un profil de révolution (coupe), aux mêmes coordonnées que fitUV */
+function profileMapper(prof: number[][], S: number) {
+  const xm = Math.max(...prof.map((q) => q[0])), y0 = Math.min(...prof.map((q) => q[1])), y1 = Math.max(...prof.map((q) => q[1]));
+  const X = (x: number) => ((x + xm) / (2 * xm)) * S;
+  const Y = (y: number) => (1 - (y - y0) / (y1 - y0)) * S;
+  /** contour réduit de `k` vers le point (cx, cy) du profil */
+  const path = (g: CanvasRenderingContext2D, k = 1, cx = 0, cy = (y0 + y1) / 2) => {
+    g.beginPath();
+    prof.forEach(([x, y], i) => { const px = X(cx + (x - cx) * k), py = Y(cy + (y - cy) * k); if (i === 0) g.moveTo(px, py); else g.lineTo(px, py); });
+    for (let i = prof.length - 1; i >= 0; i--) { const [x, y] = prof[i]; g.lineTo(X(cx + (-x - cx) * k), Y(cy + (y - cy) * k)); }
+    g.closePath();
+  };
+  return { X, Y, path, xm, y0, y1 };
+}
+
 // Fraise coupée en deux : bord rouge, chair rose veinée de rouge, cœur blanc
+/** Fraise coupée en long : bord rouge vif, chair rouge rosé marbrée, cœur blanc, filaments vers les akènes du bord */
 const strawberryFace = () =>
-  canvasTex(512, (g, S) => {
-    g.fillStyle = "#b80a22"; g.fillRect(0, 0, S, S);
-    // chair : rose clair, plus rouge vers le bord
-    const gr = g.createRadialGradient(S / 2, S * 0.52, S * 0.05, S / 2, S * 0.5, S * 0.46);
-    gr.addColorStop(0, "#ffd9d6"); gr.addColorStop(0.55, "#f88a8f"); gr.addColorStop(0.85, "#e3313f"); gr.addColorStop(1, "#c4122a");
-    g.fillStyle = gr;
-    g.beginPath(); g.ellipse(S / 2, S * 0.5, S * 0.43, S * 0.47, 0, 0, Math.PI * 2); g.fill();
-    // veines rouges qui partent du cœur vers les graines
-    g.strokeStyle = "rgba(214,40,60,0.55)"; g.lineCap = "round";
-    for (let k = 0; k < 22; k++) {
-      const a = (k / 22) * Math.PI * 2;
-      g.lineWidth = 3 + (k % 3);
-      g.beginPath();
-      g.moveTo(S / 2 + Math.cos(a) * S * 0.07, S * 0.5 + Math.sin(a) * S * 0.2);
-      g.quadraticCurveTo(S / 2 + Math.cos(a + 0.15) * S * 0.25, S * 0.5 + Math.sin(a + 0.15) * S * 0.33, S / 2 + Math.cos(a) * S * 0.42, S * 0.5 + Math.sin(a) * S * 0.45);
-      g.stroke();
+  canvasTex(1024, (g, S) => {
+    const prof = strawCurve().map((p) => [p.x, p.y]);
+    const M = profileMapper(prof, S);
+    let seed = 77;
+    const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    const cy = -0.06;
+    // bord : peau rouge vif
+    g.fillStyle = "#c80f26"; M.path(g, 1, 0, cy); g.fill();
+    // chair externe rouge, puis zone rosée, marbrée
+    const fl = g.createRadialGradient(M.X(0), M.Y(cy + 0.05), S * 0.04, M.X(0), M.Y(cy), S * 0.5);
+    fl.addColorStop(0, "#ffe9e6"); fl.addColorStop(0.32, "#ffb3b3"); fl.addColorStop(0.6, "#f2505e"); fl.addColorStop(0.85, "#dd1f35"); fl.addColorStop(1, "#cf1730");
+    g.fillStyle = fl; M.path(g, 0.95, 0, cy); g.fill();
+    g.save(); M.path(g, 0.95, 0, cy); g.clip();
+    // marbrures et petites zones translucides
+    for (let k = 0; k < 900; k++) {
+      const x = rnd() * S, y = rnd() * S;
+      g.fillStyle = rnd() > 0.5 ? `rgba(255,235,235,${0.05 + rnd() * 0.1})` : `rgba(190,10,35,${0.05 + rnd() * 0.12})`;
+      g.beginPath(); g.ellipse(x, y, 3 + rnd() * 12, 2 + rnd() * 6, rnd() * 3, 0, Math.PI * 2); g.fill();
     }
-    // cœur blanc allongé
-    const core = g.createRadialGradient(S / 2, S * 0.45, 0, S / 2, S * 0.45, S * 0.3);
-    core.addColorStop(0, "rgba(255,248,244,0.95)"); core.addColorStop(1, "rgba(255,230,228,0)");
-    g.fillStyle = core;
-    g.beginPath(); g.ellipse(S / 2, S * 0.47, S * 0.09, S * 0.33, 0, 0, Math.PI * 2); g.fill();
-    // graines visibles sur le pourtour
-    g.fillStyle = "#f2cf62";
-    for (let k = 0; k < 26; k++) {
-      const a = (k / 26) * Math.PI * 2;
-      g.beginPath(); g.ellipse(S / 2 + Math.cos(a) * S * 0.425, S * 0.5 + Math.sin(a) * S * 0.465, 4, 6, a, 0, Math.PI * 2); g.fill();
+    // filaments blancs du cœur vers chaque akène du bord
+    const seeds: [number, number, number][] = [];
+    for (let k = 0; k < 34; k++) {
+      const t = 0.04 + (k / 34) * 0.92;
+      const i = Math.floor(t * (prof.length - 1));
+      const [px, py] = prof[i];
+      seeds.push([k % 2 ? px : -px, py, k % 2 ? 1 : -1]);
     }
+    for (const [x, y] of seeds) {
+      const sx = M.X(x * 0.93), sy = M.Y(cy + (y - cy) * 0.93);
+      const ox = M.X(x * 0.12), oy = M.Y(y * 0.55 + cy * 0.45);
+      g.strokeStyle = `rgba(255,225,225,${0.35 + rnd() * 0.3})`; g.lineWidth = 2 + rnd() * 2.5;
+      g.beginPath(); g.moveTo(ox, oy); g.quadraticCurveTo((ox + sx) / 2 + (rnd() - 0.5) * 30, (oy + sy) / 2, sx, sy); g.stroke();
+    }
+    g.restore();
+    // cœur blanc allongé, un peu creux au centre
+    const coreTop = M.Y(0.3), coreBot = M.Y(-0.33), cx = M.X(0);
+    const cg = g.createLinearGradient(cx - S * 0.08, 0, cx + S * 0.08, 0);
+    cg.addColorStop(0, "rgba(255,225,222,0)"); cg.addColorStop(0.3, "rgba(255,244,240,0.9)"); cg.addColorStop(0.7, "rgba(255,244,240,0.9)"); cg.addColorStop(1, "rgba(255,225,222,0)");
+    g.fillStyle = cg;
+    g.beginPath(); g.ellipse(cx, (coreTop + coreBot) / 2, S * 0.075, (coreBot - coreTop) / 2, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "rgba(240,205,200,0.6)";
+    g.beginPath(); g.ellipse(cx, (coreTop + coreBot) / 2 - S * 0.03, S * 0.018, S * 0.12, 0, 0, Math.PI * 2); g.fill();
+    // akènes jaunes enchâssés dans le bord
+    for (const [x, y, sd] of seeds) {
+      const sx = M.X(x * 0.985), sy = M.Y(cy + (y - cy) * 0.985);
+      g.save(); g.translate(sx, sy); g.rotate(sd * 0.3);
+      g.fillStyle = "#8a6a1e"; g.beginPath(); g.ellipse(0, 0, 7, 10, 0, 0, Math.PI * 2); g.fill();
+      g.fillStyle = "#e9c75a"; g.beginPath(); g.ellipse(-1, -1, 5, 8, 0, 0, Math.PI * 2); g.fill();
+      g.restore();
+    }
+    // reflet humide
+    const hl = g.createRadialGradient(S * 0.38, S * 0.35, 0, S * 0.38, S * 0.35, S * 0.35);
+    hl.addColorStop(0, "rgba(255,255,255,0.2)"); hl.addColorStop(1, "rgba(255,255,255,0)");
+    g.fillStyle = hl; M.path(g, 0.97, 0, cy); g.fill();
   });
 function strawberryHalf(): THREE.Object3D {
   const pts = strawCurve();
@@ -1292,50 +1360,61 @@ function peachHalf(): THREE.Object3D {
 const peachSliceF = () => facing(slice(0xffb041, 0xe0532a, 0xc0342a, 0.6, 0.35, 2.0, 0.2));
 
 // Pomme coupée : chair crème, trognon en étoile, pépins, fine peau verte
+/** Pomme coupée en long : fine peau verte, chair crème granuleuse, cœur en lentille avec ses loges, pépins, queue et œil */
 const appleFace = () =>
-  canvasTex(512, (g, S) => {
-    const c = S / 2;
-    g.fillStyle = "#6fae35"; g.fillRect(0, 0, S, S);
-    // chair : crème, plus claire au centre, légère oxydation dorée vers le bord
-    const fl = g.createRadialGradient(c, c * 1.02, S * 0.05, c, c, S * 0.47);
-    fl.addColorStop(0, "#fffbe8"); fl.addColorStop(0.7, "#f7efcc"); fl.addColorStop(0.95, "#eedfa6"); fl.addColorStop(1, "#d9e39a");
-    g.fillStyle = fl;
-    g.beginPath(); g.ellipse(c, c, S * 0.465, S * 0.455, 0, 0, Math.PI * 2); g.fill();
-    // grain de la chair
-    for (let i = 0; i < 500; i++) {
-      g.fillStyle = `rgba(255,255,255,${Math.random() * 0.25})`;
-      g.beginPath(); g.arc(c + (Math.random() - 0.5) * S * 0.85, c + (Math.random() - 0.5) * S * 0.85, 1 + Math.random() * 2, 0, Math.PI * 2); g.fill();
+  canvasTex(1024, (g, S) => {
+    const prof = applePts().map((p) => [p.x, p.y]);
+    const M = profileMapper(prof, S);
+    let seed = 404;
+    const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    const cy = -0.02;
+    // peau
+    g.fillStyle = "#5f9a2c"; M.path(g, 1, 0, cy); g.fill();
+    g.fillStyle = "#cfe08a"; M.path(g, 0.985, 0, cy); g.fill(); // liseré vert pâle sous la peau
+    // chair crème, légèrement verdâtre vers la peau
+    const fl = g.createRadialGradient(M.X(0), M.Y(cy), S * 0.05, M.X(0), M.Y(cy), S * 0.5);
+    fl.addColorStop(0, "#fffbea"); fl.addColorStop(0.6, "#fbf4d6"); fl.addColorStop(0.88, "#f2edc0"); fl.addColorStop(1, "#e3e7a6");
+    g.fillStyle = fl; M.path(g, 0.965, 0, cy); g.fill();
+    g.save(); M.path(g, 0.965, 0, cy); g.clip();
+    // grain : cellules de la chair
+    for (let k = 0; k < 2600; k++) {
+      g.fillStyle = rnd() > 0.5 ? `rgba(255,255,255,${0.1 + rnd() * 0.25})` : `rgba(200,180,120,${0.04 + rnd() * 0.07})`;
+      g.beginPath(); g.arc(rnd() * S, rnd() * S, 1 + rnd() * 2.5, 0, Math.PI * 2); g.fill();
     }
-    // ligne des faisceaux (anneau pointillé) autour du trognon
-    g.fillStyle = "rgba(190,170,110,0.6)";
-    for (let i = 0; i < 10; i++) {
-      const a = (i / 10) * Math.PI * 2;
-      g.beginPath(); g.arc(c + Math.cos(a) * S * 0.2, c + Math.sin(a) * S * 0.22, 3.5, 0, Math.PI * 2); g.fill();
-    }
-    // trognon en étoile à 5 branches
-    g.save(); g.translate(c, c);
-    g.fillStyle = "rgba(225,210,160,0.9)"; g.strokeStyle = "rgba(180,160,100,0.8)"; g.lineWidth = 2.5;
-    g.beginPath();
-    for (let i = 0; i < 10; i++) {
-      const a = (i / 10) * Math.PI * 2 - Math.PI / 2, r = i % 2 ? S * 0.045 : S * 0.13;
-      g.lineTo(Math.cos(a) * r, Math.sin(a) * r);
-    }
-    g.closePath(); g.fill(); g.stroke();
-    // pépins dans les loges
-    for (let i = 0; i < 5; i++) {
-      const a = (i / 5) * Math.PI * 2 - Math.PI / 2;
-      g.save(); g.rotate(a); g.translate(S * 0.085, 0);
-      const pg = g.createLinearGradient(-12, 0, 12, 0);
-      pg.addColorStop(0, "#3a2210"); pg.addColorStop(1, "#7a4a22");
+    const cx = M.X(0), top = M.Y(0.2), bot = M.Y(-0.3), mid = (top + bot) / 2;
+    // faisceaux vasculaires : ligne fine qui dessine le cœur en forme de lentille
+    g.strokeStyle = "rgba(190,175,110,0.55)"; g.lineWidth = 3; g.setLineDash([10, 7]);
+    g.beginPath(); g.moveTo(cx, top - S * 0.02);
+    g.bezierCurveTo(cx + S * 0.25, top + S * 0.04, cx + S * 0.25, bot - S * 0.06, cx, bot + S * 0.02);
+    g.bezierCurveTo(cx - S * 0.25, bot - S * 0.06, cx - S * 0.25, top + S * 0.04, cx, top - S * 0.02); g.stroke();
+    g.setLineDash([]);
+    // loges : membranes parcheminées en amande, de part et d'autre de l'axe
+    for (const sd of [-1, 1]) {
+      const lx = cx + sd * S * 0.065;
+      g.save(); g.translate(lx, mid); g.rotate(sd * 0.12);
+      const lg = g.createLinearGradient(-S * 0.04, 0, S * 0.04, 0);
+      lg.addColorStop(0, "#efe2b4"); lg.addColorStop(0.5, "#e2d29a"); lg.addColorStop(1, "#efe2b4");
+      g.fillStyle = lg; g.strokeStyle = "rgba(170,150,90,0.8)"; g.lineWidth = 3;
+      g.beginPath(); g.ellipse(0, 0, S * 0.045, S * 0.12, 0, 0, Math.PI * 2); g.fill(); g.stroke();
+      // pépin brun brillant
+      const pg = g.createLinearGradient(-S * 0.02, -S * 0.04, S * 0.02, S * 0.04);
+      pg.addColorStop(0, "#7a4a22"); pg.addColorStop(1, "#2e1a0c");
       g.fillStyle = pg;
-      g.beginPath(); g.moveTo(-13, 0); g.quadraticCurveTo(0, -9, 14, 0); g.quadraticCurveTo(0, 9, -13, 0); g.fill();
+      g.beginPath(); g.moveTo(0, -S * 0.065); g.quadraticCurveTo(S * 0.032, S * 0.0, 0, S * 0.055); g.quadraticCurveTo(-S * 0.032, S * 0.0, 0, -S * 0.065); g.fill();
+      g.fillStyle = "rgba(255,230,200,0.45)"; g.beginPath(); g.ellipse(-S * 0.008, -S * 0.015, S * 0.006, S * 0.02, 0, 0, Math.PI * 2); g.fill();
       g.restore();
     }
+    // canal de la queue et œil (restes du calice) en bas
+    g.strokeStyle = "rgba(170,150,90,0.7)"; g.lineWidth = 5;
+    g.beginPath(); g.moveTo(cx, M.Y(0.24)); g.lineTo(cx, top); g.stroke();
+    g.beginPath(); g.moveTo(cx, bot); g.lineTo(cx, M.Y(-0.38)); g.stroke();
+    g.fillStyle = "#5a3d1e";
+    for (let k = 0; k < 5; k++) { g.beginPath(); g.ellipse(cx + (k - 2) * 6, M.Y(-0.385) + Math.abs(k - 2) * 3, 4, 9, (k - 2) * 0.4, 0, Math.PI * 2); g.fill(); }
     g.restore();
     // reflet humide
-    const hl = g.createRadialGradient(c * 0.75, c * 0.7, 0, c * 0.75, c * 0.7, S * 0.3);
+    const hl = g.createRadialGradient(S * 0.36, S * 0.34, 0, S * 0.36, S * 0.34, S * 0.32);
     hl.addColorStop(0, "rgba(255,255,255,0.22)"); hl.addColorStop(1, "rgba(255,255,255,0)");
-    g.fillStyle = hl; g.fillRect(0, 0, S, S);
+    g.fillStyle = hl; M.path(g, 0.965, 0, cy); g.fill();
   });
 function appleHalf(): THREE.Object3D {
   const h = halfLathe(applePts().map((p) => [p.x, p.y]), appleSkinMat(), appleFace());
