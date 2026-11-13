@@ -1113,7 +1113,7 @@ const RECIPES: Record<string, Recipe> = {
   cola: { makers: [bubbles], bubbles: 70, scale: 1.2 },
   "cola-zero": { makers: [bubbles], bubbles: 70, scale: 1.2 },
   "cola-cherry": { makers: [cherries, cherrySingle, cherries, bubbles, cherries, cherrySingle], bubbles: 60, scale: 1.15 },
-  "ice-tea-peche": { makers: [peachHalf, teaLeafF, peachSliceF, peach, teaLeafF, peach], // sans glaçons bubbles: 0, scale: 1.05, orbit: true },
+  "ice-tea-peche": { makers: [peachHalf, teaLeafF, peachSliceF, peach, teaLeafF, peach], bubbles: 0, scale: 1.05, orbit: true }, // sans glaçons
 };
 
 // Emplacements autour de la canette (x, y, z, échelle) : surtout derrière, deux petits devant
