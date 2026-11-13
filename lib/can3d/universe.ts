@@ -752,16 +752,19 @@ function strawberry(): THREE.Object3D {
 
 /** Peau de pêche : fond jaune orangé, joue rouge marbrée et mouchetée, velours (sheen) */
 const peachSkinTex = () =>
-  sphereTex("peach", 512, 256, (x, y, z) => {
-    const n = fbm(x * 2.2 + 3, y * 2.2, z * 2.2), n2 = fbm(x * 6, y * 6 + 5, z * 6);
-    const c = mixC(0xf6c25a, 0xeb8f2c, smooth(0.2, 0.9, 0.5 - y * 0.35 + (n - 0.5)));
-    const blush = smooth(0.38, 0.68, 0.5 + 0.42 * x + 0.22 * y + 0.55 * (n - 0.5));
-    lerpC(c, n2 > 0.5 ? 0xb52a26 : 0xcf3b2a, blush);
-    lerpC(c, 0x8e1c1f, blush * smooth(0.55, 0.75, n2) * 0.6); // marbrures sombres
-    // mouchetures rouges à la lisière de la joue
+  sphereTex("peach2", 512, 256, (x, y, z) => {
+    const n = fbm(x * 1.6 + 3, y * 1.6, z * 1.6);
+    const c = mixC(0xf7c45c, 0xee9a34, smooth(0.2, 0.9, 0.45 - y * 0.35 + (n - 0.5) * 0.6));
+    // joue rouge : grand dégradé continu, plus soutenu du côté exposé
+    const blush = smooth(0.3, 0.78, 0.5 + 0.5 * x + 0.22 * y + 0.3 * (n - 0.5));
+    lerpC(c, 0xd23d2c, blush);
+    lerpC(c, 0xb02a28, blush * smooth(0.45, 0.8, n) * 0.6);
+    // fines stries verticales dans le rouge
+    const streak = vnoise(x * 38, y * 3.5, z * 38);
+    lerpC(c, 0xa32525, smooth(0.62, 0.85, streak) * blush * 0.35);
+    // mouchetures à la lisière de la joue
     const edge = 1 - Math.abs(blush - 0.5) * 2;
-    lerpC(c, 0xb8302a, dots(x, y, z, 55, 0.75, 0.35) * edge * 0.9);
-    lerpC(c, 0xffe2a0, dots(x + 3, y, z, 90, 0.4, 0.3) * 0.25); // petites lenticelles claires
+    lerpC(c, 0xc8392b, dots(x, y, z, 60, 0.6, 0.3) * edge * 0.7);
     return c;
   });
 const peachSkinMat = () =>
@@ -961,16 +964,18 @@ function mangoGeo() {
 }
 /** Peau de mangue : vert près du pédoncule et dessous, jaune doré, joue rouge rosé au soleil, lenticelles claires */
 const mangoSkinTex = () =>
-  sphereTex("mango", 512, 256, (x, y, z) => {
+  sphereTex("mango2", 512, 256, (x, y, z) => {
     const t = (x + 1) / 2; // 0 : côté pédoncule, 1 : le bec
-    const n = fbm(x * 2 + 11, y * 2, z * 2), n2 = fbm(x * 5, y * 5 + 3, z * 5);
-    const c = mixC(0xe9b53c, 0xf2c650, n2);
-    lerpC(c, n > 0.5 ? 0x6f9433 : 0x86a23a, smooth(0.45, 0.85, -y * 0.55 + t * 0.25 + (n - 0.5) * 0.9 + 0.35)); // vert
-    const blush = smooth(0.42, 0.78, (1 - t) * 0.45 + y * 0.45 + z * 0.2 + (n - 0.5) * 0.8 + 0.2);
-    lerpC(c, n2 > 0.55 ? 0xa8263a : 0xd2453a, blush); // rouge rosé
-    lerpC(c, 0xe57a3a, blush * (1 - blush) * 1.6); // transition orangée
-    // lenticelles : points clairs, plus visibles sur le rouge
-    lerpC(c, 0xf7e7a6, dots(x, y, z, 48, 0.55, 0.3) * (0.35 + blush * 0.55));
+    const n = fbm(x * 1.8 + 11, y * 1.8, z * 1.8), n2 = fbm(x * 4, y * 4 + 3, z * 4);
+    const c = mixC(0xe8b13a, 0xf3c853, n2);
+    // vert vers le bec et sur une face, en larges zones fondues
+    lerpC(c, 0x7c9c38, smooth(0.5, 0.85, t * 0.55 - z * 0.25 + (n - 0.5) * 0.9 + 0.2) * 0.85);
+    // rouge rosé autour du pédoncule, fondu dans l'orangé
+    const blush = smooth(0.5, 0.85, (1 - t) * 0.75 + y * 0.2 + (n - 0.5) * 0.7);
+    lerpC(c, 0xe0763a, smooth(0.35, 0.6, (1 - t) * 0.75 + y * 0.2 + (n - 0.5) * 0.7) * 0.7);
+    lerpC(c, 0xc43b38, blush * 0.9);
+    // lenticelles : petits points clairs, discrets
+    lerpC(c, 0xf6e6aa, dots(x, y, z, 75, 0.35, 0.24) * 0.3);
     return c;
   });
 
