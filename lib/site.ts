@@ -3,7 +3,6 @@
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.dadadrinks.com";
 
 export const NAV = [
-  { href: "/boutique", label: "Boutique" },
   { href: "/notre-histoire", label: "Notre histoire" },
   { href: "/collaborations", label: "Collaborations" },
   { href: "/actualites", label: "Actualités" },
