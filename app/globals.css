@@ -316,6 +316,9 @@ button { font-family: inherit; }
 .pro-cta { margin-top: 8px; }
 .retailers { list-style: none; margin: 8px 0 0; padding: 0; border-top: 2px solid var(--paper); }
 .retailers li { font-size: clamp(32px, 4vw, 48px); font-weight: 800; letter-spacing: -0.03em; padding: 10px 0; border-bottom: 2px solid var(--paper); }
+.retailers.is-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); column-gap: 32px; border-top: 0; margin-top: 16px; }
+.retailers.is-grid li { font-size: clamp(24px, 2.6vw, 34px); padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.25); }
+.page-dark .container > .salon { margin-top: 28px; }
 .salon { margin: 12px 0 0; font-size: 15px; color: var(--muted-on-dark); line-height: 1.5; }
 .salon span { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; color: var(--paper); margin-right: 8px; }
 .highlights { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 18px; }

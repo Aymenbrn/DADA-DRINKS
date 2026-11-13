@@ -21,4 +21,9 @@ export const SOCIALS = [
 ];
 
 /** Enseignes citées sur le site actuel */
-export const RETAILERS = ["Franprix", "E.Leclerc", "Maximarket"];
+/** Enseignes et distributeurs qui référencent Dada (d'après la page boutique du site actuel) */
+export const RETAILERS = [
+  "Carrefour", "E.Leclerc", "Auchan", "Intermarché", "Super U", "Franprix",
+  "Metro", "Promocash", "B&M", "Coccimarket", "G20", "Maxi Market",
+  "MSA Market", "Khadispal", "IDF Distribution",
+];
