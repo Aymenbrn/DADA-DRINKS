@@ -155,6 +155,9 @@ export const PACK_PRICE = formatEUR(PACK_PRICE_CENTS);
 export const PACK_SIZES = [6, 12, 24, 32] as const;
 export const DEFAULT_PACK = 24;
 export const packCents = (size: number) => Math.round((PACK_PRICE_CENTS * size) / 24);
+/** Prix d'appel : le plus petit pack */
+export const FROM_PRICE = formatEUR(packCents(PACK_SIZES[0]));
+export const PACK_RANGE = `${PACK_SIZES[0]} à ${PACK_SIZES[PACK_SIZES.length - 1]} canettes`;
 export const PACK_SIZE = 24;
 
 export const getFlavor = (slug: string) => FLAVORS.find((f) => f.slug === slug);

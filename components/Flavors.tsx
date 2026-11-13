@@ -4,7 +4,7 @@ import Link from "next/link";
 import Can from "./Can";
 import CardCan3D from "./CardCan3D";
 import { useCart } from "@/components/cart/CartProvider";
-import { CAT_LABELS, FLAVORS, PACK_PRICE, flavorHref, mix, pad } from "@/lib/flavors";
+import { CAT_LABELS, FLAVORS, FROM_PRICE, PACK_RANGE, flavorHref, mix, pad } from "@/lib/flavors";
 
 /** Assombrit une couleur hex (facteur 0–1) */
 const shade = (hex: string, k: number) => {
@@ -27,7 +27,7 @@ export default function Flavors() {
               {list.length} saveurs.<span className="serif-i"> Zéro règle.</span>
             </h2>
             <p style={{ margin: 0, maxWidth: 460, fontSize: 18, lineHeight: 1.5, color: "var(--muted-on-light)" }}>
-              Chaque saveur en pack de 24 canettes, livré chez vous. Mélangez, collectionnez, partagez.
+              Chaque saveur en pack de 6, 12, 24 ou 32 canettes, livré chez vous. Mélangez, collectionnez, partagez.
             </p>
           </div>
         </div>
@@ -65,13 +65,13 @@ export default function Flavors() {
                 <p className="serif-i" style={{ margin: 0, fontSize: 18, color: "#3F3F46" }}>{f.note}</p>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 14 }}>
                   <div style={{ display: "flex", flexDirection: "column" }}>
-                    <span style={{ fontSize: 20, fontWeight: 800 }}>{PACK_PRICE}</span>
-                    <span style={{ fontSize: 13, color: "var(--muted-on-light)" }}>Pack de 24 canettes</span>
+                    <span style={{ fontSize: 20, fontWeight: 800 }}><small style={{ fontSize: 13, fontWeight: 600 }}>dès </small>{FROM_PRICE}</span>
+                    <span style={{ fontSize: 13, color: "var(--muted-on-light)" }}>Packs de {PACK_RANGE}</span>
                   </div>
                   <button
                     type="button"
                     onClick={() => add(f.slug)}
-                    aria-label={`Ajouter un pack de Dada ${f.name} au panier`}
+                    aria-label={`Ajouter un pack de 24 Dada ${f.name} au panier`}
                     style={{ cursor: "pointer",
                       width: 48, height: 48, borderRadius: "50%", border: 0, background: "var(--ink)", color: "var(--paper)",
                       display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none",

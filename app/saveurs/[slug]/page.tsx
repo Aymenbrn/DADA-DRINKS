@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const f = getFlavor(slug);
   if (!f) return {};
   return {
-    title: `Dada ${f.name} — pack de 24 canettes`,
+    title: `Dada ${f.name} — packs de 6 à 32 canettes`,
     description: f.desc,
     openGraph: { title: `Dada ${f.name}`, description: f.desc, locale: "fr_FR", type: "website" },
   };

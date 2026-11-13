@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useCart } from "@/components/cart/CartProvider";
-import { PACK_PRICE, flavorHref, getFlavor } from "@/lib/flavors";
+import { FROM_PRICE, PACK_RANGE, flavorHref, getFlavor } from "@/lib/flavors";
 import { createShowcase } from "@/lib/can3d/showcase";
 
 /** Nouveauté de l'accueil : la Dada Cola Cherry en 3D, qui réagit discrètement à la souris. */
@@ -39,8 +39,8 @@ export default function NewLaunch() {
           <p className="launch-lede">{f.desc}</p>
           <dl className="launch-specs">
             <div><dt>Format</dt><dd>Canette 33 cl</dd></div>
-            <div><dt>Pack</dt><dd>24 canettes</dd></div>
-            <div><dt>Prix</dt><dd>{PACK_PRICE}</dd></div>
+            <div><dt>Packs</dt><dd>{PACK_RANGE}</dd></div>
+            <div><dt>Prix</dt><dd>dès {FROM_PRICE}</dd></div>
           </dl>
           <div className="hero-actions">
             <button type="button" className="btn launch-btn" onClick={() => add(f.slug)}>Ajouter au panier</button>

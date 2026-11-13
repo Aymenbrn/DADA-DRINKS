@@ -12,7 +12,7 @@ export default function CGV() {
       sections={[
         {
           title: "1. Objet",
-          paragraphs: ["Les présentes conditions régissent les ventes de boissons Dada Drinks aux particuliers sur ce site, par packs de 24 canettes."],
+          paragraphs: ["Les présentes conditions régissent les ventes de boissons Dada Drinks aux particuliers sur ce site, par packs de 6, 12, 24 ou 32 canettes."],
         },
         {
           title: "2. Prix",

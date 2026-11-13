@@ -28,7 +28,7 @@ const CartContext = createContext<CartContextValue | null>(null);
 const STORAGE_KEY = "dada-cart-v1";
 const MAX_QTY = 99;
 
-/** Panier des particuliers (packs de 24 canettes), gardé dans le navigateur du visiteur. */
+/** Panier des particuliers (packs de 6 à 32 canettes), gardé dans le navigateur du visiteur. */
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [lines, setLines] = useState<CartLine[]>([]);
   const [ready, setReady] = useState(false);

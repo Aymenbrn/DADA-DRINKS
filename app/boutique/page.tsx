@@ -2,17 +2,17 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import Flavors from "@/components/Flavors";
-import { PACK_PRICE } from "@/lib/flavors";
+import { FLAVORS, FROM_PRICE } from "@/lib/flavors";
 
 export const metadata: Metadata = {
   title: "Boutique",
-  description: "Les 13 saveurs Dada Drinks en pack de 24 canettes, livrées chez vous.",
+  description: "Les saveurs Dada Drinks en packs de 6, 12, 24 ou 32 canettes, livrées chez vous.",
 };
 
 const PERKS = [
-  { k: "Pack de 24", v: "canettes par saveur" },
-  { k: PACK_PRICE, v: "le pack, soit 1,33 € la canette" },
-  { k: "13 saveurs", v: "fruitées, colas et thé glacé" },
+  { k: "6 · 12 · 24 · 32", v: "canettes par pack, au choix" },
+  { k: `dès ${FROM_PRICE}`, v: "soit 1,33 € la canette" },
+  { k: `${FLAVORS.length} saveurs`, v: "fruitées, colas et thé glacé" },
 ];
 
 export default function BoutiquePage() {

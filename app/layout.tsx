@@ -21,10 +21,10 @@ export const metadata: Metadata = {
     template: "%s | Dada Drinks",
   },
   description:
-    "Dada Drinks, la marque de soft drinks née à Nanterre et inspirée du dadaïsme. 13 saveurs pétillantes, en pack de 24 canettes.",
+    "Dada Drinks, la marque de soft drinks née à Nanterre et inspirée du dadaïsme. 12 saveurs pétillantes, en packs de 6 à 32 canettes.",
   openGraph: {
     title: "Dada Drinks",
-    description: "Le soft drink né à Nanterre, inspiré du dadaïsme. 13 saveurs, zéro règle.",
+    description: "Le soft drink né à Nanterre, inspiré du dadaïsme. 12 saveurs, zéro règle.",
     locale: "fr_FR",
     type: "website",
     siteName: "Dada Drinks",
