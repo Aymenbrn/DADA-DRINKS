@@ -706,3 +706,9 @@ button { font-family: inherit; }
 .universe .universe-inner { padding-top: 150px; }
 .pdp-page .universe { min-height: 100svh; }
 @media (max-width: 640px) { .pdp-back { display: none; } }
+/* Fiche produit : fondu progressif vers le pied de page, sans coupure nette */
+.pdp-page .universe::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 240px; pointer-events: none; z-index: 1;
+  background: linear-gradient(180deg, rgba(10,10,10,0) 0%, color-mix(in srgb, var(--u) 10%, rgba(10,10,10,0.6)) 45%, #0a0a0a 100%);
+}
+.pdp-page + footer, .pdp-page ~ footer { background: linear-gradient(180deg, #0a0a0a 0%, var(--ink) 100%) !important; }
