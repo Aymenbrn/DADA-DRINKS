@@ -1175,6 +1175,16 @@ const CARD_SLOTS: [number, number, number, number][] = [
   [-2.95, -2.15, 2.4, 2.0],
 ];
 
+// Réglages propres à certaines saveurs (la grappe de litchis, plus large, est rentrée dans la carte)
+const CARD_SLOTS_BY: Record<string, [number, number, number, number][]> = {
+  lychee: [
+    [-1.95, 1.45, 2.8, 1.75],
+    [2.65, -1.85, 4.2, 2.45],
+    [2.9, 2.25, 1.6, 1.75],
+    [-2.95, -2.15, 2.4, 2.0],
+  ],
+};
+
 export function buildUniverse(slug: string, field?: { w: number; h: number }, card = false) {
   const base = RECIPES[slug] ?? RECIPES.cerise;
   // accueil : les bulles fines sont un champ à part, permanent (voir buildBubbleField)
@@ -1183,7 +1193,7 @@ export function buildUniverse(slug: string, field?: { w: number; h: number }, ca
   const slots: [number, number, number, number][] = field
     ? fieldSlots(field.w, field.h)
     : card
-      ? CARD_SLOTS
+      ? (CARD_SLOTS_BY[slug] ?? CARD_SLOTS)
     : recipe.orbit
       ? ORBIT.map(([a, y, r, s]) => [Math.cos(a) * r, y, Math.sin(a) * r, s])
       : SLOTS;
