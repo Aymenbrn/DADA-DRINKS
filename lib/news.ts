@@ -10,6 +10,8 @@ export type NewsItem = {
   excerpt: string;
   body?: string[];
   external?: string;
+  /** Visuel repris de la page « Nos actualités » du site actuel */
+  image?: string;
 };
 
 export const NEWS: NewsItem[] = [
@@ -39,6 +41,7 @@ export const NEWS: NewsItem[] = [
   },
   {
     slug: "dada-cola",
+    image: "https://images.squarespace-cdn.com/content/v1/64218fe88bd257683c3684a0/0adb3591-bcee-4e86-a742-bd5f8eec87ff/articles+site.png?format=1000w",
     date: null,
     title: "Dada Drinks dévoile sa nouvelle star : le Dada Cola",
     tag: "Produit",
@@ -91,6 +94,7 @@ export const NEWS: NewsItem[] = [
   },
   {
     slug: "campagne-taxis",
+    image: "https://images.squarespace-cdn.com/content/v1/64218fe88bd257683c3684a0/dfd84f79-f156-4b05-8ed0-54f6fc514ff1/Dadadrinks+-+Taxis+HD3+-+Septembre+2023.jpg?format=1000w",
     date: "2023-09",
     title: "Dada Drinks s'affiche sur les taxis parisiens avec JCDecaux",
     tag: "Campagne",
@@ -110,6 +114,7 @@ export const NEWS: NewsItem[] = [
   },
   {
     slug: "jcdecaux",
+    image: "https://images.squarespace-cdn.com/content/v1/64218fe88bd257683c3684a0/1ff2f72e-ebe5-4ade-970d-59c197150948/JC.png?format=1000w",
     date: "2023-06",
     title: "JCDecaux et Dada Drinks s'allient pour une campagne publicitaire",
     tag: "Campagne",
@@ -117,6 +122,7 @@ export const NEWS: NewsItem[] = [
   },
   {
     slug: "pub-tv",
+    image: "https://images.squarespace-cdn.com/content/v1/64218fe88bd257683c3684a0/6898a093-4bc4-4541-8500-aaa1ba9db473/Capture+d%E2%80%99%C3%A9cran+2023-09-27+%C3%A0+12.44.10.png?format=1000w",
     date: "2023-05",
     title: "Dada Drinks voit sa pub à la TV",
     tag: "Campagne",

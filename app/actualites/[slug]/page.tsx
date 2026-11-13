@@ -30,6 +30,10 @@ export default async function ArticlePage({ params }: Props) {
         <span className="tag-inline">{a.tag.toUpperCase()} · {formatMonth(a.date)}</span>
         <h1 className="h-xl article-title">{a.title}</h1>
         <p className="article-lede">{a.excerpt}</p>
+        {a.image && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img className="article-image" src={a.image} alt="" />
+        )}
         <div className="prose">
           {a.body.map((p, i) => <p key={i}>{p}</p>)}
         </div>

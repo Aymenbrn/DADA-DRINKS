@@ -26,8 +26,12 @@ export default function ActualitesPage() {
               const href = n.body ? `/actualites/${n.slug}` : n.external;
               const isExternal = !!href && href.startsWith("http");
               return (
-                <li key={n.slug} className="news-item">
+                <li key={n.slug} className={`news-item${n.image ? " has-image" : ""}`}>
                   <span className="news-date">{formatMonth(n.date)}</span>
+                  {n.image && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img className="news-thumb" src={n.image} alt="" loading="lazy" />
+                  )}
                   <div>
                     <span className="tag-inline">{n.tag.toUpperCase()}</span>
                     <h3>
