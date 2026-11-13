@@ -652,7 +652,8 @@ button { font-family: inherit; }
 }
 .aud-switch button[aria-checked="true"] { color: #0a0a0a; }
 .aud-switch button:focus-visible { outline: 2px solid var(--u-hi, #fff); outline-offset: 2px; border-radius: 999px; }
-.ribbon-switch { margin-top: 16px; pointer-events: auto; }
+.ribbon-switch { pointer-events: auto; width: 250px; height: 52px; }
+.ribbon-actions { align-items: center; flex-wrap: wrap; justify-content: center; gap: 14px; }
 .pro-switch { margin: 4px 0 22px; }
 
 /* Accueil : bascule de l'offre particulier / pro */
@@ -672,4 +673,3 @@ button { font-family: inherit; }
 .aud-band-label { margin: 0; font-family: var(--mono); font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted-on-light); }
 .aud-band-switch { width: 280px; height: 52px; background: #111; border-color: #111; }
 .aud-band-switch button { font-size: 15px; }
-.aud-band + .home-shop-swap > section:first-child { padding-top: 64px !important; }

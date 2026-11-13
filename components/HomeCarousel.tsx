@@ -6,6 +6,7 @@ import { CAT_LABELS, FLAVORS as ALL_FLAVORS, pad } from "@/lib/flavors";
 import { createCarousel } from "@/lib/can3d/carousel";
 import BeachDecor from "@/components/BeachDecor";
 import { useAudience } from "@/components/AudienceContext";
+import AudienceSwitch from "@/components/AudienceSwitch";
 
 /** La nouveauté mise en avant à chaque ouverture / actualisation de la page */
 const NEW_RELEASE = "cola-cherry";
@@ -112,6 +113,7 @@ export default function HomeCarousel() {
         </h1>
         <p className="ribbon-hint">Glisser ou utiliser les flèches pour découvrir</p>
           <div className="ribbon-actions">
+            <AudienceSwitch className="ribbon-switch" />
             {audience === "pro" ? (
               <a href="#offre-pro" className="btn ribbon-buy">Équiper mon commerce</a>
             ) : (
