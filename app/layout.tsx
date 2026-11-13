@@ -3,6 +3,7 @@ import { Anton, Instrument_Serif, Inter_Tight, Montserrat, Space_Mono } from "ne
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { CartProvider } from "@/components/cart/CartProvider";
+import ScrollTop from "@/components/ScrollTop";
 import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
@@ -39,6 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Header />
           <div id="contenu">{children}</div>
           <Footer />
+          <ScrollTop />
         </CartProvider>
       </body>
     </html>

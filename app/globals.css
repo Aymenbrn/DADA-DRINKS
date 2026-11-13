@@ -232,7 +232,7 @@ button { font-family: inherit; }
 .skip-link:focus { left: 16px; }
 
 /* En-tête */
-.site-header { background: var(--ink); position: relative; z-index: 20; }
+.site-header { background: var(--ink); position: sticky; top: 0; z-index: 40; } /* reste visible pendant toute la visite */
 .site-header .header { flex-wrap: nowrap; }
 .nav a[aria-current="page"] { color: #fff; text-decoration: underline; text-decoration-color: var(--accent); text-decoration-thickness: 2px; text-underline-offset: 6px; }
 .header-actions { display: flex; gap: 10px; align-items: center; flex: none; }
@@ -722,3 +722,21 @@ button { font-family: inherit; }
   .site-header .nav { position: static; transform: none; }
   .site-header .container.header { padding-block: 0; }
 }
+
+/* Fiches produit : la barre (logo, retour, panier) reste aussi visible en défilant */
+.pdp-topbar { position: fixed; z-index: 40; background: linear-gradient(180deg, rgba(10,10,10,0.92) 0%, rgba(10,10,10,0.75) 70%, rgba(10,10,10,0) 100%); }
+
+/* Flèche « retour en haut » */
+.scroll-top {
+  position: fixed; z-index: 45; right: clamp(16px, 3vw, 32px); bottom: calc(clamp(16px, 3vw, 32px) + env(safe-area-inset-bottom, 0px));
+  width: 48px; height: 48px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.25); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; color: #0a0a0a; background: #fff;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.35);
+  opacity: 0; transform: translateY(16px) scale(0.9); pointer-events: none; transition: opacity 0.3s, transform 0.3s;
+}
+.scroll-top.is-visible { opacity: 1; transform: none; pointer-events: auto; }
+.scroll-top:hover { transform: translateY(-2px); }
+.scroll-top:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+/* L'en-tête collant ne doit rien masquer : ancres et histoire en 6 actes démarrent sous lui */
+section[id] { scroll-margin-top: 80px; }
+.story-sticky { top: 72px; height: min(calc(100svh - 72px), 860px); }
