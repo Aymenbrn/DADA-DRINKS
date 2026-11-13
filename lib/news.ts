@@ -14,6 +14,18 @@ export type NewsItem = {
 
 export const NEWS: NewsItem[] = [
   {
+    slug: "pfl-europe-lyon-2025",
+    date: "2025-12",
+    title: "PFL Europe à Lyon : Dada Drinks au cœur des finales",
+    tag: "Sport",
+    excerpt: "Le 13 décembre, la PFL Europe a conclu ses tournois poids légers et poids coqs à Lyon, avec Dada Drinks comme partenaire.",
+    body: [
+      "Après Nantes en septembre, la Professional Fighters League a posé ses valises à Lyon le 13 décembre 2025 pour la soirée qui clôturait les tournois PFL Europe des poids légers et des poids coqs.",
+      "Le partenariat annoncé à la rentrée prévoyait la présence des canettes Dada dans les zones d'échauffement et à la table des annonceurs, ainsi que la marque dans la cage, pour les deux soirées françaises de la saison.",
+      "Une nouvelle étape dans l'histoire de Dada Drinks avec le MMA, aux côtés d'un sport qui ne cesse de grandir en France.",
+    ],
+  },
+  {
     slug: "pfl-europe-2025",
     date: "2025-09",
     title: "Dada Drinks, partenaire de la PFL Europe à Nantes et à Lyon",
@@ -34,6 +46,18 @@ export const NEWS: NewsItem[] = [
     body: [
       "Le cola de Dada Drinks rejoint la gamme : gazeux, rafraîchissant, au goût unique, à servir bien frais.",
       "Il est disponible en pack de 24 canettes, aux côtés du Cola Zero (zéro sucre, zéro calorie) et du Cola Cherry, aux notes de cerise intensément fruitées.",
+    ],
+  },
+  {
+    slug: "racing-club-de-france",
+    date: "2024-12",
+    title: "Dada Drinks, nouveau partenaire majeur du Racing Club de France Football",
+    tag: "Sport",
+    excerpt: "Le logo Dada sur les maillots de l'académie et les shorts des U19 Nationaux, jusqu'à la fin de la saison 2025-2026.",
+    body: [
+      "Le Racing Club de France Football a annoncé l'arrivée de Dada Drinks parmi ses partenaires majeurs, pour un partenariat qui court jusqu'à la fin de la saison 2025-2026.",
+      "Le logo Dada s'affiche sur le devant des maillots de l'académie du club et sur les shorts des U19 Nationaux.",
+      "Les boissons Dada sont également proposées au foodtruck du Complexe Olympique Yves-du-Manoir, à Colombes, depuis le début de la saison : une marque des Hauts-de-Seine aux côtés d'un club historique du département.",
     ],
   },
   {
