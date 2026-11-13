@@ -68,16 +68,26 @@ export function ProTrust() {
 }
 
 /** Demande de devis (formulaire + WhatsApp) */
-export function ProQuote() {
+/** intro : sur l'accueil, le texte de gauche reprend l'accroche « Mettez du Dada dans vos rayons » */
+export function ProQuote({ intro = false }: { intro?: boolean }) {
   return (
         <section id="devis" className="section page-light">
           <div className="container split">
-            <div>
-              <p className="eyebrow" style={{ color: "var(--muted-on-light)" }}>DEMANDE DE DEVIS</p>
-              <h2 className="h-xl section-title">Parlons<span className="serif-i"> volumes.</span></h2>
-              <p className="section-lede">Dites-nous qui vous êtes et ce dont vous avez besoin : nous revenons vers vous avec une proposition adaptée.</p>
-              <p className="section-lede">Plus rapide : <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">WhatsApp au {WHATSAPP_DISPLAY}</a>.</p>
-            </div>
+            {intro ? (
+              <div>
+                <p className="eyebrow" style={{ color: "var(--muted-on-light)" }}>PROFESSIONNELS · B TO B</p>
+                <h2 className="h-xl section-title">Mettez du Dada<span className="serif-i"> dans vos rayons.</span></h2>
+                <p className="section-lede">Restaurants, snacks, épiceries, grossistes et grande distribution : commandez en volume, équipez-vous d’une vitrine et profitez de tarifs dédiés.</p>
+                <p className="section-lede">Plus rapide : <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">WhatsApp au {WHATSAPP_DISPLAY}</a>.</p>
+              </div>
+            ) : (
+              <div>
+                <p className="eyebrow" style={{ color: "var(--muted-on-light)" }}>DEMANDE DE DEVIS</p>
+                <h2 className="h-xl section-title">Parlons<span className="serif-i"> volumes.</span></h2>
+                <p className="section-lede">Dites-nous qui vous êtes et ce dont vous avez besoin : nous revenons vers vous avec une proposition adaptée.</p>
+                <p className="section-lede">Plus rapide : <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">WhatsApp au {WHATSAPP_DISPLAY}</a>.</p>
+              </div>
+            )}
             <ContactForm
               subject="Demande de devis pro"
               submitLabel="Envoyer ma demande"

@@ -2,7 +2,7 @@
 
 import Flavors from "@/components/Flavors";
 import ProShop from "@/components/ProShop";
-import { ProIntro, ProReasons, ProTrust, ProQuote } from "@/components/ProDetails";
+import { ProReasons, ProTrust, ProQuote } from "@/components/ProDetails";
 import { useAudience } from "@/components/AudienceContext";
 import AudienceSwitch from "@/components/AudienceSwitch";
 
@@ -21,9 +21,8 @@ export default function HomeShop() {
         <>
           <ProShop />
           <ProReasons />
-          <ProIntro />
           <ProTrust />
-          <ProQuote />
+          <ProQuote intro />
         </>
       ) : (
         <Flavors />
