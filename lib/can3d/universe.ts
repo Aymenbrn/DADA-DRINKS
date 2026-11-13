@@ -1118,10 +1118,10 @@ export function buildBubbleField(w: number, h: number, n = 70) {
 
 // Cartes de la boutique : 4 fruits seulement, en gros plan dans les coins, la canette reste dégagée au centre
 const CARD_SLOTS: [number, number, number, number][] = [
-  [-2.55, 1.9, 3.6, 1.7],
-  [2.6, -1.8, 4.2, 1.8],
-  [2.85, 2.2, 1.6, 1.25],
-  [-2.9, -2.1, 2.4, 1.45],
+  [-2.6, 1.95, 3.6, 2.35],
+  [2.65, -1.85, 4.2, 2.45],
+  [2.9, 2.25, 1.6, 1.75],
+  [-2.95, -2.15, 2.4, 2.0],
 ];
 
 export function buildUniverse(slug: string, field?: { w: number; h: number }, card = false) {
