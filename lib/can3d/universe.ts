@@ -241,66 +241,117 @@ function spherePoints(n: number) {
   return pts;
 }
 
-/** Peau de litchi : petites écailles en pointe, rouge framboise, sillons plus sombres */
+/** Peau de litchi : fines écailles plates à petite pointe, rouge marbré (cramoisi, rose, touches orangées), sillons sombres */
+const lycheeSkinCache = new Map<string, THREE.BufferGeometry>();
+/** Géométrie partagée (le calcul des écailles est coûteux) */
 function lycheeSkinGeo(r = 0.32, thetaStart = 0, thetaLength = Math.PI) {
-  const geo = new THREE.SphereGeometry(r, 112, 84, 0, Math.PI * 2, thetaStart, thetaLength);
-  const cells = spherePoints(260);
+  const key = `${r}:${thetaStart}:${thetaLength}`;
+  let g = lycheeSkinCache.get(key);
+  if (!g) {
+    g = buildLycheeSkin(r, thetaStart, thetaLength);
+    lycheeSkinCache.set(key, g);
+  }
+  return g;
+}
+function buildLycheeSkin(r: number, thetaStart: number, thetaLength: number) {
+  const geo = new THREE.SphereGeometry(r, 128, 96, 0, Math.PI * 2, thetaStart, thetaLength);
+  const cells = spherePoints(420);
+  // une teinte par écaille, pour l'aspect marbré du litchi
+  const tones = [0xa8162f, 0xc22a3e, 0xd2475a, 0x8f1428, 0xc4583f, 0xb83a3a, 0xd9666a];
+  const cellCol = cells.map((c, i) => C(tones[(i * 7 + Math.floor((c.y + 1) * 3)) % tones.length]));
   const pos = geo.attributes.position;
   const col = new Float32Array(pos.count * 3);
   const v = new THREE.Vector3(), n = new THREE.Vector3();
-  const crease = C(0x6e0f1f), red = C(0xc0283d), tip = C(0xe86a72);
+  const crease = C(0x4e0a14), tip = C(0xf09a8a);
   for (let i = 0; i < pos.count; i++) {
     v.fromBufferAttribute(pos, i);
     n.copy(v).normalize();
-    let d1 = 9, d2 = 9;
-    for (const c of cells) {
-      const d = n.distanceToSquared(c);
-      if (d < d1) { d2 = d1; d1 = d; } else if (d < d2) d2 = d;
+    let d1 = 9, d2 = 9, k1 = 0;
+    for (let k = 0; k < cells.length; k++) {
+      const d = n.distanceToSquared(cells[k]);
+      if (d < d1) { d2 = d1; d1 = d; k1 = k; } else if (d < d2) d2 = d;
     }
-    const e = Math.sqrt(d2) - Math.sqrt(d1); // 0 sur les sillons, grand au centre des écailles
-    const bump = Math.min(1, e / 0.11);
-    const peak = Math.pow(Math.max(0, 1 - Math.sqrt(d1) / 0.09), 3); // pointe au centre
-    v.copy(n).multiplyScalar(r * (1 + 0.035 * bump + 0.025 * peak));
-    v.y *= 1.1; // légèrement ovale
-    if (v.y < 0) v.y *= 1 + 0.08 * (-v.y / r); // base un peu en pointe
+    const e = Math.sqrt(d2) - Math.sqrt(d1); // 0 sur les sillons
+    const bump = Math.min(1, e / 0.07);
+    const peak = Math.pow(Math.max(0, 1 - Math.sqrt(d1) / 0.05), 2); // petite pointe au centre de l'écaille
+    // grandes taches plus sombres / plus claires sur le fruit
+    const mott = 0.5 + 0.5 * Math.sin(n.x * 4.1 + n.y * 2.3) * Math.sin(n.z * 3.7 - n.y * 1.9);
+    v.copy(n).multiplyScalar(r * (1 + 0.018 * bump + 0.014 * peak));
+    v.y *= 1.08; // légèrement ovale
+    if (v.y > 0) v.y *= 1 + 0.06 * (v.y / r); // épaule vers la queue
     pos.setXYZ(i, v.x, v.y, v.z);
-    const c = crease.clone().lerp(red, bump).lerp(tip, peak * 0.6);
+    const c = crease.clone().lerp(cellCol[k1], Math.pow(bump, 0.6)).multiplyScalar(0.82 + 0.3 * mott).lerp(tip, peak * 0.45);
     col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
   }
   geo.setAttribute("color", new THREE.BufferAttribute(col, 3));
   geo.computeVertexNormals();
   return geo;
 }
-const lycheeSkinMat = () => new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.72 });
-const lycheeFleshMat = () =>
-  new THREE.MeshPhysicalMaterial({
-    color: 0xf7f2ea, roughness: 0.1, clearcoat: 1, clearcoatRoughness: 0.05,
-    transmission: 0.45, thickness: 0.5, ior: 1.36, attenuationColor: new THREE.Color(0xefe6d6), attenuationDistance: 0.6,
+const lycheeSkinMat = () => new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: 0.58, clearcoat: 0.25, clearcoatRoughness: 0.5 });
+
+/** Chair de litchi : blanc nacré translucide, fines stries, très humide */
+let lycheeFleshTex: THREE.Texture | null = null;
+const lycheeFleshMat = () => {
+  if (!lycheeFleshTex) {
+    lycheeFleshTex = canvasTex(256, (g, S) => {
+      g.fillStyle = "#f6f1e8"; g.fillRect(0, 0, S, S);
+      for (let i = 0; i < 70; i++) {
+        const x = Math.random() * S;
+        g.strokeStyle = `rgba(${Math.random() > 0.5 ? "255,255,255" : "215,205,185"},${0.25 + Math.random() * 0.35})`;
+        g.lineWidth = 1 + Math.random() * 3;
+        g.beginPath(); g.moveTo(x, 0); g.bezierCurveTo(x + 12, S * 0.3, x - 12, S * 0.7, x + (Math.random() - 0.5) * 20, S); g.stroke();
+      }
+    });
+  }
+  return new THREE.MeshPhysicalMaterial({
+    map: lycheeFleshTex, color: 0xffffff, roughness: 0.12, clearcoat: 1, clearcoatRoughness: 0.04,
+    transmission: 0.55, thickness: 0.6, ior: 1.36, attenuationColor: new THREE.Color(0xeee3cf), attenuationDistance: 0.5,
+    sheen: 0.6, sheenColor: new THREE.Color(0xffffff), sheenRoughness: 0.4,
   });
+};
+/** Chair irrégulière (pas une sphère parfaite) */
+function lycheeFleshGeo(r: number) {
+  const geo = new THREE.SphereGeometry(r, 64, 48);
+  const pos = geo.attributes.position, v = new THREE.Vector3();
+  for (let i = 0; i < pos.count; i++) {
+    v.fromBufferAttribute(pos, i);
+    const k = 1 + 0.035 * Math.sin(v.x * 18 + v.y * 7) * Math.sin(v.z * 15 - v.y * 9);
+    pos.setXYZ(i, v.x * k, v.y * 1.12 * k, v.z * k);
+  }
+  geo.computeVertexNormals();
+  return geo;
+}
+/** Noyau brun brillant, visible à travers la chair */
+const lycheeSeed = (r: number) => {
+  const geo = new THREE.SphereGeometry(r, 32, 24);
+  geo.scale(0.85, 1.25, 0.85);
+  return new THREE.Mesh(geo, new THREE.MeshPhysicalMaterial({ color: 0x3a1c0e, roughness: 0.25, clearcoat: 1 }));
+};
 
 function lychee(): THREE.Object3D {
   const g = new THREE.Group();
   g.add(new THREE.Mesh(lycheeSkinGeo(), lycheeSkinMat()));
-  g.add(stem([[0, 0.34, 0], [0.03, 0.48, 0], [0.1, 0.62, 0.02]], 0.022, 0x6b4a2a));
+  g.add(stem([[0, 0.34, 0], [0.03, 0.48, 0], [0.1, 0.62, 0.02]], 0.02, 0x6b4a2a));
   return g;
 }
 
-/** Litchi épluché : chair blanche nacrée, translucide */
+/** Litchi épluché : chair nacrée translucide, le noyau sombre devine au centre */
 function lycheePeeled(): THREE.Object3D {
-  const geo = new THREE.SphereGeometry(0.28, 48, 36);
-  geo.scale(1, 1.12, 1);
-  return new THREE.Mesh(geo, lycheeFleshMat());
+  const g = new THREE.Group();
+  g.add(lycheeSeed(0.13));
+  g.add(new THREE.Mesh(lycheeFleshGeo(0.28), lycheeFleshMat()));
+  return g;
 }
 
 /** Litchi à moitié épluché : la peau garde le bas, la chair sort par le haut */
 function lycheeHalf(): THREE.Object3D {
   const g = new THREE.Group();
   g.add(new THREE.Mesh(lycheeSkinGeo(0.32, Math.PI * 0.5, Math.PI * 0.5), lycheeSkinMat()));
-  const flesh = new THREE.SphereGeometry(0.29, 48, 36);
-  flesh.scale(1, 1.12, 1);
-  const m = new THREE.Mesh(flesh, lycheeFleshMat());
-  m.position.y = 0.04;
-  g.add(m);
+  const flesh = new THREE.Mesh(lycheeFleshGeo(0.29), lycheeFleshMat());
+  flesh.position.y = 0.04;
+  const seed = lycheeSeed(0.13);
+  seed.position.y = 0.05;
+  g.add(seed, flesh);
   return g;
 }
 
