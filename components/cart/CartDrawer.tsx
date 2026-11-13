@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef } from "react";
-import Can from "@/components/Can";
+import RibbonCan from "@/components/RibbonCan";
 import { useCart } from "@/components/cart/CartProvider";
 import { PACK_PRICE_CENTS, flavorHref, formatEUR, getFlavor } from "@/lib/flavors";
 
@@ -54,7 +54,7 @@ export default function CartDrawer() {
                 return (
                   <li key={l.slug} className="cart-drawer-line">
                     <Link href={flavorHref(f.slug)} className="cart-drawer-thumb" onClick={closeCart} aria-label={`Voir la fiche Dada ${f.name}`} style={{ background: f.c }}>
-                      <Can flavor={f} width={30} showLabels={false} />
+                      <RibbonCan flavor={f} width={30} />
                     </Link>
                     <div className="cart-drawer-info">
                       <Link href={flavorHref(f.slug)} onClick={closeCart} className="cart-drawer-name">Dada {f.name}</Link>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import Can from "@/components/Can";
+import RibbonCan from "@/components/RibbonCan";
 import { useCart } from "@/components/cart/CartProvider";
 import { PACK_PRICE_CENTS, flavorHref, formatEUR, getFlavor } from "@/lib/flavors";
 
@@ -35,7 +35,7 @@ export default function CartView() {
               return (
                 <li key={l.slug} className="cart-line">
                   <Link href={flavorHref(f.slug)} className="cart-thumb" aria-label={`Voir la fiche Dada ${f.name}`}>
-                    <Can flavor={f} width={44} showLabels={false} />
+                    <RibbonCan flavor={f} width={40} />
                   </Link>
                   <div className="cart-info">
                     <Link href={flavorHref(f.slug)} className="cart-name">Dada {f.name}</Link>

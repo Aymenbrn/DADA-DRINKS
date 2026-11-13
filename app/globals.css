@@ -776,3 +776,16 @@ button.pill { cursor: pointer; border: 0; font-family: inherit; }
 .cart-drawer-cta { justify-content: center; }
 .cart-drawer-continue { border: 0; background: transparent; color: var(--ink); font: 600 14px var(--sans); text-decoration: underline; cursor: pointer; padding: 6px; }
 @media (prefers-reduced-motion: reduce) { .cart-drawer-panel, .cart-drawer-backdrop { transition: none; } }
+
+/* Canette simple 2D au design de l'accueil (panier) */
+.rcan { display: inline-flex; flex-direction: column; align-items: center; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.25)); }
+.rcan-top { width: 86%; height: 0.32em; min-height: 4px; border-radius: 3px 3px 1px 1px; background: linear-gradient(90deg, #8f9298, #f1f2f4 45%, #a7aab0); }
+.rcan-body {
+  position: relative; width: 100%; aspect-ratio: 0.43; border-radius: 3px; overflow: hidden; background: var(--c);
+}
+.rcan-body img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.rcan-body::after { /* volume de la canette : ombre sur les bords, reflet au centre */
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(90deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0) 22%, rgba(255,255,255,0.22) 42%, rgba(255,255,255,0) 58%, rgba(0,0,0,0.3) 100%);
+}
+.rcan-bottom { width: 82%; height: 0.28em; min-height: 3px; border-radius: 1px 1px 4px 4px; background: linear-gradient(90deg, #7d8086, #d9dbde 45%, #8f9298); }
