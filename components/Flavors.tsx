@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import Can from "./Can";
+import CardCan3D from "./CardCan3D";
 import { useCart } from "@/components/cart/CartProvider";
 import { CAT_LABELS, FLAVORS, PACK_PRICE, flavorHref, mix, pad, type FlavorCategory } from "@/lib/flavors";
 
@@ -63,9 +64,15 @@ export default function Flavors() {
                 <span className="tag" style={{ top: 14, right: 16, background: "var(--ink)", color: "var(--paper)", transform: "rotate(3deg)" }}>
                   {CAT_LABELS[f.cat].toUpperCase()}
                 </span>
-                <div style={{ transform: "rotate(-7deg)", filter: "drop-shadow(0 22px 22px rgba(0,0,0,0.28))" }}>
-                  <Can flavor={f} width={120} />
-                </div>
+                <CardCan3D
+                  flavor={f}
+                  fogColor={mix(f.c, 0.72)}
+                  fallback={
+                    <div style={{ transform: "rotate(-7deg)", filter: "drop-shadow(0 22px 22px rgba(0,0,0,0.28))" }}>
+                      <Can flavor={f} width={120} />
+                    </div>
+                  }
+                />
               </Link>
               <div style={{ padding: "20px 22px 22px", display: "flex", flexDirection: "column", gap: 6 }}>
                 <h3 style={{ margin: 0, fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em" }}>

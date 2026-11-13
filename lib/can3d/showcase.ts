@@ -14,6 +14,10 @@ export type ShowcaseOptions = {
   /** Sur grand écran, décale la canette vers la droite (fraction de la largeur) quand la scène couvre toute la section */
   shift?: number;
   onReady?: () => void;
+  /** Couleur du brouillard (fond derrière les fruits lointains) ; par défaut le fond sombre de la saveur */
+  fogColor?: string;
+  /** La souris n'est suivie que sur l'élément parent du canvas (cartes de la boutique) */
+  localPointer?: boolean;
 };
 
 /** Couleur du fond de section à l'endroit des objets lointains (même mélange que le CSS) */
@@ -114,7 +118,7 @@ export function createShowcase(canvas: HTMLCanvasElement, opts: ShowcaseOptions)
   if (universe) {
     camera.position.z = 17.5; // un peu plus de recul : canette, ombre et fruits tiennent dans le cadre
     scene.add(universe.group);
-    scene.fog = new THREE.Fog(backdropColor(opts.flavor), 16, 28); // les objets lointains se fondent dans le fond
+    scene.fog = new THREE.Fog(opts.fogColor ? new THREE.Color(opts.fogColor) : backdropColor(opts.flavor), 16, 28); // les objets lointains se fondent dans le fond
   }
 
   // Ombre de contact très douce
@@ -143,7 +147,7 @@ export function createShowcase(canvas: HTMLCanvasElement, opts: ShowcaseOptions)
     target.y = THREE.MathUtils.clamp(((e.clientY - r.top) / r.height) * 2 - 1, -1, 1);
   };
   const onLeave = () => target.set(0, 0);
-  const section = canvas.closest("section") ?? canvas.parentElement ?? canvas;
+  const section = (opts.localPointer ? canvas.parentElement : canvas.closest("section")) ?? canvas.parentElement ?? canvas;
   section.addEventListener("pointermove", onMove);
   section.addEventListener("pointerleave", onLeave);
 
@@ -198,6 +202,7 @@ export function createShowcase(canvas: HTMLCanvasElement, opts: ShowcaseOptions)
       universe?.dispose();
       pmrem.dispose();
       renderer.dispose();
+      renderer.forceContextLoss(); // libère vraiment le contexte WebGL (plusieurs scènes sur une même page)
     },
   };
 }
