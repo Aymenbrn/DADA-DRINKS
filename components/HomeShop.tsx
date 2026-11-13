@@ -21,8 +21,8 @@ export default function HomeShop() {
         <>
           <ProShop />
           <ProReasons />
-          <ProTrust />
           <ProQuote intro />
+          <ProTrust />
         </>
       ) : (
         <Flavors />
