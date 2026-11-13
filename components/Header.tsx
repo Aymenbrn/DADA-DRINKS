@@ -9,7 +9,7 @@ import { NAV } from "@/lib/site";
 
 export default function Header() {
   const pathname = usePathname();
-  const { count } = useCart();
+  const { count, openCart } = useCart();
   const [open, setOpen] = useState(false);
 
   // Le menu mobile se referme à chaque changement de page
@@ -36,13 +36,13 @@ export default function Header() {
         </nav>
 
         <div className="header-actions">
-          <Link href="/panier" className="pill pill-light" aria-label={`Panier, ${count} pack${count > 1 ? "s" : ""}`}>
+          <button type="button" className="pill pill-light" onClick={openCart} aria-haspopup="dialog" aria-label={`Ouvrir le panier, ${count} pack${count > 1 ? "s" : ""}`}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M6 7h12l-1 13H7L6 7z" />
               <path d="M9 7a3 3 0 0 1 6 0" />
             </svg>
             Panier · {count}
-          </Link>
+          </button>
           <button
             type="button"
             className="menu-btn"

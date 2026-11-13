@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { PACK_PRICE_CENTS, getFlavor } from "@/lib/flavors";
+import CartDrawer from "@/components/cart/CartDrawer";
 
 export type CartLine = { slug: string; qty: number };
 
@@ -17,6 +17,10 @@ type CartContextValue = {
   setQty: (slug: string, qty: number) => void;
   remove: (slug: string) => void;
   clear: () => void;
+  /** Volet du panier sur le côté */
+  drawerOpen: boolean;
+  openCart: () => void;
+  closeCart: () => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -28,6 +32,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [lines, setLines] = useState<CartLine[]>([]);
   const [ready, setReady] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const openCart = useCallback(() => setDrawerOpen(true), []);
+  const closeCart = useCallback(() => setDrawerOpen(false), []);
 
   useEffect(() => {
     try {
@@ -89,17 +96,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const value = useMemo<CartContextValue>(() => {
     const count = lines.reduce((n, l) => n + l.qty, 0);
-    return { lines, count, totalCents: count * PACK_PRICE_CENTS, ready, add, setQty, remove, clear };
-  }, [lines, ready, add, setQty, remove, clear]);
+    return { lines, count, totalCents: count * PACK_PRICE_CENTS, ready, add, setQty, remove, clear, drawerOpen, openCart, closeCart };
+  }, [lines, ready, add, setQty, remove, clear, drawerOpen, openCart, closeCart]);
 
   return (
     <CartContext.Provider value={value}>
       {children}
+      <CartDrawer />
       <div className="cart-toast-zone" role="status" aria-live="polite">
         {toast && (
           <div className="cart-toast">
             <span>{toast}</span>
-            <Link href="/panier">Voir le panier</Link>
+            <button type="button" className="cart-toast-btn" onClick={() => { setToast(null); setDrawerOpen(true); }}>Voir le panier</button>
           </div>
         )}
       </div>

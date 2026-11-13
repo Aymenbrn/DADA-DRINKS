@@ -740,3 +740,39 @@ button { font-family: inherit; }
 /* L'en-tête collant ne doit rien masquer : ancres et histoire en 6 actes démarrent sous lui */
 section[id] { scroll-margin-top: 80px; }
 .story-sticky { top: 72px; height: min(calc(100svh - 72px), 860px); }
+
+/* ---------- Panier en volet latéral ---------- */
+button.pill { cursor: pointer; border: 0; font-family: inherit; }
+.cart-toast-btn { border: 0; background: var(--ink); color: var(--paper); font: 700 14px var(--sans); padding: 8px 14px; border-radius: 999px; cursor: pointer; }
+.cart-drawer { position: fixed; inset: 0; z-index: 70; pointer-events: none; }
+.cart-drawer.is-open { pointer-events: auto; }
+.cart-drawer-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.3s; }
+.cart-drawer.is-open .cart-drawer-backdrop { opacity: 1; }
+.cart-drawer-panel {
+  position: absolute; top: 0; right: 0; bottom: 0; width: min(420px, 100vw); background: var(--paper); color: var(--ink);
+  display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.35s cubic-bezier(.2,.8,.2,1);
+  box-shadow: -20px 0 50px rgba(0,0,0,0.3); outline: none;
+}
+.cart-drawer.is-open .cart-drawer-panel { transform: none; }
+.cart-drawer-head { display: flex; align-items: center; justify-content: space-between; padding: 20px 22px; border-bottom: 1px solid rgba(0,0,0,0.08); }
+.cart-drawer-title { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
+.cart-drawer-title span { font-family: var(--serif); font-style: italic; font-weight: 400; }
+.cart-drawer-close { width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.15); background: transparent; color: var(--ink); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.cart-drawer-empty { padding: 32px 22px; display: flex; flex-direction: column; gap: 16px; align-items: flex-start; }
+.cart-drawer-empty p { margin: 0; color: var(--muted-on-light); }
+.cart-drawer-lines { list-style: none; margin: 0; padding: 8px 22px; overflow-y: auto; flex: 1; }
+.cart-drawer-line { display: grid; grid-template-columns: 56px 1fr auto; gap: 14px; align-items: start; padding: 16px 0; border-bottom: 1px solid rgba(0,0,0,0.08); }
+.cart-drawer-thumb { width: 56px; height: 72px; border-radius: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.cart-drawer-info { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.cart-drawer-name { font-weight: 700; color: inherit; text-decoration: none; }
+.cart-drawer-sub { font-size: 13px; color: var(--muted-on-light); }
+.cart-drawer-row { display: flex; align-items: center; gap: 12px; margin-top: 6px; }
+.qty.qty-sm { height: 36px; }
+.qty.qty-sm button { width: 30px; height: 30px; font-size: 17px; }
+.cart-drawer-price { font-weight: 800; font-variant-numeric: tabular-nums; }
+.cart-drawer-foot { padding: 18px 22px 22px; border-top: 1px solid rgba(0,0,0,0.08); display: flex; flex-direction: column; gap: 10px; }
+.cart-drawer-total { margin: 0 0 4px; display: flex; justify-content: space-between; align-items: baseline; font-size: 15px; }
+.cart-drawer-total strong { font-size: 24px; }
+.cart-drawer-cta { justify-content: center; }
+.cart-drawer-continue { border: 0; background: transparent; color: var(--ink); font: 600 14px var(--sans); text-decoration: underline; cursor: pointer; padding: 6px; }
+@media (prefers-reduced-motion: reduce) { .cart-drawer-panel, .cart-drawer-backdrop { transition: none; } }
