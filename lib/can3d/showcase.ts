@@ -4,7 +4,7 @@
 import * as THREE from "three";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import type { Flavor } from "@/lib/flavors";
-import { getLabelImage } from "./labels";
+import { getLabelImage, getRibbonLabel } from "./labels";
 import { buildUniverse } from "./universe";
 
 export type ShowcaseOptions = {
@@ -16,7 +16,7 @@ export type ShowcaseOptions = {
   onReady?: () => void;
   /** Couleur du brouillard (fond derrière les fruits lointains) ; par défaut le fond sombre de la saveur */
   fogColor?: string;
-  /** Cartes de la boutique : quelques fruits seulement, en gros plan */
+  /** Cartes de la boutique : quelques fruits seulement, en gros plan, canette au design de l'accueil */
   cardMode?: boolean;
   /** La souris n'est suivie que sur l'élément parent du canvas (cartes de la boutique) */
   localPointer?: boolean;
@@ -102,7 +102,7 @@ export function createShowcase(canvas: HTMLCanvasElement, opts: ShowcaseOptions)
   const body = new THREE.Mesh(new THREE.CylinderGeometry(R, R, H, 160, 1, true), bodyMat);
   can.add(body);
 
-  getLabelImage(opts.flavor).then((img) => {
+  (opts.cardMode ? getRibbonLabel(opts.flavor) : getLabelImage(opts.flavor)).then((img) => {
     const tex = img instanceof HTMLCanvasElement ? new THREE.CanvasTexture(img) : new THREE.Texture(img);
     tex.needsUpdate = true;
     tex.colorSpace = THREE.SRGBColorSpace;

@@ -14,6 +14,13 @@ const FILTERS: { id: "all" | FlavorCategory; label: string }[] = [
   { id: "the", label: "Thé glacé" },
 ];
 
+/** Assombrit une couleur hex (facteur 0–1) */
+const shade = (hex: string, k: number) => {
+  const n = parseInt(hex.slice(1), 16);
+  const c = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => Math.round(v * k));
+  return `rgb(${c[0]},${c[1]},${c[2]})`;
+};
+
 export default function Flavors() {
   const [cat, setCat] = useState<"all" | FlavorCategory>("all");
   const { add } = useCart();
@@ -57,16 +64,16 @@ export default function Flavors() {
                 style={{
                   color: "inherit", textDecoration: "none",
                   position: "relative", height: 300, display: "flex", alignItems: "center", justifyContent: "center",
-                  background: `radial-gradient(rgba(0,0,0,.07) 1px, transparent 1.5px) 0 0 / 8px 8px, ${mix(f.c, 0.72)}`,
+                  background: `radial-gradient(rgba(255,255,255,.10) 1px, transparent 1.5px) 0 0 / 8px 8px, radial-gradient(90% 80% at 50% 40%, ${mix(f.c, 0.18)} 0%, ${f.c} 55%, ${shade(f.c, 0.55)} 100%)`,
                 }}
               >
-                <span style={{ position: "absolute", top: 18, left: 20, fontFamily: "var(--mono)", fontSize: 12, letterSpacing: "0.14em" }}>N°{pad(i)}</span>
+                <span style={{ position: "absolute", top: 18, left: 20, fontFamily: "var(--mono)", fontSize: 12, letterSpacing: "0.14em", color: "#fff", textShadow: "0 1px 4px rgba(0,0,0,0.35)" }}>N°{pad(i)}</span>
                 <span className="tag" style={{ top: 14, right: 16, background: "var(--ink)", color: "var(--paper)", transform: "rotate(3deg)" }}>
                   {CAT_LABELS[f.cat].toUpperCase()}
                 </span>
                 <CardCan3D
                   flavor={f}
-                  fogColor={mix(f.c, 0.72)}
+                  fogColor={f.c}
                   fallback={
                     <div style={{ transform: "rotate(-7deg)", filter: "drop-shadow(0 22px 22px rgba(0,0,0,0.28))" }}>
                       <Can flavor={f} width={120} />
