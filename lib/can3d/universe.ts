@@ -1064,7 +1064,7 @@ const strawberryFace = () =>
     g.fillStyle = "#c80f26"; M.path(g, 1, 0, cy); g.fill();
     // chair externe rouge, puis zone rosée, marbrée
     const fl = g.createRadialGradient(M.X(0), M.Y(cy + 0.05), S * 0.04, M.X(0), M.Y(cy), S * 0.5);
-    fl.addColorStop(0, "#ffe9e6"); fl.addColorStop(0.32, "#ffb3b3"); fl.addColorStop(0.6, "#f2505e"); fl.addColorStop(0.85, "#dd1f35"); fl.addColorStop(1, "#cf1730");
+    fl.addColorStop(0, "#ffc9c6"); fl.addColorStop(0.22, "#ff8a8f"); fl.addColorStop(0.45, "#f03a4d"); fl.addColorStop(0.75, "#d81a32"); fl.addColorStop(1, "#c8132c");
     g.fillStyle = fl; M.path(g, 0.95, 0, cy); g.fill();
     g.save(); M.path(g, 0.95, 0, cy); g.clip();
     // marbrures et petites zones translucides
@@ -1084,16 +1084,16 @@ const strawberryFace = () =>
     for (const [x, y] of seeds) {
       const sx = M.X(x * 0.93), sy = M.Y(cy + (y - cy) * 0.93);
       const ox = M.X(x * 0.12), oy = M.Y(y * 0.55 + cy * 0.45);
-      g.strokeStyle = `rgba(255,225,225,${0.35 + rnd() * 0.3})`; g.lineWidth = 2 + rnd() * 2.5;
+      g.strokeStyle = `rgba(255,215,215,${0.25 + rnd() * 0.25})`; g.lineWidth = 1.5 + rnd() * 2;
       g.beginPath(); g.moveTo(ox, oy); g.quadraticCurveTo((ox + sx) / 2 + (rnd() - 0.5) * 30, (oy + sy) / 2, sx, sy); g.stroke();
     }
     g.restore();
     // cœur blanc allongé, un peu creux au centre
     const coreTop = M.Y(0.3), coreBot = M.Y(-0.33), cx = M.X(0);
     const cg = g.createLinearGradient(cx - S * 0.08, 0, cx + S * 0.08, 0);
-    cg.addColorStop(0, "rgba(255,225,222,0)"); cg.addColorStop(0.3, "rgba(255,244,240,0.9)"); cg.addColorStop(0.7, "rgba(255,244,240,0.9)"); cg.addColorStop(1, "rgba(255,225,222,0)");
+    cg.addColorStop(0, "rgba(255,210,208,0)"); cg.addColorStop(0.35, "rgba(255,236,232,0.75)"); cg.addColorStop(0.65, "rgba(255,236,232,0.75)"); cg.addColorStop(1, "rgba(255,210,208,0)");
     g.fillStyle = cg;
-    g.beginPath(); g.ellipse(cx, (coreTop + coreBot) / 2, S * 0.075, (coreBot - coreTop) / 2, 0, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.ellipse(cx, (coreTop + coreBot) / 2, S * 0.055, (coreBot - coreTop) / 2, 0, 0, Math.PI * 2); g.fill();
     g.fillStyle = "rgba(240,205,200,0.6)";
     g.beginPath(); g.ellipse(cx, (coreTop + coreBot) / 2 - S * 0.03, S * 0.018, S * 0.12, 0, 0, Math.PI * 2); g.fill();
     // akènes jaunes enchâssés dans le bord
