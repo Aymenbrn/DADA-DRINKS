@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Flavors from "@/components/Flavors";
 import { FLAVORS, getFlavor } from "@/lib/flavors";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -27,6 +26,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function FlavorPage({ params }: Props) {
   const { slug } = await params;
   if (!getFlavor(slug)) notFound();
-  // Sous la fiche : toute la gamme, pour continuer la visite
-  return <Flavors />;
+  // La fiche (univers 3D, choix de saveur, achat) est dans le layout ; rien en dessous : page entièrement noire
+  return null;
 }
