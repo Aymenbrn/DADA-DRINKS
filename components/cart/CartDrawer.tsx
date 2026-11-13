@@ -54,7 +54,7 @@ export default function CartDrawer() {
                 return (
                   <li key={l.slug} className="cart-drawer-line">
                     <Link href={flavorHref(f.slug)} className="cart-drawer-thumb" onClick={closeCart} aria-label={`Voir la fiche Dada ${f.name}`} style={{ background: f.c }}>
-                      <RibbonCan flavor={f} width={30} />
+                      <RibbonCan flavor={f} width={20} />
                     </Link>
                     <div className="cart-drawer-info">
                       <Link href={flavorHref(f.slug)} onClick={closeCart} className="cart-drawer-name">Dada {f.name}</Link>

@@ -35,7 +35,7 @@ export default function CartView() {
               return (
                 <li key={l.slug} className="cart-line">
                   <Link href={flavorHref(f.slug)} className="cart-thumb" aria-label={`Voir la fiche Dada ${f.name}`}>
-                    <RibbonCan flavor={f} width={40} />
+                    <RibbonCan flavor={f} width={28} />
                   </Link>
                   <div className="cart-info">
                     <Link href={flavorHref(f.slug)} className="cart-name">Dada {f.name}</Link>
