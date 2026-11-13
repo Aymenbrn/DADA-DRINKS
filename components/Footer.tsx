@@ -28,7 +28,7 @@ export default function Footer() {
               {SOCIALS.map((s) => (
                 <a key={s.href} href={s.href} target="_blank" rel="noopener noreferrer">{s.label}</a>
               ))}
-              <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">WhatsApp · {WHATSAPP_DISPLAY}</a>
+              <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" style={{ whiteSpace: "nowrap" }}>WhatsApp · {WHATSAPP_DISPLAY}</a>
             </nav>
           </div>
         </div>
