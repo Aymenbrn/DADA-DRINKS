@@ -809,7 +809,8 @@ function mangoGeo() {
   return geo;
 }
 function mango(): THREE.Object3D {
-  return new THREE.Mesh(mangoGeo(), new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: 0.38, clearcoat: 0.5 }));
+  // peau plus mate : peu de brillance, léger velouté
+  return new THREE.Mesh(mangoGeo(), new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: 0.68, clearcoat: 0.08, clearcoatRoughness: 0.6, sheen: 0.35, sheenRoughness: 0.8, sheenColor: new THREE.Color(0xffe6b0), envMapIntensity: 0.7 }));
 }
 const mangoFace = () =>
   canvasTex(512, (g, S) => {
