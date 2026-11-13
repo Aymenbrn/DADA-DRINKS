@@ -97,10 +97,6 @@ function UniverseScene({ slug }: { slug: string }) {
             <div><dt>PACK</dt><dd>24 canettes</dd></div>
             <div><dt>SERVICE</dt><dd>Très frais</dd></div>
           </dl>
-          <details className="pdp-ingr">
-            <summary>INGRÉDIENTS</summary>
-            <p>{f.ingr ?? "Non indiqués sur le site actuel : à compléter avec Dada."}</p>
-          </details>
         </div>
         <div className="universe-stage">
           <canvas
