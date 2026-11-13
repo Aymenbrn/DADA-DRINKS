@@ -117,7 +117,7 @@ export default function HomeCarousel() {
             {audience === "pro" ? (
               <a href="#offre-pro" className="btn ribbon-buy">Équiper mon commerce</a>
             ) : (
-              <Link href="/boutique" className="btn ribbon-buy">Remplir le frigo</Link>
+              <Link href="/#saveurs" className="btn ribbon-buy">Remplir le frigo</Link>
             )}
           </div>
 

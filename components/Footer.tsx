@@ -11,7 +11,7 @@ export default function Footer() {
           <div className="footer-cols">
             <nav aria-label="Boutique" className="footer-links">
               <span className="eyebrow" style={{ fontSize: 12, color: "var(--muted-on-dark)" }}>BOUTIQUE</span>
-              <Link href="/boutique">Particuliers</Link>
+              <Link href="/#saveurs">Particuliers</Link>
               <Link href="/professionnels">Professionnels</Link>
               <Link href="/professionnels#devis">Demande de devis</Link>
               <Link href="/panier">Panier</Link>

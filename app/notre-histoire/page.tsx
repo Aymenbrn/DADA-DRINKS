@@ -30,7 +30,7 @@ export default function HistoirePage() {
           <p className="band-text">Le nom vient du dadaïsme : l’audace de casser les codes. On vous raconte tout sur la page d’accueil.</p>
           <div className="hero-actions">
             <Link href="/#histoire" className="btn btn-light">L’histoire Dada en 6 actes</Link>
-            <Link href="/boutique" className="btn btn-accent">Goûter la gamme</Link>
+            <Link href="/#saveurs" className="btn btn-accent">Goûter la gamme</Link>
           </div>
         </div>
       </section>

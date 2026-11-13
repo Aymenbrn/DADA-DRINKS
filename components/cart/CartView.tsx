@@ -24,7 +24,7 @@ export default function CartView() {
       ) : lines.length === 0 ? (
         <div className="cart-empty">
           <p>Votre panier est vide. Treize saveurs vous attendent.</p>
-          <Link href="/boutique" className="btn btn-dark">Aller à la boutique</Link>
+          <Link href="/#saveurs" className="btn btn-dark">Aller à la boutique</Link>
         </div>
       ) : (
         <div className="cart-grid">
@@ -71,7 +71,7 @@ export default function CartView() {
                 <Link href="/contact">page contact</Link> pour finaliser votre commande.
               </p>
             )}
-            <Link href="/boutique" className="cart-continue">← Continuer mes achats</Link>
+            <Link href="/#saveurs" className="cart-continue">← Continuer mes achats</Link>
           </aside>
         </div>
       )}

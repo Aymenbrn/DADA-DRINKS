@@ -12,7 +12,7 @@ export default function NotFound() {
       >
         <div className="hero-actions">
           <Link href="/" className="btn btn-accent">Retour à l’accueil</Link>
-          <Link href="/boutique" className="btn btn-ghost">Voir la boutique</Link>
+          <Link href="/#saveurs" className="btn btn-ghost">Voir la boutique</Link>
         </div>
       </PageHero>
     </main>
