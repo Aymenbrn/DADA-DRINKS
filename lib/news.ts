@@ -107,10 +107,11 @@ export const NEWS: NewsItem[] = [
   },
   {
     slug: "ninho-album",
+    image: "/news/ninho-carolina.jpg",
     date: "2023-06",
     title: "Ninho cite Dada Drinks dans son dernier album",
     tag: "Musique",
-    excerpt: "Un big up à la marque de Nanterre dans le nouvel album du rappeur.",
+    excerpt: "Un big up à la marque de Nanterre dans « Carolina », sur le nouvel album du rappeur.",
   },
   {
     slug: "jcdecaux",
@@ -138,6 +139,7 @@ export const NEWS: NewsItem[] = [
   },
   {
     slug: "jul-clip",
+    image: "/news/jul-canette.jpg",
     date: "2023-01",
     title: "Jul dévoile son clip en collaboration avec Dada",
     tag: "Musique",
