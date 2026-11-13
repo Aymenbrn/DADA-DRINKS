@@ -24,7 +24,7 @@ export default function Flavors() {
           <div style={{ display: "flex", flexDirection: "column", gap: 16, flex: "1 1 100%" }}>
             <p className="eyebrow" style={{ color: "var(--muted-on-light)" }}>LA BOUTIQUE</p>
             <h2 className="h-xl" style={{ fontSize: "clamp(28px, 6vw, 92px)", whiteSpace: "nowrap" }}>
-              13 saveurs.<span className="serif-i"> Zéro règle.</span>
+              {list.length} saveurs.<span className="serif-i"> Zéro règle.</span>
             </h2>
             <p style={{ margin: 0, maxWidth: 460, fontSize: 18, lineHeight: 1.5, color: "var(--muted-on-light)" }}>
               Chaque saveur en pack de 24 canettes, livré chez vous. Mélangez, collectionnez, partagez.

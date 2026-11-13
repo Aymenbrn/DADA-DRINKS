@@ -42,12 +42,12 @@ const I_FRUIT =
 // ⚠️ Les couleurs sont des propositions : à caler sur les vrais packagings Dada.
 export const FLAVORS: Flavor[] = [
   {
-    slug: "cerise", name: "Cerise", en: "Cherry", cat: "fruit",
-    c: "#D7192D", ink: "#FFFFFF", hi: "#FF6B7A", rgb: "215,25,45",
-    liq: 0xff3a50, atten: 0x6e0012, surf: 0xff4f66, art: true, label: "/labels/cerise-label-alpha.png",
-    note: "Rouge, franche, pétillante.",
-    desc: "Eau pétillante aromatisée à la cerise. Rouge profond, goût de cerise mûre entre douceur et acidité. À boire très frais.",
-    ingr: I_FRUIT,
+    slug: "cola-cherry", name: "Cola Cherry", en: "Cherry Cola", cat: "cola",
+    c: "#892D73", ink: "#FFFFFF", hi: "#E58AD0", rgb: "137,45,115",
+    liq: 0x6a1420, atten: 0x200308, surf: 0x8a2030, dark: true, art: true, labelFull: "/labels/cola-cherry-label.jpg",
+    note: "Cola, cerise, caractère.",
+    desc: "Un cola aux notes de cerise intensément fruitées. À savourer bien frais.",
+    ingr: null,
   },
   {
     slug: "mangue", name: "Mangue", en: "Mango", cat: "fruit",
@@ -127,14 +127,6 @@ export const FLAVORS: Flavor[] = [
     liq: 0x4e1f0e, atten: 0x150602, surf: 0x6e2e15, dark: true,
     note: "Tout le goût, zéro sucre.",
     desc: "Le cola sans sucre de Dada Drinks : zéro sucre, zéro calorie, tout le pétillant. À servir frais.",
-    ingr: null,
-  },
-  {
-    slug: "cola-cherry", name: "Cola Cherry", en: "Cherry Cola", cat: "cola",
-    c: "#892D73", ink: "#FFFFFF", hi: "#E58AD0", rgb: "137,45,115",
-    liq: 0x6a1420, atten: 0x200308, surf: 0x8a2030, dark: true, art: true, labelFull: "/labels/cola-cherry-label.jpg",
-    note: "Cola, cerise, caractère.",
-    desc: "Un cola aux notes de cerise intensément fruitées. À savourer bien frais.",
     ingr: null,
   },
   {
