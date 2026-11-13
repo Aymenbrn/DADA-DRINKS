@@ -38,6 +38,73 @@ function paint(geo: THREE.BufferGeometry, fn: (p: THREE.Vector3) => THREE.Color)
 const C = (hex: number) => new THREE.Color(hex);
 const mixC = (a: number, b: number, t: number) => C(a).lerp(C(b), Math.min(1, Math.max(0, t)));
 
+// ---------- Bruit et textures peintes sur la sphère ----------
+function hash3(x: number, y: number, z: number) {
+  const h = Math.sin(x * 127.1 + y * 311.7 + z * 74.7) * 43758.5453;
+  return h - Math.floor(h);
+}
+/** Bruit de valeur 3D lissé, entre 0 et 1 */
+function vnoise(x: number, y: number, z: number) {
+  const xi = Math.floor(x), yi = Math.floor(y), zi = Math.floor(z);
+  const xf = x - xi, yf = y - yi, zf = z - zi;
+  const u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf), w = zf * zf * (3 - 2 * zf);
+  const l = (a: number, b: number, t: number) => a + (b - a) * t;
+  const c = (dx: number, dy: number, dz: number) => hash3(xi + dx, yi + dy, zi + dz);
+  return l(
+    l(l(c(0, 0, 0), c(1, 0, 0), u), l(c(0, 1, 0), c(1, 1, 0), u), v),
+    l(l(c(0, 0, 1), c(1, 0, 1), u), l(c(0, 1, 1), c(1, 1, 1), u), v),
+    w,
+  );
+}
+function fbm(x: number, y: number, z: number, oct = 4) {
+  let a = 0.5, f = 1, sum = 0, norm = 0;
+  for (let i = 0; i < oct; i++) { sum += a * vnoise(x * f, y * f, z * f); norm += a; f *= 2.03; a *= 0.5; }
+  return sum / norm;
+}
+const smooth = (e0: number, e1: number, x: number) => { const t = Math.min(1, Math.max(0, (x - e0) / (e1 - e0))); return t * t * (3 - 2 * t); };
+/** Petits points (lenticelles, pores) : 0 → 1 au centre de quelques cellules d'une grille 3D */
+function dots(x: number, y: number, z: number, freq: number, density: number, size: number) {
+  const X = x * freq, Y = y * freq, Z = z * freq;
+  const xi = Math.floor(X), yi = Math.floor(Y), zi = Math.floor(Z);
+  if (hash3(xi, yi, zi) > density) return 0;
+  const cx = xi + 0.25 + hash3(xi + 7, yi, zi) * 0.5, cy = yi + 0.25 + hash3(xi, yi + 7, zi) * 0.5, cz = zi + 0.25 + hash3(xi, yi, zi + 7) * 0.5;
+  const d = Math.hypot(X - cx, Y - cy, Z - cz);
+  return 1 - smooth(size * 0.5, size, d);
+}
+/**
+ * Texture peinte pixel par pixel d'après le point de la sphère unité correspondant
+ * (même paramétrage que les UV de THREE.SphereGeometry). Mise en cache par clé.
+ */
+const sphereTexCache = new Map<string, THREE.Texture>();
+function sphereTex(key: string, W: number, H: number, fn: (x: number, y: number, z: number) => THREE.Color) {
+  const hit = sphereTexCache.get(key);
+  if (hit) return hit;
+  const cv = document.createElement("canvas");
+  cv.width = W; cv.height = H;
+  const g = cv.getContext("2d")!;
+  const img = g.createImageData(W, H);
+  for (let j = 0; j < H; j++) {
+    const th = ((j + 0.5) / H) * Math.PI, st = Math.sin(th), y = Math.cos(th);
+    for (let i = 0; i < W; i++) {
+      const ph = ((i + 0.5) / W) * Math.PI * 2;
+      const c = fn(-Math.cos(ph) * st, y, Math.sin(ph) * st);
+      const o = (j * W + i) * 4;
+      img.data[o] = Math.round(Math.min(1, c.r) * 255);
+      img.data[o + 1] = Math.round(Math.min(1, c.g) * 255);
+      img.data[o + 2] = Math.round(Math.min(1, c.b) * 255);
+      img.data[o + 3] = 255;
+    }
+  }
+  g.putImageData(img, 0, 0);
+  const t = new THREE.CanvasTexture(cv);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 4;
+  sphereTexCache.set(key, t);
+  return t;
+}
+/** Mélange de couleurs THREE en place, renvoie a */
+const lerpC = (a: THREE.Color, hex: number, t: number) => a.lerp(C(hex), Math.min(1, Math.max(0, t)));
+
 // ---------- Éléments communs ----------
 function leaf(color = 0x2f7d32, len = 0.7, width = 0.28): THREE.Object3D {
   const s = new THREE.Shape();
@@ -70,60 +137,65 @@ function ice(): THREE.Object3D {
 
 /** Couleurs d'un agrume coupé */
 type CitrusColors = { rind: string; rindDark: string; pith: string; flesh: string; fleshLight: string; membrane: string };
-const LIME: CitrusColors = { rind: "#3d8a22", rindDark: "#215a12", pith: "#eef6d6", flesh: "#9fd23a", fleshLight: "#d9f28a", membrane: "#f1f8dc" };
+const LIME: CitrusColors = { rind: "#3f8a24", rindDark: "#24561a", pith: "#e6efc4", flesh: "#a9cc45", fleshLight: "#d8eb94", membrane: "#eef5d2" };
 const LEMON: CitrusColors = { rind: "#f2c418", rindDark: "#c99a06", pith: "#fff8dc", flesh: "#f7d33a", fleshLight: "#fff09a", membrane: "#fffbe6" };
 
-/** Coupe d'agrume dessinée finement : écorce, peau blanche, quartiers juteux (petites vésicules), membranes, cœur */
+/** Coupe d'agrume dessinée finement : écorce, peau blanche, quartiers juteux (vésicules serrées), membranes, cœur */
 function drawCitrus(g: CanvasRenderingContext2D, S: number, col: CitrusColors) {
-  const c = S / 2;
-  // écorce : bord plus foncé
-  const rg = g.createRadialGradient(c, c, c * 0.86, c, c, c);
+  const c = S / 2, k = S / 512;
+  // écorce : bord plus foncé, liseré de pores
+  const rg = g.createRadialGradient(c, c, c * 0.88, c, c, c);
   rg.addColorStop(0, col.rind); rg.addColorStop(1, col.rindDark);
   g.fillStyle = rg; g.beginPath(); g.arc(c, c, c, 0, Math.PI * 2); g.fill();
-  g.fillStyle = col.pith; g.beginPath(); g.arc(c, c, c * 0.9, 0, Math.PI * 2); g.fill();
+  // peau blanche (albédo), plus épaisse côté écorce
+  const pg = g.createRadialGradient(c, c, c * 0.84, c, c, c * 0.93);
+  pg.addColorStop(0, col.membrane); pg.addColorStop(1, col.pith);
+  g.fillStyle = pg; g.beginPath(); g.arc(c, c, c * 0.925, 0, Math.PI * 2); g.fill();
   const n = 10;
   let seed = 11;
   const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
   for (let i = 0; i < n; i++) {
-    const a0 = (i / n) * Math.PI * 2 + 0.035, a1 = ((i + 1) / n) * Math.PI * 2 - 0.035;
+    const w = 0.03 + rnd() * 0.02;
+    const a0 = (i / n) * Math.PI * 2 + w, a1 = ((i + 1) / n) * Math.PI * 2 - w;
     g.save();
-    g.beginPath(); g.moveTo(c + Math.cos((a0 + a1) / 2) * c * 0.06, c + Math.sin((a0 + a1) / 2) * c * 0.06);
-    g.arc(c, c, c * 0.85, a0, a1); g.closePath();
-    const fg = g.createRadialGradient(c, c, c * 0.05, c, c, c * 0.85);
-    fg.addColorStop(0, col.fleshLight); fg.addColorStop(0.6, col.flesh); fg.addColorStop(1, col.flesh);
+    g.beginPath(); g.moveTo(c + Math.cos((a0 + a1) / 2) * c * 0.08, c + Math.sin((a0 + a1) / 2) * c * 0.08);
+    g.arc(c, c, c * 0.86, a0, a1); g.closePath();
+    const fg = g.createRadialGradient(c, c, c * 0.05, c, c, c * 0.86);
+    fg.addColorStop(0, col.fleshLight); fg.addColorStop(0.55, col.flesh); fg.addColorStop(1, col.flesh);
     g.fillStyle = fg; g.fill();
     g.clip();
-    // vésicules de jus : petites gouttes allongées vers le centre
-    for (let k = 0; k < 70; k++) {
-      const a = a0 + rnd() * (a1 - a0), r = c * (0.15 + rnd() * 0.68);
+    // vésicules de jus : gouttes allongées vers le centre, serrées, avec un reflet
+    for (let q = 0; q < 260; q++) {
+      const a = a0 + rnd() * (a1 - a0), r = c * (0.1 + Math.sqrt(rnd()) * 0.76);
       const x = c + Math.cos(a) * r, y = c + Math.sin(a) * r;
-      g.fillStyle = rnd() > 0.5 ? "rgba(255,255,255,0.28)" : "rgba(0,0,0,0.08)";
-      g.beginPath(); g.ellipse(x, y, 2 + rnd() * 3, 6 + rnd() * 8, a, 0, Math.PI * 2); g.fill();
+      const len = (5 + rnd() * 9) * k * (0.6 + r / c), wid = (1.6 + rnd() * 2) * k;
+      g.fillStyle = rnd() > 0.45 ? `rgba(255,255,255,${0.12 + rnd() * 0.2})` : `rgba(0,0,0,${0.04 + rnd() * 0.07})`;
+      g.beginPath(); g.ellipse(x, y, len, wid, a, 0, Math.PI * 2); g.fill();
     }
     g.restore();
   }
   // membranes et cœur
-  g.strokeStyle = col.membrane; g.lineWidth = S / 160;
+  g.strokeStyle = col.membrane; g.lineWidth = S / 170;
   for (let i = 0; i < n; i++) {
-    const a = (i / n) * Math.PI * 2;
-    g.beginPath(); g.moveTo(c + Math.cos(a) * c * 0.07, c + Math.sin(a) * c * 0.07); g.lineTo(c + Math.cos(a) * c * 0.86, c + Math.sin(a) * c * 0.86); g.stroke();
+    const a = (i / n) * Math.PI * 2 + (rnd() - 0.5) * 0.02;
+    g.beginPath(); g.moveTo(c + Math.cos(a) * c * 0.08, c + Math.sin(a) * c * 0.08); g.lineTo(c + Math.cos(a) * c * 0.87, c + Math.sin(a) * c * 0.87); g.stroke();
   }
-  g.fillStyle = col.membrane; g.beginPath(); g.arc(c, c, c * 0.07, 0, Math.PI * 2); g.fill();
+  g.fillStyle = col.membrane; g.beginPath(); g.arc(c, c, c * 0.08, 0, Math.PI * 2); g.fill();
   // reflet humide
   const hl = g.createRadialGradient(c * 0.7, c * 0.65, 0, c * 0.7, c * 0.65, c * 0.6);
-  hl.addColorStop(0, "rgba(255,255,255,0.25)"); hl.addColorStop(1, "rgba(255,255,255,0)");
-  g.fillStyle = hl; g.beginPath(); g.arc(c, c, c * 0.85, 0, Math.PI * 2); g.fill();
+  hl.addColorStop(0, "rgba(255,255,255,0.22)"); hl.addColorStop(1, "rgba(255,255,255,0)");
+  g.fillStyle = hl; g.beginPath(); g.arc(c, c, c * 0.86, 0, Math.PI * 2); g.fill();
 }
 const citrusFaceMat = (col: CitrusColors) =>
   new THREE.MeshPhysicalMaterial({
-    map: canvasTex(512, (g, S) => drawCitrus(g, S, col)),
+    map: canvasTex(1024, (g, S) => drawCitrus(g, S, col)),
     roughness: 0.28, clearcoat: 1, clearcoatRoughness: 0.12, sheen: 0.4, sheenColor: new THREE.Color(col.fleshLight), side: THREE.DoubleSide,
   });
 
 /** Rondelle d'agrume : tranche épaisse, écorce sur la tranche, faces finement dessinées */
-function citrusSlice(col: CitrusColors): THREE.Object3D {
+function citrusSlice(col: CitrusColors, skin?: THREE.Material): THREE.Object3D {
   const face = citrusFaceMat(col);
-  const side = new THREE.MeshPhysicalMaterial({ color: new THREE.Color(col.rind), roughness: 0.45, clearcoat: 0.6 });
+  const side = skin ?? new THREE.MeshPhysicalMaterial({ color: new THREE.Color(col.rind), roughness: 0.45, clearcoat: 0.6 });
   return new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, 0.09, 64), [side, face, face]);
 }
 
@@ -371,92 +443,133 @@ function lycheeBunch(): THREE.Object3D {
   return g;
 }
 
-/** Texture d'une feuille de menthe : ovale, bord denté, nervures creusées (couleur + transparence + relief) */
-let mintTexCache: { map: THREE.Texture; bump: THREE.Texture } | null = null;
-function mintTextures() {
-  if (mintTexCache) return mintTexCache;
-  const W = 256, Hh = 384;
+/**
+ * Textures de feuille (couleur avec découpe, relief), mises en cache par sorte :
+ *  - menthe : ovale à pointe aiguë, bord en dents de scie, nervures creusées, limbe gaufré entre les nervures ;
+ *  - lancéolée : feuille longue et fine (pêcher), dents fines.
+ */
+type LeafKind = "mint" | "lance";
+const leafTexCache = new Map<LeafKind, { map: THREE.Texture; bump: THREE.Texture }>();
+function leafTextures(kind: LeafKind = "mint") {
+  const hit = leafTexCache.get(kind);
+  if (hit) return hit;
+  const W = kind === "mint" ? 512 : 256, Hh = kind === "mint" ? 768 : 1024;
+  const teeth = kind === "mint" ? 14 : 34, toothAmp = kind === "mint" ? 0.09 : 0.035;
+  const half = (yy: number) =>
+    kind === "mint"
+      ? Math.sin(Math.PI * Math.pow(yy, 0.72)) * (1 - 0.12 * yy) * 0.46 // ovale, large vers la base, pointe aiguë
+      : Math.sin(Math.PI * Math.pow(yy, 0.85)) * 0.42;
+  const yOf = (yy: number) => Hh * 0.975 - yy * Hh * 0.955;
   const outline = (g: CanvasRenderingContext2D) => {
     g.beginPath();
-    const N = 120, teeth = 15;
+    const N = 400;
     for (let i = 0; i <= N; i++) {
-      const t = i / N; // 0 → 1 : base, un côté, pointe, l'autre côté
+      const t = i / N;
       const side = t < 0.5 ? 1 : -1;
-      const yy = t < 0.5 ? (1 - Math.cos(t * 2 * Math.PI)) / 2 : (1 - Math.cos((1 - t) * 2 * Math.PI)) / 2;
-      const wdt = Math.sin(Math.PI * Math.pow(yy, 0.8)) * (1 - 0.25 * yy); // ovale, plus large vers la base
-      const tooth = 1 + 0.07 * Math.abs(Math.sin(yy * teeth * Math.PI)); // dents de scie
-      const x = W / 2 + side * wdt * tooth * W * 0.46;
-      const py = Hh * 0.97 - yy * Hh * 0.94;
-      if (i === 0) g.moveTo(x, py); else g.lineTo(x, py);
+      const yy = t < 0.5 ? t * 2 : (1 - t) * 2;
+      // dents de scie tournées vers la pointe
+      const saw = yy > 0.1 && yy < 0.96 ? ((yy * teeth) % 1) : 0;
+      const tooth = 1 + toothAmp * saw;
+      const x = W / 2 + side * half(yy) * tooth * W;
+      if (i === 0) g.moveTo(x, yOf(yy)); else g.lineTo(x, yOf(yy));
     }
     g.closePath();
   };
-  const veins = (g: CanvasRenderingContext2D, color: string, w: number) => {
-    g.strokeStyle = color; g.lineCap = "round";
-    g.lineWidth = w * 1.6;
-    g.beginPath(); g.moveTo(W / 2, Hh * 0.98); g.lineTo(W / 2, Hh * 0.06); g.stroke();
-    g.lineWidth = w;
-    for (let k = 0; k < 6; k++) {
-      const y0 = Hh * (0.85 - k * 0.13);
-      for (const sd of [-1, 1]) {
-        g.beginPath(); g.moveTo(W / 2, y0);
-        g.quadraticCurveTo(W / 2 + sd * W * 0.2, y0 - Hh * 0.06, W / 2 + sd * W * (0.36 - k * 0.03), y0 - Hh * 0.13); g.stroke();
-      }
+  // nervures : centrale + paires latérales qui remontent vers la pointe
+  const pairs = kind === "mint" ? 6 : 9;
+  const veinPaths: [number, number, number, number, number, number][] = [];
+  for (let k = 0; k < pairs; k++) {
+    const y0 = 0.08 + (k / pairs) * 0.78, y1 = Math.min(0.97, y0 + (kind === "mint" ? 0.2 : 0.12));
+    for (const sd of [-1, 1]) {
+      const xe = W / 2 + sd * half(y1) * W * 0.88;
+      veinPaths.push([W / 2, yOf(y0), W / 2 + sd * half(y0) * W * 0.55, yOf(y0 + 0.05), xe, yOf(y1)]);
     }
+  }
+  const drawVeins = (g: CanvasRenderingContext2D, color: string, w: number) => {
+    g.strokeStyle = color; g.lineCap = "round";
+    g.lineWidth = w * 1.8;
+    g.beginPath(); g.moveTo(W / 2, Hh); g.quadraticCurveTo(W / 2 + W * 0.01, Hh * 0.5, W / 2, yOf(0.985)); g.stroke();
+    g.lineWidth = w;
+    for (const [x0, y0, cx, cy, x1, y1] of veinPaths) { g.beginPath(); g.moveTo(x0, y0); g.quadraticCurveTo(cx, cy, x1, y1); g.stroke(); }
   };
-  // couleur
+  // bosses du limbe : mêmes positions sur la couleur et le relief
+  let seed = kind === "mint" ? 321 : 654;
+  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  const blobs = Array.from({ length: kind === "mint" ? 520 : 260 }, () => [rnd() * W, rnd() * Hh, (kind === "mint" ? 7 : 5) + rnd() * 12]);
+
   const cv = document.createElement("canvas"); cv.width = W; cv.height = Hh;
   const g = cv.getContext("2d")!;
   outline(g);
   const gr = g.createLinearGradient(0, Hh, 0, 0);
-  gr.addColorStop(0, "#2f7f33"); gr.addColorStop(0.6, "#3f9a3c"); gr.addColorStop(1, "#57b247");
+  if (kind === "mint") { gr.addColorStop(0, "#2a6b2a"); gr.addColorStop(0.55, "#358a34"); gr.addColorStop(1, "#47a33f"); }
+  else { gr.addColorStop(0, "#2f6a24"); gr.addColorStop(1, "#4b8a2c"); }
   g.fillStyle = gr; g.fill();
   g.save(); outline(g); g.clip();
-  // bosselage entre les nervures (aspect gaufré de la menthe)
-  for (let k = 0; k < 260; k++) {
-    const x = Math.random() * W, y = Math.random() * Hh;
-    g.fillStyle = Math.random() > 0.5 ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.07)";
-    g.beginPath(); g.arc(x, y, 3 + Math.random() * 6, 0, Math.PI * 2); g.fill();
+  for (const [x, y, r] of blobs) {
+    const bg = g.createRadialGradient(x - r * 0.3, y - r * 0.3, 0, x, y, r);
+    bg.addColorStop(0, "rgba(190,240,150,0.16)"); bg.addColorStop(1, "rgba(190,240,150,0)");
+    g.fillStyle = bg; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
   }
-  veins(g, "rgba(170,225,140,0.75)", 2.4);
+  g.shadowColor = "rgba(10,40,10,0.6)"; g.shadowBlur = 6;
+  drawVeins(g, "rgba(150,205,110,0.85)", kind === "mint" ? 3 : 2.2);
+  g.shadowBlur = 0;
+  // bord un peu plus clair
+  g.lineWidth = 5; g.strokeStyle = "rgba(170,220,120,0.35)"; outline(g); g.stroke();
   g.restore();
   const map = new THREE.CanvasTexture(cv);
   map.colorSpace = THREE.SRGBColorSpace;
-  // relief : nervures en creux
+  map.anisotropy = 4;
+  // relief : nervures creusées, limbe bombé entre elles
   const bv = document.createElement("canvas"); bv.width = W; bv.height = Hh;
   const b = bv.getContext("2d")!;
-  b.fillStyle = "#bbb"; b.fillRect(0, 0, W, Hh);
-  veins(b, "#333", 4);
+  b.fillStyle = "#808080"; b.fillRect(0, 0, W, Hh);
+  for (const [x, y, r] of blobs) {
+    const bg = b.createRadialGradient(x, y, 0, x, y, r);
+    bg.addColorStop(0, "rgba(255,255,255,0.55)"); bg.addColorStop(1, "rgba(255,255,255,0)");
+    b.fillStyle = bg; b.beginPath(); b.arc(x, y, r, 0, Math.PI * 2); b.fill();
+  }
+  b.filter = "blur(3px)";
+  drawVeins(b, "#1a1a1a", kind === "mint" ? 9 : 6);
+  b.filter = "none";
+  drawVeins(b, "#0a0a0a", kind === "mint" ? 4 : 3);
   const bump = new THREE.CanvasTexture(bv);
-  mintTexCache = { map, bump };
-  return mintTexCache;
+  const res = { map, bump };
+  leafTexCache.set(kind, res);
+  return res;
 }
 
-/** Feuille de menthe : plan courbé (gouttière + ondulation), découpé par la texture */
-function mintLeaf(len: number): THREE.Object3D {
-  const { map, bump } = mintTextures();
-  const w = len * 0.66;
-  const geo = new THREE.PlaneGeometry(w, len, 12, 18);
+/** Feuille texturée : plan courbé (gouttière, cambrure, petites ondulations), découpé par la texture */
+function texturedLeaf(len: number, kind: LeafKind, aspect: number): THREE.Object3D {
+  const { map, bump } = leafTextures(kind);
+  const w = len * aspect;
+  const geo = new THREE.PlaneGeometry(w, len, 24, 36);
   const pos = geo.attributes.position;
   for (let i = 0; i < pos.count; i++) {
     const x = pos.getX(i), y = pos.getY(i);
     const u = x / (w / 2), v = y / len + 0.5;
-    pos.setZ(i, -0.35 * w * u * u + 0.08 * len * Math.sin(v * Math.PI) - 0.12 * len * v * v + 0.015 * len * Math.sin(u * 9 + v * 7));
+    pos.setZ(i,
+      -0.3 * w * u * u // gouttière le long de la nervure
+      + 0.08 * len * Math.sin(v * Math.PI) - 0.13 * len * v * v // cambrure
+      + 0.012 * len * Math.sin(u * 11 + v * 9) * Math.abs(u) // bord ondulé
+      + 0.006 * len * Math.sin(u * 23) * Math.sin(v * 31),
+    );
   }
   geo.translate(0, len / 2, 0); // base de la feuille à l'origine
   geo.computeVertexNormals();
   const mat = new THREE.MeshPhysicalMaterial({
-    map, alphaTest: 0.5, bumpMap: bump, bumpScale: 0.6,
-    roughness: 0.5, clearcoat: 0.35, clearcoatRoughness: 0.4, side: THREE.DoubleSide,
+    map, alphaTest: 0.5, bumpMap: bump, bumpScale: kind === "mint" ? 2.2 : 1.2,
+    roughness: 0.55, clearcoat: 0.25, clearcoatRoughness: 0.45, sheen: 0.3, sheenColor: new THREE.Color(0xc8f0b0), side: THREE.DoubleSide,
   });
   return new THREE.Mesh(geo, mat);
 }
+/** Feuille de menthe */
+const mintLeaf = (len: number) => texturedLeaf(len, "mint", 0.66);
 
 /** Brin de menthe : tige, paires de feuilles opposées et croisées, petit bouquet au sommet */
 function mint(): THREE.Object3D {
   const g = new THREE.Group();
-  g.add(stem([[0, -0.5, 0], [0.02, 0, 0.01], [0, 0.48, 0]], 0.02, 0x4f7f2f));
-  const nodes = [[-0.38, 0.5], [-0.08, 0.44], [0.2, 0.36], [0.42, 0.24]];
+  g.add(stem([[0, -0.5, 0], [0.02, 0, 0.01], [0, 0.48, 0]], 0.022, 0x4c6b2c));
+  const nodes = [[-0.38, 0.52], [-0.1, 0.46], [0.16, 0.38], [0.36, 0.28], [0.48, 0.18]];
   nodes.forEach(([y, len], i) => {
     for (const side of [-1, 1]) {
       const l = mintLeaf(len);
@@ -479,7 +592,7 @@ function mint(): THREE.Object3D {
 }
 
 /** Quartier d'agrume : peau grêlée et les deux faces coupées, détaillées */
-function citrusWedge(skin: number, col: CitrusColors): THREE.Object3D {
+function citrusWedge(skin: number, col: CitrusColors, skinMat?: THREE.Material): THREE.Object3D {
   const faceMat = citrusFaceMat(col);
   const r = 0.36;
   const g = new THREE.Group();
@@ -492,7 +605,7 @@ function citrusWedge(skin: number, col: CitrusColors): THREE.Object3D {
     pos.setXYZ(i, v.x * k, v.y * k, v.z * k);
   }
   peel.computeVertexNormals();
-  g.add(new THREE.Mesh(peel, new THREE.MeshPhysicalMaterial({ color: skin, roughness: 0.42, clearcoat: 0.6, clearcoatRoughness: 0.25 })));
+  g.add(new THREE.Mesh(peel, skinMat ?? new THREE.MeshPhysicalMaterial({ color: skin, roughness: 0.42, clearcoat: 0.6, clearcoatRoughness: 0.25 })));
   // Les deux faces coupées (demi-disques)
   const f1 = new THREE.CircleGeometry(r, 48, Math.PI / 2, Math.PI);
   f1.scale(1, 1.15, 1);
@@ -508,14 +621,27 @@ function citrusWedge(skin: number, col: CitrusColors): THREE.Object3D {
   wrap.userData.steady = true;
   return wrap;
 }
-const limeWedge = () => citrusWedge(0x3d8a22, LIME);
+/** Écorce de citron vert : vert profond marbré, pores plus clairs, quelques reflets jaunes */
+const limeSkinMat = () =>
+  new THREE.MeshPhysicalMaterial({
+    map: sphereTex("lime", 512, 256, (x, y, z) => {
+      const n = fbm(x * 3 + 4, y * 3, z * 3);
+      const c = mixC(0x2f6e1a, 0x5a9e2c, n * 1.3 - 0.15);
+      lerpC(c, 0x9fb83a, smooth(0.62, 0.85, fbm(x * 1.5, y * 1.5 + 9, z * 1.5)) * 0.45); // zones mûres plus jaunes
+      lerpC(c, 0x8fc25a, dots(x, y, z, 70, 0.6, 0.32) * 0.55); // pores
+      return c;
+    }),
+    bumpMap: lemonTextures().bump, bumpScale: 0.7,
+    roughness: 0.38, clearcoat: 0.7, clearcoatRoughness: 0.2,
+  });
+const limeWedge = () => citrusWedge(0x3d8a22, LIME, limeSkinMat());
 const bigMint = () => {
   const m = mint();
   m.scale.setScalar(1.5);
   return m;
 };
 const lime = () => {
-  const sl = citrusSlice(LIME);
+  const sl = citrusSlice(LIME, limeSkinMat());
   sl.rotation.x = Math.PI / 2; // la tranche face à l'écran
   return facing(sl);
 };
@@ -624,21 +750,49 @@ function strawberry(): THREE.Object3D {
   return g;
 }
 
+/** Peau de pêche : fond jaune orangé, joue rouge marbrée et mouchetée, velours (sheen) */
+const peachSkinTex = () =>
+  sphereTex("peach", 512, 256, (x, y, z) => {
+    const n = fbm(x * 2.2 + 3, y * 2.2, z * 2.2), n2 = fbm(x * 6, y * 6 + 5, z * 6);
+    const c = mixC(0xf6c25a, 0xeb8f2c, smooth(0.2, 0.9, 0.5 - y * 0.35 + (n - 0.5)));
+    const blush = smooth(0.38, 0.68, 0.5 + 0.42 * x + 0.22 * y + 0.55 * (n - 0.5));
+    lerpC(c, n2 > 0.5 ? 0xb52a26 : 0xcf3b2a, blush);
+    lerpC(c, 0x8e1c1f, blush * smooth(0.55, 0.75, n2) * 0.6); // marbrures sombres
+    // mouchetures rouges à la lisière de la joue
+    const edge = 1 - Math.abs(blush - 0.5) * 2;
+    lerpC(c, 0xb8302a, dots(x, y, z, 55, 0.75, 0.35) * edge * 0.9);
+    lerpC(c, 0xffe2a0, dots(x + 3, y, z, 90, 0.4, 0.3) * 0.25); // petites lenticelles claires
+    return c;
+  });
+const peachSkinMat = () =>
+  new THREE.MeshPhysicalMaterial({ map: peachSkinTex(), roughness: 0.78, sheen: 1, sheenColor: C(0xffe2cc), sheenRoughness: 0.55 });
+
+/** Pêche entière : ronde, cavité à la queue, sillon marqué, petite pointe ; feuille lancéolée */
 function peach(): THREE.Object3D {
   const g = new THREE.Group();
-  const geo = new THREE.SphereGeometry(0.45, 56, 40);
-  const pos = geo.attributes.position;
+  const R = 0.45;
+  const geo = new THREE.SphereGeometry(R, 96, 64);
+  const pos = geo.attributes.position, v = new THREE.Vector3();
   for (let i = 0; i < pos.count; i++) {
-    const x = pos.getX(i), z = pos.getZ(i);
-    if (z > 0) pos.setZ(i, z - 0.05 * Math.exp(-(x * x) / 0.004)); // le sillon
+    v.fromBufferAttribute(pos, i);
+    const ny = v.y / R;
+    let x = v.x * 1.02, y = v.y * 0.97, z = v.z;
+    if (ny > 0.72) y -= (ny - 0.72) * R * 0.55 * (1 - Math.hypot(v.x, v.z) / R); // creux de la queue
+    if (ny < -0.9) y -= (-0.9 - ny) * R * 0.35; // petite pointe
+    if (z > 0) z -= 0.05 * Math.exp(-(x * x) / 0.0035) * (0.4 + 0.6 * (1 - ny * ny)); // sillon
+    // l'un des côtés du sillon un peu plus renflé
+    if (z > 0) z += 0.02 * Math.max(0, x) * 4 * (1 - ny * ny);
+    pos.setXYZ(i, x, y, z);
   }
   geo.computeVertexNormals();
-  paint(geo, (p) => mixC(0xf5b456, 0xd2432f, 0.5 + p.x * 0.9 + p.y * 0.6));
-  g.add(new THREE.Mesh(geo, new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: 0.7, sheen: 1, sheenColor: C(0xffd8bf), sheenRoughness: 0.8 })));
-  const l = leaf(0x3f7f2a, 0.5, 0.18);
-  l.position.set(0.04, 0.45, 0);
-  l.rotation.z = -1.0;
+  g.add(new THREE.Mesh(geo, peachSkinMat()));
+  const st = stem([[0, R * 0.8, 0], [0.01, R * 0.88, 0], [0.03, R * 0.94, 0]], 0.022, 0x5b4024);
+  g.add(st);
+  const l = texturedLeaf(0.62, "lance", 0.26);
+  l.position.set(0.03, R * 0.92, 0);
+  l.rotation.set(0.25, 0.3, -1.05);
   g.add(l);
+  g.rotation.set(0.2, -0.35, 0.1); // le sillon légèrement de profil
   return g;
 }
 
@@ -787,12 +941,13 @@ function halfLathe(prof: number[][], skin: THREE.Material, face: THREE.Texture) 
 
 // Mangue : forme en haricot, peau verte → jaune → rouge, petits points clairs
 function mangoGeo() {
-  const geo = new THREE.SphereGeometry(0.5, 72, 52);
+  const geo = new THREE.SphereGeometry(0.5, 120, 80);
   const pos = geo.attributes.position;
   for (let i = 0; i < pos.count; i++) {
     let x = pos.getX(i) * 1.38, y = pos.getY(i) * 0.95, z = pos.getZ(i) * 0.78;
     y += 0.2 * Math.pow(x / 0.69, 2) - 0.1; // courbe en haricot
     if (x > 0.45) y -= (x - 0.45) * 0.35; // le « bec »
+    if (x < -0.3 && y > 0) y += 0.05 * ((-0.3 - x) / 0.39) * (y / 0.5); // épaule pleine côté pédoncule
     pos.setXYZ(i, x, y, z);
   }
   geo.computeVertexNormals();
@@ -804,9 +959,33 @@ function mangoGeo() {
   });
   return geo;
 }
+/** Peau de mangue : vert près du pédoncule et dessous, jaune doré, joue rouge rosé au soleil, lenticelles claires */
+const mangoSkinTex = () =>
+  sphereTex("mango", 512, 256, (x, y, z) => {
+    const t = (x + 1) / 2; // 0 : côté pédoncule, 1 : le bec
+    const n = fbm(x * 2 + 11, y * 2, z * 2), n2 = fbm(x * 5, y * 5 + 3, z * 5);
+    const c = mixC(0xe9b53c, 0xf2c650, n2);
+    lerpC(c, n > 0.5 ? 0x6f9433 : 0x86a23a, smooth(0.45, 0.85, -y * 0.55 + t * 0.25 + (n - 0.5) * 0.9 + 0.35)); // vert
+    const blush = smooth(0.42, 0.78, (1 - t) * 0.45 + y * 0.45 + z * 0.2 + (n - 0.5) * 0.8 + 0.2);
+    lerpC(c, n2 > 0.55 ? 0xa8263a : 0xd2453a, blush); // rouge rosé
+    lerpC(c, 0xe57a3a, blush * (1 - blush) * 1.6); // transition orangée
+    // lenticelles : points clairs, plus visibles sur le rouge
+    lerpC(c, 0xf7e7a6, dots(x, y, z, 48, 0.55, 0.3) * (0.35 + blush * 0.55));
+    return c;
+  });
+
+/** Mangue entière : forme en haricot, peau mate et légèrement cireuse, petit pédoncule */
 function mango(): THREE.Object3D {
-  // peau plus mate : peu de brillance, léger velouté
-  return new THREE.Mesh(mangoGeo(), new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: 0.68, clearcoat: 0.08, clearcoatRoughness: 0.6, sheen: 0.35, sheenRoughness: 0.8, sheenColor: new THREE.Color(0xffe6b0), envMapIntensity: 0.7 }));
+  const g = new THREE.Group();
+  const geo = mangoGeo();
+  geo.deleteAttribute("color");
+  g.add(new THREE.Mesh(geo, new THREE.MeshPhysicalMaterial({
+    map: mangoSkinTex(), roughness: 0.6, clearcoat: 0.12, clearcoatRoughness: 0.55,
+    sheen: 0.3, sheenRoughness: 0.8, sheenColor: new THREE.Color(0xffe6b0), envMapIntensity: 0.75,
+  })));
+  const st = stem([[-0.66, 0.12, 0], [-0.7, 0.18, 0], [-0.72, 0.25, 0.01]], 0.022, 0x4f5a26);
+  g.add(st);
+  return g;
 }
 const mangoFace = () =>
   canvasTex(512, (g, S) => {
@@ -1054,24 +1233,58 @@ function melonSlice(): THREE.Object3D {
 }
 
 // Pêche coupée : chair jaune orangé, rouge autour du noyau
+/** Pêche coupée : chair jaune orangé fibreuse, rouge autour du noyau, noyau brun creusé de sillons */
 const peachFace = () =>
-  canvasTex(512, (g, S) => {
+  canvasTex(1024, (g, S) => {
     const c = S / 2;
-    g.fillStyle = "#d2432f"; g.beginPath(); g.arc(c, c, c, 0, Math.PI * 2); g.fill();
-    const gr = g.createRadialGradient(c, c, c * 0.25, c, c, c * 0.95);
-    gr.addColorStop(0, "#e2512f"); gr.addColorStop(0.35, "#ffad3a"); gr.addColorStop(1, "#ffc75e");
-    g.fillStyle = gr; g.beginPath(); g.arc(c, c, c * 0.95, 0, Math.PI * 2); g.fill();
-    g.fillStyle = "#7a3a1e"; g.beginPath(); g.ellipse(c, c, c * 0.24, c * 0.32, 0, 0, Math.PI * 2); g.fill(); // noyau
-    g.strokeStyle = "rgba(60,25,10,0.7)"; g.lineWidth = 5;
-    for (let k = 0; k < 7; k++) {
-      g.beginPath(); g.moveTo(c - c * 0.16, c - c * 0.25 + k * c * 0.08); g.quadraticCurveTo(c, c - c * 0.22 + k * c * 0.08, c + c * 0.16, c - c * 0.25 + k * c * 0.08); g.stroke();
+    let seed = 515;
+    const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    // peau fine
+    g.fillStyle = "#c43a29"; g.beginPath(); g.arc(c, c, c, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "#f2a13c"; g.beginPath(); g.arc(c, c, c * 0.975, 0, Math.PI * 2); g.fill();
+    const gr = g.createRadialGradient(c, c, c * 0.28, c, c, c * 0.97);
+    gr.addColorStop(0, "#c8321f"); gr.addColorStop(0.18, "#ec6a2a"); gr.addColorStop(0.42, "#ffa63a");
+    gr.addColorStop(0.85, "#ffbb4d"); gr.addColorStop(1, "#f7a840");
+    g.fillStyle = gr; g.beginPath(); g.arc(c, c, c * 0.97, 0, Math.PI * 2); g.fill();
+    // fibres rouges qui partent du noyau
+    for (let k = 0; k < 520; k++) {
+      const a = rnd() * Math.PI * 2, r0 = c * (0.27 + rnd() * 0.08), len = c * (0.06 + rnd() * rnd() * 0.32);
+      g.strokeStyle = `rgba(${170 + rnd() * 40},${30 + rnd() * 30},20,${0.08 + rnd() * 0.22})`;
+      g.lineWidth = 1 + rnd() * 2.2;
+      g.beginPath(); g.moveTo(c + Math.cos(a) * r0 * 0.9, c + Math.sin(a) * r0 * 1.2);
+      g.lineTo(c + Math.cos(a + (rnd() - 0.5) * 0.1) * (r0 + len) * 0.95, c + Math.sin(a) * (r0 + len) * 1.1); g.stroke();
     }
+    // brillance juteuse
+    for (let k = 0; k < 300; k++) {
+      const a = rnd() * Math.PI * 2, rr = c * (0.35 + rnd() * 0.58);
+      g.fillStyle = `rgba(255,240,200,${0.05 + rnd() * 0.12})`;
+      g.beginPath(); g.ellipse(c + Math.cos(a) * rr, c + Math.sin(a) * rr, 3 + rnd() * 7, 1 + rnd() * 2, a, 0, Math.PI * 2); g.fill();
+    }
+    // creux rouge sombre autour du noyau
+    g.fillStyle = "#7d1b14"; g.beginPath(); g.ellipse(c, c, c * 0.27, c * 0.36, 0, 0, Math.PI * 2); g.fill();
+    // noyau : ovale pointu, brun, creusé de sillons sinueux
+    const pit = () => { g.beginPath(); g.ellipse(c, c, c * 0.235, c * 0.32, 0, 0, Math.PI * 2); };
+    const pg = g.createRadialGradient(c - c * 0.06, c - c * 0.08, 0, c, c, c * 0.34);
+    pg.addColorStop(0, "#b0643a"); pg.addColorStop(0.6, "#8a4526"); pg.addColorStop(1, "#5e2a16");
+    pit(); g.fillStyle = pg; g.fill();
+    g.save(); pit(); g.clip();
+    for (let k = 0; k < 70; k++) {
+      let x = c + (rnd() - 0.5) * c * 0.46, y = c + (rnd() - 0.5) * c * 0.64;
+      g.strokeStyle = `rgba(55,22,10,${0.45 + rnd() * 0.4})`; g.lineWidth = 3 + rnd() * 5;
+      g.beginPath(); g.moveTo(x, y);
+      for (let q = 0; q < 4; q++) { x += (rnd() - 0.5) * 50; y += (rnd() - 0.5) * 50; g.lineTo(x, y); }
+      g.stroke();
+      g.strokeStyle = "rgba(220,150,100,0.25)"; g.lineWidth = 2; g.stroke();
+    }
+    // arête centrale du noyau
+    g.strokeStyle = "rgba(60,25,12,0.8)"; g.lineWidth = 7;
+    g.beginPath(); g.moveTo(c, c - c * 0.32); g.quadraticCurveTo(c + c * 0.03, c, c, c + c * 0.32); g.stroke();
+    g.restore();
   });
 function peachHalf(): THREE.Object3D {
-  const skin = new THREE.MeshPhysicalMaterial({ color: 0xe0703a, roughness: 0.7, sheen: 1, sheenColor: C(0xffd8bf), sheenRoughness: 0.8 });
-  return halfEllipsoid(0.45, 1, 1, 0.95, skin, peachFace());
+  return halfEllipsoid(0.45, 1, 1, 0.95, peachSkinMat(), peachFace());
 }
-const peachSliceF = () => facing(slice(0xffa938, 0xffd27a, 0xc8382c, 0.6, 0.35, 2.0, 0.2));
+const peachSliceF = () => facing(slice(0xffb041, 0xe0532a, 0xc0342a, 0.6, 0.35, 2.0, 0.2));
 
 // Pomme coupée : chair crème, trognon en étoile, pépins, fine peau verte
 const appleFace = () =>
