@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
@@ -21,7 +22,7 @@ function UniverseScene({ slug }: { slug: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
-  const { add } = useCart();
+  const { add, count } = useCart();
   const [qty, setQty] = useState(1);
 
   useEffect(() => {
@@ -47,6 +48,15 @@ function UniverseScene({ slug }: { slug: string }) {
 
   return (
     <section className="universe" style={style} aria-labelledby="universe-title">
+      <div className="pdp-topbar">
+        <Link href="/" className="pdp-logo" aria-label="Dada Drinks, accueil">
+          <Image src="/brand/dada-logo.webp" alt="Dada" width={750} height={303} className="logo-img" />
+        </Link>
+        <div className="pdp-topbar-links">
+          <Link href="/#saveurs" className="pdp-back">← Retour à la boutique</Link>
+          <Link href="/panier" className="pdp-cart">Panier · {count}</Link>
+        </div>
+      </div>
       <nav className="pdp-flavors" aria-label="Choisir une saveur">
         <ul>
           {FLAVORS.map((x) => (

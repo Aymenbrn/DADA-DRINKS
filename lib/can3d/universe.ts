@@ -1101,7 +1101,7 @@ type Recipe = {
 
 const RECIPES: Record<string, Recipe> = {
   cerise: { makers: [cherries, cherrySingle, cherries], bubbles: 18, scale: 1.15, orbit: true },
-  mangue: { makers: [mango, mangoHalf, mangoCubes, mango, mangoHalf, () => leaf(0x3d7f2c, 0.8)], bubbles: 16, scale: 1.05, orbit: true },
+  mangue: { makers: [mango], bubbles: 16, scale: 1.05, orbit: true }, // uniquement des mangues entières
   lychee: { makers: [lycheeBunch, lycheePeeled, lychee, lycheeHalf, lychee], bubbles: 14, scale: 1.25 },
   mojito: { makers: [limeWedge, bigMint, limeWedge, bigMint, lime], bubbles: 20, scale: 1.15 },
   fraise: { makers: [strawberry, strawberryHalf, strawberry, strawberryHalf, strawberry], bubbles: 16, scale: 1.25, orbit: true },

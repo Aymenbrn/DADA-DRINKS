@@ -17,6 +17,9 @@ export default function Header() {
 
   const isCurrent = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
+  // Les fiches produit s'ouvrent seules (fiche + pied de page) : elles ont leur propre petite barre
+  if (pathname.startsWith("/saveurs/")) return null;
+
   return (
     <header className="site-header">
       <div className="container header">

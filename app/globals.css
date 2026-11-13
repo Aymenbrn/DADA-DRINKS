@@ -691,3 +691,18 @@ button { font-family: inherit; }
 .universe-name { display: block; white-space: nowrap; } /* « Dada » au-dessus, le nom de la saveur sur une seule ligne */
 .pdp-page { background: #0a0a0a; }
 .pdp-page .universe { min-height: calc(100svh - 84px); display: flex; flex-direction: column; justify-content: center; }
+
+/* Fiche produit seule : petite barre (logo, retour, panier) au-dessus du choix de saveur */
+.pdp-topbar {
+  position: absolute; z-index: 4; top: 0; left: 0; right: 0; height: 72px;
+  display: flex; align-items: center; justify-content: space-between; padding: 0 clamp(16px, 4vw, 48px);
+}
+.pdp-logo { display: block; }
+.pdp-topbar-links { display: flex; align-items: center; gap: 18px; }
+.pdp-back { color: var(--paper); text-decoration: none; font: 600 14px var(--sans); opacity: 0.85; }
+.pdp-back:hover { opacity: 1; text-decoration: underline; }
+.pdp-cart { color: var(--ink); background: var(--paper); text-decoration: none; font: 700 14px var(--sans); padding: 10px 16px; border-radius: 999px; }
+.universe .pdp-flavors { top: 76px; }
+.universe .universe-inner { padding-top: 150px; }
+.pdp-page .universe { min-height: 100svh; }
+@media (max-width: 640px) { .pdp-back { display: none; } }
