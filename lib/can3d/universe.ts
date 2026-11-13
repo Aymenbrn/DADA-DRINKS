@@ -624,10 +624,6 @@ function strawberry(): THREE.Object3D {
   return g;
 }
 
-function melonBall(): THREE.Object3D {
-  return new THREE.Mesh(new THREE.SphereGeometry(0.2, 32, 24), glossy(0xff9440, 0.3));
-}
-
 function peach(): THREE.Object3D {
   const g = new THREE.Group();
   const geo = new THREE.SphereGeometry(0.45, 56, 40);
@@ -869,37 +865,193 @@ function strawberryHalf(): THREE.Object3D {
   return h;
 }
 
-// Melon : demi-melon avec ses graines, écorce brodée
-const melonFace = () =>
-  canvasTex(512, (g, S) => {
-    const c = S / 2;
-    g.fillStyle = "#9da06a"; g.beginPath(); g.arc(c, c, c, 0, Math.PI * 2); g.fill();
-    g.fillStyle = "#e7e3a8"; g.beginPath(); g.arc(c, c, c * 0.93, 0, Math.PI * 2); g.fill();
-    const gr = g.createRadialGradient(c, c, c * 0.3, c, c, c * 0.88);
-    gr.addColorStop(0, "#ff8c2e"); gr.addColorStop(1, "#ffb15e");
-    g.fillStyle = gr; g.beginPath(); g.arc(c, c, c * 0.88, 0, Math.PI * 2); g.fill();
-    g.fillStyle = "#f08a35"; g.beginPath(); g.arc(c, c, c * 0.38, 0, Math.PI * 2); g.fill(); // cavité
-    g.fillStyle = "#f5e6c0";
-    for (let k = 0; k < 26; k++) {
-      const a = k * 2.4, r = c * (0.12 + (k % 5) * 0.05);
-      g.save(); g.translate(c + Math.cos(a) * r, c + Math.sin(a) * r); g.rotate(a);
-      g.beginPath(); g.ellipse(0, 0, 13, 6, 0, 0, Math.PI * 2); g.fill(); g.restore();
-    }
-  });
-const melonSkinTex = () =>
-  canvasTex(512, (g, S) => {
-    g.fillStyle = "#a9a46a"; g.fillRect(0, 0, S, S);
-    g.strokeStyle = "rgba(235,228,190,0.8)"; g.lineWidth = 3; // réseau brodé du cantaloup
-    for (let k = 0; k < 420; k++) {
-      const x = (k * 97.3) % S, y = (k * 57.1) % S, a = k * 1.7;
-      g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(a) * 26, y + Math.sin(a) * 26); g.stroke();
-    }
-  });
-function melonHalf(): THREE.Object3D {
-  const skin = new THREE.MeshStandardMaterial({ map: melonSkinTex(), roughness: 0.8 });
-  return halfEllipsoid(0.62, 1, 0.95, 1, skin, melonFace());
+// ---------- Melon (charentais) ----------
+// Petit générateur déterministe pour les textures (même rendu à chaque chargement)
+function melonRng(seed: number) {
+  let t = seed;
+  return () => ((t = (t * 16807) % 2147483647) / 2147483647);
 }
-const melonSlice = () => facing(slice(0xff8a2a, 0xffc98f, 0x8f9a55));
+
+/** Face coupée : écorce fine, liseré vert pâle, chair orange fibreuse, cavité aux trois loges de graines */
+const melonFace = () =>
+  canvasTex(1024, (g, S) => {
+    const c = S / 2, r = melonRng(4242);
+    // écorce + liseré
+    g.fillStyle = "#4a6630"; g.beginPath(); g.arc(c, c, c, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "#a9b96c"; g.beginPath(); g.arc(c, c, c * 0.972, 0, Math.PI * 2); g.fill();
+    // chair : orange profond près de la cavité, plus clair et presque vert pâle sous l'écorce
+    const fl = g.createRadialGradient(c, c, c * 0.36, c, c, c * 0.955);
+    fl.addColorStop(0, "#e5691a");
+    fl.addColorStop(0.35, "#f9893a");
+    fl.addColorStop(0.72, "#ffa654");
+    fl.addColorStop(0.9, "#f8c987");
+    fl.addColorStop(1, "#dfe0a0");
+    g.fillStyle = fl; g.beginPath(); g.arc(c, c, c * 0.955, 0, Math.PI * 2); g.fill();
+    // fibres rayonnantes de la chair
+    for (let k = 0; k < 900; k++) {
+      const a = r() * Math.PI * 2, r0 = c * (0.4 + r() * 0.45), len = c * (0.04 + r() * 0.1);
+      g.strokeStyle = r() > 0.5 ? `rgba(255,214,150,${0.06 + r() * 0.1})` : `rgba(205,85,15,${0.05 + r() * 0.08})`;
+      g.lineWidth = 1 + r() * 1.6;
+      g.beginPath(); g.moveTo(c + Math.cos(a) * r0, c + Math.sin(a) * r0);
+      g.lineTo(c + Math.cos(a) * (r0 + len), c + Math.sin(a) * (r0 + len)); g.stroke();
+    }
+    // reflets de jus
+    for (let k = 0; k < 160; k++) {
+      const a = r() * Math.PI * 2, rr = c * (0.42 + r() * 0.48);
+      g.fillStyle = `rgba(255,245,225,${0.08 + r() * 0.14})`;
+      g.beginPath(); g.ellipse(c + Math.cos(a) * rr, c + Math.sin(a) * rr, 2 + r() * 4, 1 + r() * 2, a, 0, Math.PI * 2); g.fill();
+    }
+    // cavité irrégulière en trois lobes
+    const cav = (k: number) => c * (0.37 + 0.035 * Math.cos(3 * k + 0.4) + 0.012 * Math.sin(7 * k));
+    g.beginPath();
+    for (let i = 0; i <= 120; i++) {
+      const k = (i / 120) * Math.PI * 2, rr = cav(k);
+      if (i === 0) g.moveTo(c + Math.cos(k) * rr, c + Math.sin(k) * rr); else g.lineTo(c + Math.cos(k) * rr, c + Math.sin(k) * rr);
+    }
+    g.closePath();
+    const cv = g.createRadialGradient(c, c, 0, c, c, c * 0.4);
+    cv.addColorStop(0, "#c95a12"); cv.addColorStop(0.7, "#e07322"); cv.addColorStop(1, "#ef8a35");
+    g.fillStyle = cv; g.fill();
+    g.save(); g.clip();
+    // filaments humides de la cavité
+    for (let k = 0; k < 140; k++) {
+      const a = r() * Math.PI * 2, rr = c * r() * 0.36;
+      g.strokeStyle = `rgba(${r() > 0.5 ? "255,190,120" : "150,55,10"},${0.15 + r() * 0.2})`;
+      g.lineWidth = 1.5 + r() * 2;
+      g.beginPath(); g.moveTo(c + Math.cos(a) * rr, c + Math.sin(a) * rr);
+      g.quadraticCurveTo(c + Math.cos(a + 0.6) * rr * 0.6, c + Math.sin(a + 0.6) * rr * 0.6, c + Math.cos(a + 1.1) * rr * 0.9, c + Math.sin(a + 1.1) * rr * 0.9);
+      g.stroke();
+    }
+    // graines : trois loges, graines plates crème orientées vers le centre
+    for (let lobe = 0; lobe < 3; lobe++) {
+      const base = 0.4 + lobe * (Math.PI * 2 / 3);
+      for (let k = 0; k < 24; k++) {
+        const a = base + (r() - 0.5) * 1.5, rr = c * (0.12 + r() * 0.2);
+        const x = c + Math.cos(a) * rr, y = c + Math.sin(a) * rr;
+        g.save(); g.translate(x, y); g.rotate(a + (r() - 0.5) * 0.6);
+        g.fillStyle = "rgba(120,50,10,0.35)"; g.beginPath(); g.ellipse(2, 3, 17, 7.5, 0, 0, Math.PI * 2); g.fill(); // ombre
+        const sg = g.createLinearGradient(0, -7, 0, 7);
+        sg.addColorStop(0, "#fbf1d6"); sg.addColorStop(1, "#d9bf88");
+        g.fillStyle = sg; g.beginPath(); g.ellipse(0, 0, 16, 7, 0, 0, Math.PI * 2); g.fill();
+        g.fillStyle = "rgba(255,255,255,0.55)"; g.beginPath(); g.ellipse(-4, -2.5, 6, 1.6, 0, 0, Math.PI * 2); g.fill();
+        g.restore();
+      }
+    }
+    g.restore();
+    // ombre douce au bord de la cavité
+    g.strokeStyle = "rgba(150,55,10,0.35)"; g.lineWidth = 6;
+    g.beginPath();
+    for (let i = 0; i <= 120; i++) {
+      const k = (i / 120) * Math.PI * 2, rr = cav(k);
+      if (i === 0) g.moveTo(c + Math.cos(k) * rr, c + Math.sin(k) * rr); else g.lineTo(c + Math.cos(k) * rr, c + Math.sin(k) * rr);
+    }
+    g.stroke();
+  });
+
+/** Écorce du charentais : vert-gris marbré, dix sillons vert foncé du pédoncule à la base */
+const MELON_RIBS = 10;
+const melonSkinTex = () =>
+  canvasTex(1024, (g, S) => {
+    const r = melonRng(777);
+    g.fillStyle = "#b8bf86"; g.fillRect(0, 0, S, S);
+    // marbrures
+    for (let k = 0; k < 500; k++) {
+      g.fillStyle = r() > 0.5 ? `rgba(150,165,95,${0.15 + r() * 0.2})` : `rgba(215,214,165,${0.15 + r() * 0.2})`;
+      g.beginPath(); g.ellipse(r() * S, r() * S, 10 + r() * 40, 6 + r() * 20, r() * 3, 0, Math.PI * 2); g.fill();
+    }
+    // léger réseau brodé
+    g.strokeStyle = "rgba(225,222,185,0.35)"; g.lineWidth = 1.5;
+    for (let k = 0; k < 700; k++) {
+      const x = r() * S, y = r() * S, a = r() * Math.PI;
+      g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(a) * 14, y + Math.sin(a) * 14); g.stroke();
+    }
+    // sillons (u = autour du fruit)
+    for (let k = 0; k < MELON_RIBS; k++) {
+      const x = ((k + 0.5) / MELON_RIBS) * S; // au creux de chaque sillon
+      const gr = g.createLinearGradient(x - 22, 0, x + 22, 0);
+      gr.addColorStop(0, "rgba(60,95,45,0)"); gr.addColorStop(0.5, "rgba(48,82,38,0.95)"); gr.addColorStop(1, "rgba(60,95,45,0)");
+      g.fillStyle = gr; g.fillRect(x - 22, 0, 44, S);
+    }
+  });
+
+/** Sphère du melon creusée de dix sillons ; `phiStart`/`phiLen` pour n'en garder qu'une partie */
+function melonGeo(R: number, phiStart = 0, phiLen = Math.PI * 2) {
+  const geo = new THREE.SphereGeometry(R, 96, 64, phiStart, phiLen);
+  const pos = geo.attributes.position, uv = geo.attributes.uv, v = new THREE.Vector3();
+  for (let i = 0; i < pos.count; i++) {
+    v.fromBufferAttribute(pos, i);
+    const phi = phiStart + uv.getX(i) * phiLen; // angle autour de l'axe
+    const d = Math.cos(phi * MELON_RIBS); // 1 au milieu d'un côte, -1 dans un sillon
+    const ny = v.y / R;
+    const k = 1 - 0.035 * Math.pow((1 - d) / 2, 3) * (1 - ny * ny);
+    pos.setXYZ(i, v.x * k, v.y * 0.9, v.z * k);
+  }
+  geo.computeVertexNormals();
+  return geo;
+}
+const melonSkinMat = () => new THREE.MeshPhysicalMaterial({ map: melonSkinTex(), roughness: 0.62, clearcoat: 0.15, clearcoatRoughness: 0.6 });
+
+/** Melon entier, avec son pédoncule */
+function melonWhole(): THREE.Object3D {
+  const g = new THREE.Group();
+  const R = 0.62;
+  g.add(new THREE.Mesh(melonGeo(R), melonSkinMat()));
+  const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.045, 0.1, 12), matte(0x6b6a3a, 0.8));
+  stem.position.y = R * 0.9 + 0.02; stem.rotation.z = 0.25;
+  g.add(stem);
+  g.rotation.set(0.35, 0.4, -0.2);
+  return g;
+}
+
+/** Demi-melon : la face coupée regarde l'écran */
+function melonHalf(): THREE.Object3D {
+  const g = new THREE.Group();
+  const R = 0.62;
+  // moitié arrière, axe du melon couché pour voir la cavité de face
+  const skin = melonSkinMat();
+  skin.map!.repeat.set(0.5, 1); skin.map!.offset.set(0.5, 0); // la texture suit la moitié de sphère gardée
+  const back = new THREE.Mesh(melonGeo(R, Math.PI, Math.PI), skin);
+  g.add(back);
+  const f = new THREE.CircleGeometry(R, 96);
+  f.scale(1, 0.9, 1);
+  g.add(new THREE.Mesh(f, fleshMat(melonFace())));
+  return facing(g);
+}
+
+/** Quartier de melon : écorce verte, liseré pâle, chair orange plus foncée vers le cœur, quelques graines */
+function melonSlice(): THREE.Object3D {
+  const g = new THREE.Group();
+  const R = 0.85, inner = 0.46, angle = 2.2, depth = 0.24;
+  const ring = (r0: number, r1: number) => {
+    const sh = new THREE.Shape();
+    sh.absarc(0, 0, r1, Math.PI / 2 - angle / 2, Math.PI / 2 + angle / 2, false);
+    sh.absarc(0, 0, r0, Math.PI / 2 + angle / 2, Math.PI / 2 - angle / 2, true);
+    return sh;
+  };
+  const ex = { depth, bevelEnabled: true, bevelSize: 0.022, bevelThickness: 0.022, bevelSegments: 3, curveSegments: 48 };
+  const flesh = new THREE.ExtrudeGeometry(ring(R * inner, R * 0.9), ex);
+  paint(flesh, (p) => {
+    const t = (Math.hypot(p.x, p.y) - R * inner) / (R * (0.9 - inner));
+    return t < 0.7 ? mixC(0xe36a1b, 0xffa04c, t / 0.7) : mixC(0xffa04c, 0xeed99a, (t - 0.7) / 0.3);
+  });
+  g.add(new THREE.Mesh(flesh, new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: 0.42, clearcoat: 0.6, clearcoatRoughness: 0.3 })));
+  g.add(new THREE.Mesh(new THREE.ExtrudeGeometry(ring(R * 0.895, R * 0.94), { ...ex, bevelSize: 0.015 }), matte(0xb3c174, 0.5)));
+  g.add(new THREE.Mesh(new THREE.ExtrudeGeometry(ring(R * 0.935, R), { ...ex, bevelSize: 0.018 }), matte(0x4c6a31, 0.6)));
+  // graines restées accrochées au cœur
+  const seedGeo = new THREE.SphereGeometry(0.035, 12, 8);
+  seedGeo.scale(1, 0.4, 0.5);
+  const seedMat = new THREE.MeshPhysicalMaterial({ color: 0xf2e3bd, roughness: 0.35, clearcoat: 0.6 });
+  const r = melonRng(99);
+  for (let k = 0; k < 7; k++) {
+    const a = Math.PI / 2 + (r() - 0.5) * angle * 0.8;
+    const s = new THREE.Mesh(seedGeo, seedMat);
+    s.position.set(Math.cos(a) * R * inner * 0.99, Math.sin(a) * R * inner * 0.99, depth * (0.15 + r() * 0.7));
+    s.rotation.z = a; s.rotation.x = r();
+    g.add(s);
+  }
+  g.children.forEach((m) => m.position.add(new THREE.Vector3(0, -R * 0.7, -depth / 2)));
+  return facing(g);
+}
 
 // Pêche coupée : chair jaune orangé, rouge autour du noyau
 const peachFace = () =>
@@ -1106,7 +1258,7 @@ const RECIPES: Record<string, Recipe> = {
   lychee: { makers: [lycheeBunch, lycheePeeled, lychee, lycheeHalf, lychee], bubbles: 14, scale: 1.25 },
   mojito: { makers: [limeWedge, bigMint, limeWedge, bigMint, lime], bubbles: 20, scale: 1.15 },
   fraise: { makers: [strawberry, strawberryHalf, strawberry, strawberryHalf, strawberry], bubbles: 16, scale: 1.25, orbit: true },
-  melon: { makers: [melonHalf, melonSlice, melonBall, melonSlice, melonBall], bubbles: 16, scale: 1.05, orbit: true },
+  melon: { makers: [melonHalf, melonSlice, melonWhole, melonSlice, melonHalf], bubbles: 16, scale: 1.05, orbit: true },
   peche: { makers: [peach, peachHalf, peachSliceF, peach, peachHalf], bubbles: 16, scale: 1.1, orbit: true },
   pomme: { makers: [apple, appleHalf, apple, appleHalf, () => leaf(0x3f8f2c, 0.6)], bubbles: 16, scale: 1.15, orbit: true },
   lemon: { makers: [lemonDimpled, lemonWedge, lemonRound, lemonDimpled, lemonWedge], bubbles: 18, scale: 1.1, orbit: true },
