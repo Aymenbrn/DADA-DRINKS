@@ -1139,22 +1139,22 @@ const ORBIT: [number, number, number, number][] = [
 /** Plein écran (accueil) : les fruits sont semés sur toute la largeur, en profondeur,
  *  en laissant dégagée la colonne de la canette du centre. w, h = demi-largeur/hauteur visibles. */
 function fieldSlots(w: number, h: number): [number, number, number, number][] {
+  // Semis en vrac (aucun alignement) : points tirés au hasard sur les côtés, avec un écart minimal entre eux
+  let seed = 9173;
+  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
   const out: [number, number, number, number][] = [];
-  const cols = w > h * 1.2 ? 6 : 4, rows = 4;
-  let i = 0;
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++, i++) {
-      const u = ((c + 0.5) / cols) * 2 - 1, v = ((r + 0.5) / rows) * 2 - 1;
-      const j1 = ((i * 0.618) % 1) - 0.5, j2 = ((i * 0.381) % 1) - 0.5;
-      const x = (u + (j1 * 0.9) / cols) * w * 0.95;
-      const y = (v + (j2 * 0.8) / rows) * h * 0.9;
-      // tous derrière la couronne de canettes (elles sont vers z ≈ -2…+1) : aucun fruit ne les traverse
-      const z = -4.6 - ((i * 0.7548) % 1) * 4;
-      // les fruits restent sur les côtés : la colonne centrale (canette, nom) est laissée libre
-      const gap = w * 0.3;
-      const sx = Math.sign(x || (i % 2 ? 1 : -1)) * (gap + Math.abs(x) * (1 - gap / (w * 0.95)));
-      out.push([sx, y, z, (0.95 + ((i * 0.45) % 1) * 0.5) * 1.35]); // plus loin → un peu plus gros
-    }
+  const gap = w * 0.3; // colonne centrale laissée libre (canette, nom)
+  const target = w > h * 1.2 ? 20 : 14;
+  for (let tries = 0; out.length < target && tries < 2000; tries++) {
+    const side = rnd() < 0.5 ? -1 : 1;
+    const x = side * (gap + rnd() * (w * 0.98 - gap));
+    const y = (rnd() * 2 - 1) * h * 0.92;
+    const minD = 1.9 + rnd() * 0.6;
+    if (out.some(([px, py]) => Math.hypot(px - x, py - y) < minD)) continue;
+    // tous derrière la couronne de canettes, à des profondeurs variées
+    const z = -4.6 - rnd() * 4.2;
+    const s = (0.95 + rnd() * 0.75) * 1.75; // plus gros qu'avant
+    out.push([x, y, z, s]);
   }
   return out;
 }
