@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
+import NewsVideo from "@/components/NewsVideo";
 import { NEWS, formatMonth, sourceText } from "@/lib/news";
 
 export const metadata: Metadata = {
@@ -33,9 +34,11 @@ export default function ActualitesPage() {
               const href = n.body ? `/actualites/${n.slug}` : n.external;
               const isExternal = !!href && href.startsWith("http");
               return (
-                <li key={n.slug} className={`news-item${n.image ? " has-image" : ""}`}>
+                <li key={n.slug} className={`news-item${n.video ? " has-video" : n.image ? " has-image" : ""}`}>
                   <span className="news-date">{formatMonth(n.date)}</span>
-                  {n.image && (
+                  {n.video && n.image ? (
+                    <NewsVideo id={n.video} poster={n.image} title={n.title} />
+                  ) : n.image && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img className="news-thumb" src={n.image} alt="" loading="lazy" />
                   )}

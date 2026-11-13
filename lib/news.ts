@@ -14,6 +14,8 @@ export type NewsItem = {
   image?: string;
   /** Article ou vidéo externe qui parle de Dada sur ce sujet */
   source?: { label: string; url: string };
+  /** Identifiant YouTube du clip, lu directement dans l'actualité */
+  video?: string;
 };
 
 export const NEWS: NewsItem[] = [
@@ -117,6 +119,8 @@ export const NEWS: NewsItem[] = [
   },
   {
     slug: "ninho-album",
+    video: "JjqBlp6hLv4",
+    source: { label: "YouTube", url: "https://www.youtube.com/watch?v=JjqBlp6hLv4" },
     image: "/news/ninho-carolina.jpg",
     date: "2023-06",
     title: "Ninho cite Dada Drinks dans son dernier album",
@@ -150,6 +154,7 @@ export const NEWS: NewsItem[] = [
   },
   {
     slug: "jul-clip",
+    video: "iFY615_FQOw",
     source: { label: "YouTube", url: "https://www.youtube.com/watch?v=iFY615_FQOw" },
     image: "/news/jul-canette.jpg",
     date: "2023-01",
