@@ -624,7 +624,7 @@ button { font-family: inherit; }
 .ribbon-hint { margin: 6px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.75); }
 
 .ribbon-meta {
-  position: absolute; z-index: 2; left: clamp(16px, 4vw, 64px); bottom: clamp(24px, 4vh, 44px); max-width: 300px;
+  position: absolute; z-index: 2; left: clamp(16px, 4vw, 64px); bottom: clamp(80px, 11vh, 120px); max-width: 300px;
   display: flex; flex-direction: column; gap: 8px;
 }
 .ribbon-eyebrow { margin: 0; font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.16em; color: rgba(255,255,255,0.85); }
