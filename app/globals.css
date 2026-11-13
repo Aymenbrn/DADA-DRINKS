@@ -682,3 +682,9 @@ button { font-family: inherit; }
 .card-can3d.is-ready .card-can3d-fallback { opacity: 0; }
 
 .card > a > span { z-index: 2; }
+
+/* Fiche produit : l'univers porte maintenant le choix de saveur et l'achat */
+.universe .pdp-flavors { top: 16px; }
+.universe .universe-inner { padding-top: 96px; }
+.universe .universe-copy { gap: 18px; }
+.universe .pdp-title-row .universe-title { margin: 0; }
