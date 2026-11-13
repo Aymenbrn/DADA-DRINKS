@@ -44,7 +44,7 @@ export default function CardCan3D({ flavor, fogColor, fallback }: { flavor: Flav
     if (!canvas) return;
     let scene: ReturnType<typeof createShowcase> | null = null;
     try {
-      scene = createShowcase(canvas, { flavor, universe: true, fogColor, localPointer: true, onReady: () => setReady(true) });
+      scene = createShowcase(canvas, { flavor, universe: true, cardMode: true, fogColor, localPointer: true, onReady: () => setReady(true) });
       const id = window.setTimeout(() => setReady(true), 900);
       return () => {
         window.clearTimeout(id);

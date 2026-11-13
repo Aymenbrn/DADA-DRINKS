@@ -16,6 +16,8 @@ export type ShowcaseOptions = {
   onReady?: () => void;
   /** Couleur du brouillard (fond derrière les fruits lointains) ; par défaut le fond sombre de la saveur */
   fogColor?: string;
+  /** Cartes de la boutique : quelques fruits seulement, en gros plan */
+  cardMode?: boolean;
   /** La souris n'est suivie que sur l'élément parent du canvas (cartes de la boutique) */
   localPointer?: boolean;
 };
@@ -114,7 +116,7 @@ export function createShowcase(canvas: HTMLCanvasElement, opts: ShowcaseOptions)
   }).catch(() => opts.onReady?.());
 
   // Univers de la saveur (fiches produits)
-  const universe = opts.universe ? buildUniverse(opts.flavor.slug) : null;
+  const universe = opts.universe ? buildUniverse(opts.flavor.slug, undefined, !!opts.cardMode) : null;
   if (universe) {
     camera.position.z = 17.5; // un peu plus de recul : canette, ombre et fruits tiennent dans le cadre
     scene.add(universe.group);

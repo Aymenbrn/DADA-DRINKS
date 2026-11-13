@@ -1116,13 +1116,23 @@ export function buildBubbleField(w: number, h: number, n = 70) {
   };
 }
 
-export function buildUniverse(slug: string, field?: { w: number; h: number }) {
+// Cartes de la boutique : 4 fruits seulement, en gros plan dans les coins, la canette reste dégagée au centre
+const CARD_SLOTS: [number, number, number, number][] = [
+  [-3.0, 2.1, 3.6, 1.7],
+  [3.1, -2.0, 4.2, 1.8],
+  [3.3, 2.4, 1.6, 1.25],
+  [-3.4, -2.3, 2.4, 1.45],
+];
+
+export function buildUniverse(slug: string, field?: { w: number; h: number }, card = false) {
   const base = RECIPES[slug] ?? RECIPES.cerise;
   // accueil : les bulles fines sont un champ à part, permanent (voir buildBubbleField)
   // sur l'accueil, toutes les bulles (fines et grappes) vivent dans le champ permanent : elles restent pendant les transitions
-  const recipe: Recipe = field ? { ...base, orbit: false, bubbles: 0 } : base;
+  const recipe: Recipe = field ? { ...base, orbit: false, bubbles: 0 } : card ? { ...base, orbit: false, bubbles: Math.round(base.bubbles * 0.35) } : base;
   const slots: [number, number, number, number][] = field
     ? fieldSlots(field.w, field.h)
+    : card
+      ? CARD_SLOTS
     : recipe.orbit
       ? ORBIT.map(([a, y, r, s]) => [Math.cos(a) * r, y, Math.sin(a) * r, s])
       : SLOTS;
