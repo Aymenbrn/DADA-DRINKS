@@ -43,8 +43,6 @@ function UniverseScene({ slug }: { slug: string }) {
 
   const style = { "--u": f.c, "--u-hi": f.hi, "--accent": f.hi } as CSSProperties;
   const index = FLAVORS.indexOf(f);
-  const prev = FLAVORS[(index + FLAVORS.length - 1) % FLAVORS.length];
-  const next = FLAVORS[(index + 1) % FLAVORS.length];
 
   return (
     <section className="universe" style={style} aria-labelledby="universe-title">
@@ -88,14 +86,6 @@ function UniverseScene({ slug }: { slug: string }) {
             >
               Dada <span className="serif-i universe-name">{f.name}.</span>
             </h1>
-            <div className="pdp-nav-pair">
-              <Link href={flavorHref(prev.slug)} scroll={false} className="pdp-nav-btn" aria-label={`Saveur précédente : ${prev.name}`}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
-              </Link>
-              <Link href={flavorHref(next.slug)} scroll={false} className="pdp-nav-btn" aria-label={`Saveur suivante : ${next.name}`}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6" /></svg>
-              </Link>
-            </div>
           </div>
           <p className="universe-lede">{f.desc}</p>
           <div className="pdp-buy-row">
