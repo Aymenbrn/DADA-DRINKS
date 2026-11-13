@@ -1113,7 +1113,7 @@ const RECIPES: Record<string, Recipe> = {
   cola: { makers: [bubbles], bubbles: 70, scale: 1.2 },
   "cola-zero": { makers: [bubbles], bubbles: 70, scale: 1.2 },
   "cola-cherry": { makers: [cherries, cherrySingle, cherries, bubbles, cherries, cherrySingle], bubbles: 60, scale: 1.15 },
-  "ice-tea-peche": { makers: [peachHalf, teaLeafF, peachSliceF, ice, teaLeafF, peach], bubbles: 0, scale: 1.05, orbit: true },
+  "ice-tea-peche": { makers: [peachHalf, teaLeafF, peachSliceF, peach, teaLeafF, peach], // sans glaçons bubbles: 0, scale: 1.05, orbit: true },
 };
 
 // Emplacements autour de la canette (x, y, z, échelle) : surtout derrière, deux petits devant
@@ -1150,11 +1150,11 @@ function fieldSlots(w: number, h: number): [number, number, number, number][] {
     const side = rnd() < 0.5 ? -1 : 1;
     const x = side * (gap + rnd() * (w * 0.98 - gap));
     const y = (rnd() * 2 - 1) * h * 0.92;
-    const minD = 1.9 + rnd() * 0.6;
+    const minD = 2.3 + rnd() * 0.7;
     if (out.some(([px, py]) => Math.hypot(px - x, py - y) < minD)) continue;
     // tous derrière la couronne de canettes, à des profondeurs variées
     const z = -4.6 - rnd() * 4.2;
-    const s = (0.95 + rnd() * 0.75) * 1.75; // plus gros qu'avant
+    const s = (0.95 + rnd() * 0.75) * 2.15; // fruits bien visibles
     out.push([x, y, z, s]);
   }
   return out;
