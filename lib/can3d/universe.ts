@@ -1383,7 +1383,7 @@ const appleFace = () =>
     }
     const cx = M.X(0), top = M.Y(0.2), bot = M.Y(-0.3), mid = (top + bot) / 2;
     // faisceaux vasculaires : ligne fine qui dessine le cœur en forme de lentille
-    g.strokeStyle = "rgba(190,175,110,0.55)"; g.lineWidth = 3; g.setLineDash([10, 7]);
+    g.strokeStyle = "rgba(175,155,85,0.8)"; g.lineWidth = 4.5; g.setLineDash([12, 6]);
     g.beginPath(); g.moveTo(cx, top - S * 0.02);
     g.bezierCurveTo(cx + S * 0.25, top + S * 0.04, cx + S * 0.25, bot - S * 0.06, cx, bot + S * 0.02);
     g.bezierCurveTo(cx - S * 0.25, bot - S * 0.06, cx - S * 0.25, top + S * 0.04, cx, top - S * 0.02); g.stroke();
@@ -1393,8 +1393,8 @@ const appleFace = () =>
       const lx = cx + sd * S * 0.065;
       g.save(); g.translate(lx, mid); g.rotate(sd * 0.12);
       const lg = g.createLinearGradient(-S * 0.04, 0, S * 0.04, 0);
-      lg.addColorStop(0, "#efe2b4"); lg.addColorStop(0.5, "#e2d29a"); lg.addColorStop(1, "#efe2b4");
-      g.fillStyle = lg; g.strokeStyle = "rgba(170,150,90,0.8)"; g.lineWidth = 3;
+      lg.addColorStop(0, "#e9d79e"); lg.addColorStop(0.5, "#d9c27e"); lg.addColorStop(1, "#e9d79e");
+      g.fillStyle = lg; g.strokeStyle = "rgba(150,125,65,0.9)"; g.lineWidth = 4;
       g.beginPath(); g.ellipse(0, 0, S * 0.045, S * 0.12, 0, 0, Math.PI * 2); g.fill(); g.stroke();
       // pépin brun brillant
       const pg = g.createLinearGradient(-S * 0.02, -S * 0.04, S * 0.02, S * 0.04);
