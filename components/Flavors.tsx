@@ -1,18 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import Can from "./Can";
 import CardCan3D from "./CardCan3D";
 import { useCart } from "@/components/cart/CartProvider";
-import { CAT_LABELS, FLAVORS, PACK_PRICE, flavorHref, mix, pad, type FlavorCategory } from "@/lib/flavors";
-
-const FILTERS: { id: "all" | FlavorCategory; label: string }[] = [
-  { id: "all", label: "Toutes" },
-  { id: "fruit", label: "Fruitées" },
-  { id: "cola", label: "Colas" },
-  { id: "the", label: "Thé glacé" },
-];
+import { CAT_LABELS, FLAVORS, PACK_PRICE, flavorHref, mix, pad } from "@/lib/flavors";
 
 /** Assombrit une couleur hex (facteur 0–1) */
 const shade = (hex: string, k: number) => {
@@ -22,9 +14,8 @@ const shade = (hex: string, k: number) => {
 };
 
 export default function Flavors() {
-  const [cat, setCat] = useState<"all" | FlavorCategory>("all");
   const { add } = useCart();
-  const list = FLAVORS.map((f, i) => ({ f, i })).filter(({ f }) => cat === "all" || f.cat === cat);
+  const list = FLAVORS.map((f, i) => ({ f, i }));
 
   return (
     <section id="saveurs" style={{ background: "var(--paper)", color: "var(--ink)", padding: "120px 0 140px" }}>
@@ -38,20 +29,6 @@ export default function Flavors() {
             <p style={{ margin: 0, maxWidth: 460, fontSize: 18, lineHeight: 1.5, color: "var(--muted-on-light)" }}>
               Chaque saveur en pack de 24 canettes, livré chez vous. Mélangez, collectionnez, partagez.
             </p>
-          </div>
-          <div role="group" aria-label="Filtrer les saveurs" style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-            {FILTERS.map((k) => (
-              <button
-                key={k.id}
-                type="button"
-                className="chip"
-                aria-pressed={k.id === cat}
-                onClick={() => setCat(k.id)}
-                style={{ background: k.id === cat ? "var(--ink)" : "transparent", color: k.id === cat ? "var(--paper)" : "var(--ink)" }}
-              >
-                {k.label}
-              </button>
-            ))}
           </div>
         </div>
 
