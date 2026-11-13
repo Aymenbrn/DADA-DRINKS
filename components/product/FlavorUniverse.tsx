@@ -65,8 +65,12 @@ function UniverseScene({ slug }: { slug: string }) {
             DADA DRINKS — {CAT_LABELS[f.cat].toUpperCase()} — N° {pad(index)} / {FLAVORS.length}
           </p>
           <div className="pdp-title-row">
-            <h1 id="universe-title" className="h-xl universe-title">
-              Dada <span className="serif-i">{f.name}.</span>
+            <h1
+              id="universe-title"
+              className="h-xl universe-title"
+              style={f.name.length > 8 ? { fontSize: "clamp(40px, 4.4vw, 74px)" } : undefined}
+            >
+              Dada <span className="serif-i universe-name">{f.name}.</span>
             </h1>
             <div className="pdp-nav-pair">
               <Link href={flavorHref(prev.slug)} scroll={false} className="pdp-nav-btn" aria-label={`Saveur précédente : ${prev.name}`}>

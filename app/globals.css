@@ -688,3 +688,4 @@ button { font-family: inherit; }
 .universe .universe-inner { padding-top: 96px; }
 .universe .universe-copy { gap: 18px; }
 .universe .pdp-title-row .universe-title { margin: 0; }
+.universe-name { display: block; white-space: nowrap; } /* « Dada » au-dessus, le nom de la saveur sur une seule ligne */
