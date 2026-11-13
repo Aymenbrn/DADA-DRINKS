@@ -881,11 +881,11 @@ const melonFace = () =>
     g.fillStyle = "#a9b96c"; g.beginPath(); g.arc(c, c, c * 0.972, 0, Math.PI * 2); g.fill();
     // chair : orange profond près de la cavité, plus clair et presque vert pâle sous l'écorce
     const fl = g.createRadialGradient(c, c, c * 0.36, c, c, c * 0.955);
-    fl.addColorStop(0, "#e5691a");
-    fl.addColorStop(0.35, "#f9893a");
-    fl.addColorStop(0.72, "#ffa654");
-    fl.addColorStop(0.9, "#f8c987");
-    fl.addColorStop(1, "#dfe0a0");
+    fl.addColorStop(0, "#d4520c");
+    fl.addColorStop(0.35, "#f0701c");
+    fl.addColorStop(0.72, "#ff8c2e");
+    fl.addColorStop(0.9, "#f9b061");
+    fl.addColorStop(1, "#d9d98e");
     g.fillStyle = fl; g.beginPath(); g.arc(c, c, c * 0.955, 0, Math.PI * 2); g.fill();
     // fibres rayonnantes de la chair
     for (let k = 0; k < 900; k++) {
@@ -910,7 +910,7 @@ const melonFace = () =>
     }
     g.closePath();
     const cv = g.createRadialGradient(c, c, 0, c, c, c * 0.4);
-    cv.addColorStop(0, "#c95a12"); cv.addColorStop(0.7, "#e07322"); cv.addColorStop(1, "#ef8a35");
+    cv.addColorStop(0, "#b8480a"); cv.addColorStop(0.7, "#d45f14"); cv.addColorStop(1, "#e56f1e");
     g.fillStyle = cv; g.fill();
     g.save(); g.clip();
     // filaments humides de la cavité
@@ -1032,7 +1032,7 @@ function melonSlice(): THREE.Object3D {
   const flesh = new THREE.ExtrudeGeometry(ring(R * inner, R * 0.9), ex);
   paint(flesh, (p) => {
     const t = (Math.hypot(p.x, p.y) - R * inner) / (R * (0.9 - inner));
-    return t < 0.7 ? mixC(0xe36a1b, 0xffa04c, t / 0.7) : mixC(0xffa04c, 0xeed99a, (t - 0.7) / 0.3);
+    return t < 0.7 ? mixC(0xd9560f, 0xff8a2c, t / 0.7) : mixC(0xff8a2c, 0xe8d088, (t - 0.7) / 0.3);
   });
   g.add(new THREE.Mesh(flesh, new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: 0.42, clearcoat: 0.6, clearcoatRoughness: 0.3 })));
   g.add(new THREE.Mesh(new THREE.ExtrudeGeometry(ring(R * 0.895, R * 0.94), { ...ex, bevelSize: 0.015 }), matte(0xb3c174, 0.5)));
