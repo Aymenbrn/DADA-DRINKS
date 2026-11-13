@@ -792,3 +792,12 @@ button.pill { cursor: pointer; border: 0; font-family: inherit; }
 /* Accueil plein écran : la scène occupe tout l'écran sous l'en-tête, la boutique n'apparaît qu'en défilant */
 .ribbon { height: calc(100svh - 72px); min-height: 560px; max-height: none; }
 @supports (height: 100dvh) { .ribbon { height: calc(100dvh - 72px); } }
+
+/* Accueil : l'en-tête flotte sur la scène, transparent en haut de page, noir dès qu'on défile */
+.site-header { transition: background-color 0.35s ease, box-shadow 0.35s ease; }
+.site-header.is-home { position: fixed; top: 0; left: 0; right: 0; }
+.site-header.is-transparent { background: transparent; box-shadow: none; }
+.site-header.is-transparent .nav a { color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,0.35); }
+.site-header.is-home:not(.is-transparent) { box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
+.ribbon { height: 100svh; }
+@supports (height: 100dvh) { .ribbon { height: 100dvh; } }
