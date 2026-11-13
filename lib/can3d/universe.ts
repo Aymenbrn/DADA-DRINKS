@@ -974,26 +974,64 @@ function appleHalf(): THREE.Object3D {
   return h;
 }
 
-// Citron : peau légèrement grêlée, quartiers et rondelles tournés vers l'écran
+// Citron : ovale à deux petits bouts, peau grêlée (pores) jaune vif, verdâtre aux extrémités
+let lemonTex: { map: THREE.Texture; bump: THREE.Texture } | null = null;
+function lemonTextures() {
+  if (lemonTex) return lemonTex;
+  const W = 512, Hh = 256;
+  const mk = () => { const c = document.createElement("canvas"); c.width = W; c.height = Hh; return c; };
+  // couleur : v = 0 (bas) → 1 (haut), les deux bouts tirent sur le vert-jaune
+  const cv = mk(), g = cv.getContext("2d")!;
+  const grd = g.createLinearGradient(0, 0, 0, Hh);
+  grd.addColorStop(0, "#c8c23a"); grd.addColorStop(0.12, "#f1cf22"); grd.addColorStop(0.5, "#f8d834");
+  grd.addColorStop(0.88, "#f1cf22"); grd.addColorStop(1, "#bfbb36");
+  g.fillStyle = grd; g.fillRect(0, 0, W, Hh);
+  // reflets plus clairs et petites taches
+  for (let i = 0; i < 600; i++) {
+    g.fillStyle = Math.random() > 0.5 ? "rgba(255,245,170,0.25)" : "rgba(200,150,10,0.12)";
+    g.beginPath(); g.arc(Math.random() * W, Math.random() * Hh, 1 + Math.random() * 2.5, 0, Math.PI * 2); g.fill();
+  }
+  // relief : pores (points sombres = creux)
+  const bv = mk(), b = bv.getContext("2d")!;
+  b.fillStyle = "#c8c8c8"; b.fillRect(0, 0, W, Hh);
+  for (let i = 0; i < 5000; i++) {
+    b.fillStyle = `rgba(40,40,40,${0.35 + Math.random() * 0.4})`;
+    b.beginPath(); b.arc(Math.random() * W, Math.random() * Hh, 0.8 + Math.random() * 1.4, 0, Math.PI * 2); b.fill();
+  }
+  const map = new THREE.CanvasTexture(cv); map.colorSpace = THREE.SRGBColorSpace;
+  const bump = new THREE.CanvasTexture(bv);
+  [map, bump].forEach((t) => { t.wrapS = THREE.RepeatWrapping; t.anisotropy = 4; });
+  lemonTex = { map, bump };
+  return lemonTex;
+}
 function lemonDimpled(): THREE.Object3D {
-  const prof = [[0, -0.55], [0.06, -0.47], [0.28, -0.3], [0.35, 0], [0.28, 0.3], [0.06, 0.47], [0, 0.55]];
-  const geo = new THREE.LatheGeometry(prof.map(([x, y]) => new THREE.Vector2(x, y)), 64);
-  const pos = geo.attributes.position;
-  const v = new THREE.Vector3();
+  // profil lissé : petit téton en bas, corps ovale, petit téton à la queue
+  const prof = [[0, -0.6], [0.035, -0.585], [0.06, -0.54], [0.12, -0.47], [0.24, -0.36], [0.33, -0.18], [0.36, 0], [0.33, 0.18], [0.24, 0.36], [0.12, 0.47], [0.07, 0.53], [0.045, 0.575], [0, 0.59]];
+  const pts = new THREE.SplineCurve(prof.map(([x, y]) => new THREE.Vector2(x, y))).getPoints(64);
+  const geo = new THREE.LatheGeometry(pts, 96);
+  // légère asymétrie, comme un vrai fruit
+  const pos = geo.attributes.position, v = new THREE.Vector3();
   for (let i = 0; i < pos.count; i++) {
     v.fromBufferAttribute(pos, i);
-    const n = Math.sin(v.x * 70) * Math.sin(v.y * 70) * Math.sin(v.z * 70);
-    const k = 1 - 0.012 * Math.abs(n);
-    pos.setXYZ(i, v.x * k, v.y, v.z * k);
+    const k = 1 + 0.03 * Math.cos(Math.atan2(v.z, v.x) * 2 + v.y * 2);
+    pos.setXYZ(i, v.x * k, v.y, v.z * k * 0.96);
   }
   geo.computeVertexNormals();
-  const m = new THREE.Mesh(geo, new THREE.MeshPhysicalMaterial({ color: 0xf3cf2a, roughness: 0.42, clearcoat: 0.5 }));
+  const { map, bump } = lemonTextures();
+  const m = new THREE.Mesh(geo, new THREE.MeshPhysicalMaterial({
+    map, bumpMap: bump, bumpScale: 0.9, roughness: 0.4, clearcoat: 0.55, clearcoatRoughness: 0.3, sheen: 0.3, sheenColor: new THREE.Color(0xfff5c0),
+  }));
   m.rotation.z = Math.PI / 2;
   const g = new THREE.Group();
   g.add(m);
-  const l = leaf(0x3d7f2c, 0.45, 0.16);
-  l.position.set(-0.55, 0.05, 0);
-  l.rotation.z = 2.2;
+  // petite queue verte et une feuille dentée
+  const st = stem([[-0.585, 0, 0], [-0.64, 0.02, 0], [-0.68, 0.06, 0]], 0.018, 0x5f7d2a);
+  g.add(st);
+  const l = mintLeaf(0.42);
+  l.scale.set(0.75, 1, 1);
+  l.position.set(-0.64, 0.03, 0);
+  l.rotation.z = 2.0;
+  l.rotation.y = 0.4;
   g.add(l);
   return g;
 }
