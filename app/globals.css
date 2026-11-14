@@ -775,8 +775,9 @@ button.pill { cursor: pointer; border: 0; font-family: inherit; }
   position: relative; overflow: hidden; color: var(--paper); padding: 76px 0 64px;
   background: radial-gradient(55% 70% at 68% 55%, #7a0f1d 0%, #2a070c 55%, #0a0a0a 85%), #0a0a0a;
 }
-/* fiches des vitrines : fond entièrement noir */
-.pro-pdp.is-vitrine { background: #000; }
+/* fiches des vitrines : le dégradé occupe tout l'écran sous l'en-tête */
+.pro-pdp.is-vitrine { min-height: calc(100svh - var(--hdr-h, 76px)); display: flex; flex-direction: column; justify-content: center; }
+.pro-pdp.is-vitrine > .container { width: 100%; }
 .pro-pdp-nav { position: absolute; z-index: 3; top: 16px; left: 0; right: 0; overflow-x: auto; scrollbar-width: none; }
 .pro-pdp-nav::-webkit-scrollbar { display: none; }
 .pro-pdp-nav ul { display: flex; gap: 4px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 48px); list-style: none; width: max-content; }
