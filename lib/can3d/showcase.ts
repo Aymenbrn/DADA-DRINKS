@@ -122,11 +122,12 @@ export function createShowcase(canvas: HTMLCanvasElement, opts: ShowcaseOptions)
     scene.add(universe.group);
     scene.fog = new THREE.Fog(opts.fogColor ? new THREE.Color(opts.fogColor) : backdropColor(opts.flavor), 16, 28); // les objets lointains se fondent dans le fond
   }
-  // Bulles qui montent en fond, derrière la canette et les fruits
+  // Bulles qui montent en fond, derrière la canette et les fruits (plus marquées pour Cola Zero et Cola Cherry)
+  const fizzy = opts.flavor.slug === "cola-zero" || opts.flavor.slug === "cola-cherry";
   const bubbleField = universe
     ? (() => {
         const hh = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * (camera.position.z + 7);
-        const b = buildBubbleField(hh * 1.9, hh + 0.4, opts.cardMode ? 26 : 48, { z0: 0, zSpan: 4, size: opts.cardMode ? 1.5 : 1.6 });
+        const b = buildBubbleField(hh * 1.9, hh + 0.4, (opts.cardMode ? 26 : 48) * (fizzy ? 2 : 1), { z0: 0, zSpan: 4, size: (opts.cardMode ? 1.5 : 1.6) * (fizzy ? 1.25 : 1) });
         b.mesh.position.set(0, 0, -5);
         scene.add(b.mesh);
         return b;
