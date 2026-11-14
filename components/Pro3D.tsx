@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { FridgeVariant } from "@/lib/can3d/fridge";
 
 /**
- * Palette mixte en 3D dans la carte de l'offre pro. La scène ne vit que lorsque la carte est à l'écran ;
- * en attendant (ou sans WebGL), l'image à plat de la palette reste affichée.
+ * Produit pro en 3D (vitrine ou palette) dans sa carte. La scène ne vit que lorsque la carte est à l'écran ;
+ * en attendant (ou sans WebGL), la photo du produit reste affichée.
  */
-export default function Pallet3D() {
+export default function Pro3D({ kind, fallback }: { kind: FridgeVariant | "pallet"; fallback: string }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [active, setActive] = useState(false);
@@ -40,23 +41,27 @@ export default function Pallet3D() {
     if (!canvas) return;
     let api: { dispose: () => void } | null = null;
     let cancelled = false;
-    import("@/lib/can3d/pallet")
-      .then(({ createPallet }) => {
-        if (cancelled) return;
-        api = createPallet(canvas, { onReady: () => setReady(true) });
+    const onReady = () => setReady(true);
+    const load =
+      kind === "pallet"
+        ? import("@/lib/can3d/pallet").then(({ createPallet }) => () => createPallet(canvas, { onReady }))
+        : import("@/lib/can3d/fridge").then(({ createFridge }) => () => createFridge(canvas, kind, { onReady }));
+    load
+      .then((make) => {
+        if (!cancelled) api = make();
       })
       .catch(() => {});
     return () => {
       cancelled = true;
       api?.dispose();
     };
-  }, [active]);
+  }, [active, kind]);
 
   return (
-    <div ref={wrapRef} className={`pallet3d${ready ? " is-ready" : ""}`}>
+    <div ref={wrapRef} className={`pro3d${ready ? " is-ready" : ""}`}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/pro/palette.webp" alt="" className="pallet3d-fallback" />
-      <canvas ref={canvasRef} className="pallet3d-canvas" />
+      <img src={fallback} alt="" className="pro3d-fallback" />
+      <canvas ref={canvasRef} className="pro3d-canvas" />
     </div>
   );
 }

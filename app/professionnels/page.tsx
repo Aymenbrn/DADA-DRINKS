@@ -5,8 +5,7 @@ import { ProReasons, ProTrust, ProQuote } from "@/components/ProDetails";
 import { PRO_PRODUCTS } from "@/lib/pro";
 import { formatEUR } from "@/lib/flavors";
 import { WHATSAPP_DISPLAY, WHATSAPP_URL } from "@/lib/site";
-import ProScene from "@/components/ProScene";
-import Pallet3D from "@/components/Pallet3D";
+import Pro3D from "@/components/Pro3D";
 
 export const metadata: Metadata = {
   title: "Professionnels",
@@ -41,25 +40,8 @@ export default function ProfessionnelsPage() {
           <ul className="pro-grid">
             {PRO_PRODUCTS.map((p) => (
               <li key={p.slug} className="pro-card">
-                <div className={`pro-visual${p.image || !p.size ? " has-photo" : ""}${p.size ? ` is-${p.size}` : " is-pallet"}`} aria-hidden="true">
-                  {p.image ? (
-                    <>
-                      <ProScene width={p.size === "slim" ? 64 : p.size === "moyen" ? 84 : 132} />
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={p.image} alt="" className="pro-photo" loading="lazy" />
-                    </>
-                  ) : (
-                  <>
-                  {p.size ? (
-                    <span className="fridge"><span className="fridge-logo">DADA</span><span className="fridge-shelves" /></span>
-                  ) : (
-                    <>
-                      <ProScene width={110} />
-                      <Pallet3D />
-                    </>
-                  )}
-                </>
-                  )}
+                <div className="pro-visual has-3d" aria-hidden="true">
+                  <Pro3D kind={p.size ?? "pallet"} fallback={p.image ?? "/pro/palette.webp"} />
                 </div>
                 <div className="pro-body">
                   <h3>{p.name}</h3>
