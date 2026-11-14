@@ -54,7 +54,7 @@ export default function ProfessionnelsPage() {
                     <span className="fridge"><span className="fridge-logo">DADA</span><span className="fridge-shelves" /></span>
                   ) : (
                     <>
-                      <ProScene width={150} />
+                      <ProScene width={110} />
                       <Pallet3D />
                     </>
                   )}
