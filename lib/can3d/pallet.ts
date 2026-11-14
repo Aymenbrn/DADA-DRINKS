@@ -1,6 +1,8 @@
 // Palette mixte en 3D : trois étages de plateaux (deux saveurs par étage), canettes
 // texturées avec les visuels officiels, palette en bois et bandeau « Saveurs au choix ».
 import * as THREE from "three";
+import { getFlavor } from "@/lib/flavors";
+import { getLabelImage } from "./labels";
 
 const BASE = "/pro/pallet";
 /** Étages du bas vers le haut, chacun : saveur de gauche, saveur de droite (+ couleur du plateau) */
@@ -100,7 +102,7 @@ export function createPallet(canvas: HTMLCanvasElement, opts: { onReady?: () => 
 
   // ---------- Plateaux et canettes ----------
   const lidMat = track(new THREE.MeshStandardMaterial({ color: 0xd7dade, metalness: 0.9, roughness: 0.28 }));
-  const canGeo = track(new THREE.CylinderGeometry(R, R, CAN_H, 40, 1, true, -Math.PI / 2, Math.PI * 2));
+  const canGeo = track(new THREE.CylinderGeometry(R, R, CAN_H, 40, 1, true));
   const lidGeo = track(new THREE.CylinderGeometry(R * 0.84, R * 0.97, 0.08, 32));
   const rimGeo = track(new THREE.TorusGeometry(R * 0.86, 0.02, 8, 32));
   let pending = 0;
@@ -122,8 +124,29 @@ export function createPallet(canvas: HTMLCanvasElement, opts: { onReady?: () => 
       const band = tex(`${BASE}/band-${name}.webp`);
       const plain = track(new THREE.MeshStandardMaterial({ color, roughness: 0.7 }));
       const printed = track(new THREE.MeshStandardMaterial({ map: band, roughness: 0.6 }));
-      const label = tex(`${BASE}/can-${name}.webp`, (t) => { t.wrapS = THREE.MirroredRepeatWrapping; t.repeat.set(2, 1); });
-      const canMat = track(new THREE.MeshStandardMaterial({ map: label, metalness: 0.35, roughness: 0.32 }));
+      // étiquette : le design officiel des canettes du site (le même que sur les fiches saveurs)
+      const canMat = track(new THREE.MeshStandardMaterial({ color: color, metalness: 0.35, roughness: 0.32 }));
+      const flavor = getFlavor(name);
+      if (flavor) {
+        pending++;
+        getLabelImage(flavor)
+          .then((img) => {
+            const c = document.createElement("canvas");
+            c.width = 1024;
+            c.height = Math.round((1024 * img.height) / img.width);
+            c.getContext("2d")!.drawImage(img, 0, 0, c.width, c.height);
+            const t = track(new THREE.CanvasTexture(c));
+            t.colorSpace = THREE.SRGBColorSpace;
+            t.wrapS = THREE.RepeatWrapping;
+            t.offset.x = 0.25; // face avant vers la caméra
+            t.anisotropy = 4;
+            canMat.map = t;
+            canMat.color.set(0xffffff);
+            canMat.needsUpdate = true;
+          })
+          .catch(() => {})
+          .finally(done);
+      }
       const trayGeo = track(new THREE.BoxGeometry(W / 2 - 0.02, TRAY_H, D));
       for (let tier = 0; tier < TIERS; tier++) {
         const ty = by + tier * TIER_H;
