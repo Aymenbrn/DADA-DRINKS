@@ -291,12 +291,12 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
   uniAspect = camera.aspect;
   showUniverse(opts.start);
 
-  // Bulles fines permanentes : elles continuent de monter pendant les changements de saveur
+  // Bulles permanentes en fond, derrière les fruits : elles continuent de monter pendant les changements de saveur
   const bubbleField = (() => {
-    const dist = camera.position.z + 1.6;
+    const dist = camera.position.z + 13.5; // plan du fond des bulles
     const hh = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * dist;
-    const b = buildBubbleField(hh * Math.max(camera.aspect, 1.9) * 1.05, hh + 0.5, 190);
-    b.mesh.position.set(0, CAN_Y - 1.2, -1.6);
+    const b = buildBubbleField(hh * Math.max(camera.aspect, 1.9) * 1.05, hh + 0.5, 240, { z0: 0, zSpan: 5, size: 2.2 });
+    b.mesh.position.set(0, CAN_Y - 1.2, -11);
     scene.add(b.mesh);
     return b;
   })();

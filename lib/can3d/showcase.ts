@@ -5,7 +5,7 @@ import * as THREE from "three";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import type { Flavor } from "@/lib/flavors";
 import { getLabelImage } from "./labels";
-import { buildUniverse } from "./universe";
+import { buildUniverse, buildBubbleField } from "./universe";
 
 export type ShowcaseOptions = {
   flavor: Flavor;
@@ -122,6 +122,16 @@ export function createShowcase(canvas: HTMLCanvasElement, opts: ShowcaseOptions)
     scene.add(universe.group);
     scene.fog = new THREE.Fog(opts.fogColor ? new THREE.Color(opts.fogColor) : backdropColor(opts.flavor), 16, 28); // les objets lointains se fondent dans le fond
   }
+  // Bulles qui montent en fond, derrière la canette et les fruits
+  const bubbleField = universe
+    ? (() => {
+        const hh = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * (camera.position.z + 7);
+        const b = buildBubbleField(hh * 1.9, hh + 0.4, opts.cardMode ? 60 : 120, { z0: 0, zSpan: 4, size: opts.cardMode ? 1.6 : 1.8 });
+        b.mesh.position.set(0, 0, -5);
+        scene.add(b.mesh);
+        return b;
+      })()
+    : null;
 
   // Ombre de contact très douce
   const sc = document.createElement("canvas");
@@ -189,6 +199,7 @@ export function createShowcase(canvas: HTMLCanvasElement, opts: ShowcaseOptions)
     // Le reflet glisse sur le métal avec la souris
     key.position.set(-3 + cur.x * 4, 4 - cur.y * 2, 6);
     universe?.update(dt, t, cur, reduceMotion);
+    bubbleField?.update(dt, t, cur, reduceMotion);
 
     renderer.render(scene, camera);
   });
@@ -202,6 +213,7 @@ export function createShowcase(canvas: HTMLCanvasElement, opts: ShowcaseOptions)
       section.removeEventListener("pointerleave", onLeave);
       bodyMat.map?.dispose();
       universe?.dispose();
+      bubbleField?.dispose();
       pmrem.dispose();
       renderer.dispose();
       renderer.forceContextLoss(); // libère vraiment le contexte WebGL (plusieurs scènes sur une même page)

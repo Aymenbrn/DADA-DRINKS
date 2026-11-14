@@ -1598,13 +1598,14 @@ const easeInOut = (x: number) => {
 };
 
 /** Champ de bulles fines qui montent en continu (accueil) : il ne change pas avec la saveur */
-export function buildBubbleField(w: number, h: number, n = 70) {
+export function buildBubbleField(w: number, h: number, n = 70, o: { z0?: number; zSpan?: number; size?: number } = {}) {
+  const z0 = o.z0 ?? -1, zSpan = o.zSpan ?? 6, size = o.size ?? 1;
   const data = Array.from({ length: n }, (_, i) => ({
     x: (((i * 0.37) % 1) * 2 - 1) * w,
     y: (((i * 0.61) % 1) * 2 - 1) * h,
-    z: -1 - ((i * 0.29) % 1) * 6,
+    z: z0 - ((i * 0.29) % 1) * zSpan,
     // une bulle sur cinq est plus grosse, comme les grappes des colas
-    r: i % 5 === 0 ? 0.07 + ((i * 0.43) % 1) * 0.07 : 0.014 + ((i * 0.43) % 1) * 0.03,
+    r: (i % 5 === 0 ? 0.07 + ((i * 0.43) % 1) * 0.07 : 0.014 + ((i * 0.43) % 1) * 0.03) * size,
     v: 0.6 + ((i * 0.53) % 1) * 0.8,
   }));
   const mesh = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 20, 14), bubbleMat(), n);
