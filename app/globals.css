@@ -797,3 +797,4 @@ button.pill { cursor: pointer; border: 0; font-family: inherit; }
 .pro-card-link { color: inherit; text-decoration: none; display: block; }
 .pro-body h3 a { color: inherit; text-decoration: none; }
 .pro-body h3 a:hover { text-decoration: underline; text-decoration-color: var(--accent); }
+.pro-pdp-buy .pdp-buy { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
