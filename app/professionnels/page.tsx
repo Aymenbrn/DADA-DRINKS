@@ -7,6 +7,7 @@ import { PRO_PRODUCTS } from "@/lib/pro";
 import { formatEUR } from "@/lib/flavors";
 import { WHATSAPP_DISPLAY, WHATSAPP_URL } from "@/lib/site";
 import Pro3D from "@/components/Pro3D";
+import MarkPro from "@/components/MarkPro";
 
 export const metadata: Metadata = {
   title: "Professionnels",
@@ -17,6 +18,7 @@ export const metadata: Metadata = {
 export default function ProfessionnelsPage() {
   return (
     <main>
+      <MarkPro />
       <PageHero
         eyebrow="PROFESSIONNELS · B TO B"
         title="Mettez du Dada"

@@ -1,6 +1,7 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import { rememberSide } from "@/lib/audience";
 
 export type Audience = "particulier" | "pro";
 
@@ -11,7 +12,11 @@ const Ctx = createContext<{ side: Audience; setSide: (s: Audience) => void } | n
  * Un lien vers /#offre-pro ouvre directement l'accueil côté Pro, sur l'offre pro.
  */
 export function AudienceProvider({ children }: { children: ReactNode }) {
-  const [side, setSide] = useState<Audience>("particulier");
+  const [side, setSideState] = useState<Audience>("particulier");
+  const setSide = useCallback((s: Audience) => {
+    setSideState(s);
+    rememberSide(s);
+  }, []);
 
   useEffect(() => {
     const go = () => {
@@ -29,7 +34,7 @@ export function AudienceProvider({ children }: { children: ReactNode }) {
     go();
     window.addEventListener("hashchange", go);
     return () => window.removeEventListener("hashchange", go);
-  }, []);
+  }, [setSide]);
 
   return <Ctx.Provider value={{ side, setSide }}>{children}</Ctx.Provider>;
 }

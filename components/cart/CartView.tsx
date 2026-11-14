@@ -1,15 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import RibbonCan from "@/components/RibbonCan";
 import { useCart } from "@/components/cart/CartProvider";
 import { formatEUR } from "@/lib/flavors";
 import { describeLine } from "@/lib/cartItems";
+import { shopHref } from "@/lib/audience";
+import { usePathname } from "next/navigation";
 
 export default function CartView() {
   const { lines, count, totalCents, ready, setQty, remove } = useCart();
   const [checkout, setCheckout] = useState(false);
+  const pathname = usePathname();
+  const [shop, setShop] = useState("/#saveurs");
+  useEffect(() => setShop(shopHref(pathname)), [pathname]);
 
   return (
     <div className="container cart">
@@ -25,7 +30,7 @@ export default function CartView() {
       ) : lines.length === 0 ? (
         <div className="cart-empty">
           <p>Votre panier est vide. Treize saveurs vous attendent.</p>
-          <Link href="/#saveurs" className="btn btn-dark">Aller à la boutique</Link>
+          <Link href={shop} className="btn btn-dark">Aller à la boutique</Link>
         </div>
       ) : (
         <div className="cart-grid">

@@ -1,16 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import RibbonCan from "@/components/RibbonCan";
 import { useCart } from "@/components/cart/CartProvider";
 import { formatEUR } from "@/lib/flavors";
 import { describeLine } from "@/lib/cartItems";
+import { shopHref } from "@/lib/audience";
+import { usePathname } from "next/navigation";
 
 /** Panier en petit volet sur le côté : s'ouvre depuis le bouton « Panier », sans quitter la page */
 export default function CartDrawer() {
   const { lines, count, totalCents, ready, setQty, remove, drawerOpen, closeCart } = useCart();
   const panelRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+  const [shop, setShop] = useState("/#saveurs");
+  useEffect(() => { if (drawerOpen) setShop(shopHref(pathname)); }, [drawerOpen, pathname]);
 
   // Échap pour fermer, focus dans le volet à l'ouverture, pas de défilement de la page derrière
   useEffect(() => {
@@ -44,7 +49,7 @@ export default function CartDrawer() {
         ) : lines.length === 0 ? (
           <div className="cart-drawer-empty">
             <p>Votre panier est vide.</p>
-            <Link href="/#saveurs" className="btn btn-dark" onClick={closeCart}>Aller à la boutique</Link>
+            <Link href={shop} className="btn btn-dark" onClick={closeCart}>Aller à la boutique</Link>
           </div>
         ) : (
           <>

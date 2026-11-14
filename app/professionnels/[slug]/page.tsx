@@ -7,6 +7,7 @@ import ProBuy from "@/components/ProBuy";
 import { PRO_PRODUCTS, getPro } from "@/lib/pro";
 import { pad } from "@/lib/flavors";
 import { WHATSAPP_DISPLAY, WHATSAPP_URL } from "@/lib/site";
+import MarkPro from "@/components/MarkPro";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -35,6 +36,7 @@ export default async function ProProductPage({ params }: Props) {
 
   return (
     <main>
+      <MarkPro />
       <section className="pro-pdp" aria-labelledby="pro-title">
         <nav className="pro-pdp-nav" aria-label="Les produits pros">
           <ul>
