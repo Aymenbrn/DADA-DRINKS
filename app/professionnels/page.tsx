@@ -32,7 +32,7 @@ export default function ProfessionnelsPage() {
 
       <ProReasons />
 
-      <section className="section page-light" style={{ paddingTop: 0 }}>
+      <section id="offre" className="section page-light" style={{ paddingTop: 0 }}>
         <div className="container">
           <div className="section-head">
             <p className="eyebrow" style={{ color: "var(--muted-on-light)" }}>L’OFFRE PRO</p>

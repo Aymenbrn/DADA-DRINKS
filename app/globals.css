@@ -801,3 +801,4 @@ button.pill { cursor: pointer; border: 0; font-family: inherit; }
 .header-back { color: var(--paper); text-decoration: none; font: 600 14px var(--sans); opacity: 0.85; white-space: nowrap; }
 .header-back:hover { opacity: 1; text-decoration: underline; }
 @media (max-width: 640px) { .header-back { display: none; } }
+#offre { scroll-margin-top: 110px; }
