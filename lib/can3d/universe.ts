@@ -1494,10 +1494,12 @@ const bubbleMat = () =>
     fragmentShader: `uniform vec3 uTint; varying vec3 vN; varying vec3 vV;
       void main() {
         vec3 n = normalize(vN);
-        float rim = pow(1.0 - abs(dot(n, normalize(vV))), 2.6);
-        float spec = pow(max(dot(n, normalize(vec3(-0.45, 0.6, 0.65))), 0.0), 60.0);
-        float a = clamp(rim * 0.85 + spec * 0.9 + 0.03, 0.0, 1.0);
-        gl_FragColor = vec4(uTint * (0.75 + spec), a);
+        // bulle de gaz : bord fin et lumineux, reflet net en haut, lueur transmise en bas, cœur transparent
+        float rim = pow(1.0 - abs(dot(n, normalize(vV))), 3.4);
+        float spec = pow(max(dot(n, normalize(vec3(-0.45, 0.6, 0.65))), 0.0), 140.0);
+        float glow = pow(max(dot(n, normalize(vec3(0.25, -0.75, 0.6))), 0.0), 18.0) * 0.32;
+        float a = clamp(rim * 0.8 + spec * 1.1 + glow + 0.015, 0.0, 1.0);
+        gl_FragColor = vec4(uTint * (0.8 + spec * 0.6), a);
       }`,
   });
 function bubbles(): THREE.Object3D {
@@ -1600,14 +1602,29 @@ const easeInOut = (x: number) => {
 /** Champ de bulles fines qui montent en continu (accueil) : il ne change pas avec la saveur */
 export function buildBubbleField(w: number, h: number, n = 70, o: { z0?: number; zSpan?: number; size?: number } = {}) {
   const z0 = o.z0 ?? -1, zSpan = o.zSpan ?? 6, size = o.size ?? 1;
-  const data = Array.from({ length: n }, (_, i) => ({
-    x: (((i * 0.37) % 1) * 2 - 1) * w,
-    y: (((i * 0.61) % 1) * 2 - 1) * h,
-    z: z0 - ((i * 0.29) % 1) * zSpan,
-    // une bulle sur cinq est plus grosse, comme les grappes des colas
-    r: (i % 5 === 0 ? 0.07 + ((i * 0.43) % 1) * 0.07 : 0.014 + ((i * 0.43) % 1) * 0.03) * size,
-    v: 0.6 + ((i * 0.53) % 1) * 0.8,
-  }));
+  // Bulles de gaz : chacune monte dans son propre couloir vertical, à sa vitesse ;
+  // les couloirs sont espacés, donc deux bulles ne se touchent jamais.
+  let seed = 7919;
+  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  const lanes = Array.from({ length: n }, (_, i) => -w + ((i + 0.5) / n) * 2 * w);
+  for (let i = n - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1));
+    [lanes[i], lanes[j]] = [lanes[j], lanes[i]];
+  }
+  const gap = (2 * w) / n;
+  const data = lanes.map((x) => {
+    const big = rnd() < 0.12;
+    const r = (big ? 0.05 + rnd() * 0.035 : 0.012 + rnd() * 0.028) * size;
+    return {
+      x: x + (rnd() - 0.5) * gap * 0.3,
+      y: (rnd() * 2 - 1) * h,
+      z: z0 - rnd() * zSpan,
+      r: Math.min(r, gap * 0.32),
+      v: 0.35 + rnd() * 0.5 + r * 2.5, // les grosses montent un peu plus vite
+      ph: rnd() * Math.PI * 2,
+      wob: 0.02 + rnd() * 0.03,
+    };
+  });
   const mesh = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 20, 14), bubbleMat(), n);
   mesh.frustumCulled = false;
   const d = new THREE.Object3D();
@@ -1619,10 +1636,10 @@ export function buildBubbleField(w: number, h: number, n = 70, o: { z0?: number;
           b.y += b.v * dt;
           if (b.y > h) b.y = -h;
         }
-        // ondulation latérale, et les bulles grossissent un peu en approchant de la surface
-        const grow = 0.7 + 0.5 * ((b.y + h) / (2 * h));
+        // légère ondulation, et les bulles grossissent un peu en approchant de la surface
+        const grow = 0.8 + 0.35 * ((b.y + h) / (2 * h));
         const born = Math.min(1, (b.y + h) / 0.6); // apparition douce en bas
-        d.position.set(b.x + Math.sin(t * 1.8 + i * 1.3) * 0.09 - mouse.x * 0.3, b.y, b.z);
+        d.position.set(b.x + Math.sin(t * 2.2 + b.ph) * b.wob - mouse.x * 0.3, b.y, b.z);
         d.scale.setScalar(b.r * grow * born);
         d.updateMatrix();
         mesh.setMatrixAt(i, d.matrix);
@@ -1658,7 +1675,7 @@ export function buildUniverse(slug: string, field?: { w: number; h: number; d?: 
   const base = RECIPES[slug] ?? RECIPES.cerise;
   // accueil : les bulles fines sont un champ à part, permanent (voir buildBubbleField)
   // sur l'accueil, toutes les bulles (fines et grappes) vivent dans le champ permanent : elles restent pendant les transitions
-  const recipe: Recipe = field ? { ...base, orbit: false, bubbles: 0 } : card ? { ...base, orbit: false, bubbles: Math.round(base.bubbles * 0.35) } : base;
+  const recipe: Recipe = field ? { ...base, orbit: false, bubbles: 0 } : card ? { ...base, orbit: false, bubbles: 0 } : { ...base, bubbles: 0 }; // bulles : champ de fond uniquement
   const slots: [number, number, number, number][] = field
     ? fieldSlots(field.w, field.h)
     : card
@@ -1673,7 +1690,7 @@ export function buildUniverse(slug: string, field?: { w: number; h: number; d?: 
 
   slots.forEach(([x, y, z, s], i) => {
     const maker = recipe.makers[i % recipe.makers.length];
-    if (field && maker === bubbleCluster) return; // accueil : ces bulles-là sont dans le champ permanent
+    if (maker === bubbleCluster) return; // les bulles vivent dans le champ de fond (bulles de gaz espacées)
     // accueil : mangues entières plutôt que des moitiés vues de face (elles ressemblaient à des disques)
     const obj = field && maker === mangoHalf ? mango() : maker();
     obj.scale.setScalar(s * (recipe.scale ?? 1) * (0.9 + ((i * 37) % 10) / 50));

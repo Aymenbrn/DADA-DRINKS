@@ -126,7 +126,7 @@ export function createShowcase(canvas: HTMLCanvasElement, opts: ShowcaseOptions)
   const bubbleField = universe
     ? (() => {
         const hh = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * (camera.position.z + 7);
-        const b = buildBubbleField(hh * 1.9, hh + 0.4, opts.cardMode ? 60 : 120, { z0: 0, zSpan: 4, size: opts.cardMode ? 1.6 : 1.8 });
+        const b = buildBubbleField(hh * 1.9, hh + 0.4, opts.cardMode ? 26 : 48, { z0: 0, zSpan: 4, size: opts.cardMode ? 1.5 : 1.6 });
         b.mesh.position.set(0, 0, -5);
         scene.add(b.mesh);
         return b;
