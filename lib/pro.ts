@@ -58,6 +58,10 @@ export const PRO_PRODUCTS: ProProduct[] = [
     desc: "Le format intermédiaire pour les épiceries et restaurants qui veulent toute la gamme en vue.",
     long: "Le format le plus polyvalent : une grande porte vitrée, plus de place pour toute la gamme, l'habillage Dada sur le fronton et le flanc, et des roulettes pour l'installer facilement dans une épicerie, un snack ou un restaurant.",
     format: "Vitrine 1 porte, grand format",
+    specs: [
+      { label: "Dimensions", value: "610 × 670 × 2 000 mm" },
+      { label: "Poids", value: "92 kg" },
+    ],
     points: ["Toute la gamme en vue", "Étagères réglables", "Montée sur roulettes", "20 colis offerts à la commande"],
   },
   {
