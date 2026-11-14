@@ -65,8 +65,27 @@ export default function HomeCarousel() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  // Barre des saveurs : on fait glisser le point, la canette suit (avec ses transitions)
+  const railRef = useRef<HTMLDivElement>(null);
+  const [drag, setDrag] = useState<number | null>(null);
+  const lastPick = useRef(index);
+  const pickAt = (clientX: number) => {
+    const r = railRef.current?.getBoundingClientRect();
+    if (!r || !r.width) return;
+    const ratio = Math.min(1, Math.max(0, (clientX - r.left) / r.width));
+    setDrag(ratio * 100);
+    const i = Math.round(ratio * (FLAVORS.length - 1));
+    if (i !== lastPick.current) {
+      lastPick.current = i;
+      apiRef.current?.goTo(i);
+    }
+  };
+  useEffect(() => {
+    if (drag === null) lastPick.current = index;
+  }, [index, drag]);
+
   const isNew = f.slug === NEW_RELEASE;
-  const pct = FLAVORS.length > 1 ? (index / (FLAVORS.length - 1)) * 100 : 0;
+  const pct = drag ?? (FLAVORS.length > 1 ? (index / (FLAVORS.length - 1)) * 100 : 0);
   const rail = `linear-gradient(90deg, ${FLAVORS.map((x, i) => `${x.hi} ${((i / (FLAVORS.length - 1)) * 100).toFixed(1)}%`).join(", ")})`;
 
   return (
@@ -113,21 +132,30 @@ export default function HomeCarousel() {
           <span className="sr-only">Dada </span>
           {f.name}
         </h1>
-        <div className="ribbon-slider" style={{ "--rail": rail, "--pct": `${pct}%` } as CSSProperties}>
+        <div
+          ref={railRef}
+          className={`ribbon-slider${drag !== null ? " is-drag" : ""}`}
+          style={{ "--rail": rail, "--pct": `${pct}%` } as CSSProperties}
+          role="slider"
+          tabIndex={0}
+          aria-label="Choisir une saveur"
+          aria-valuemin={1}
+          aria-valuemax={FLAVORS.length}
+          aria-valuenow={index + 1}
+          aria-valuetext={`Dada ${f.name}`}
+          onPointerDown={(e) => {
+            e.currentTarget.setPointerCapture(e.pointerId);
+            lastPick.current = index;
+            pickAt(e.clientX);
+          }}
+          onPointerMove={(e) => {
+            if (drag !== null) pickAt(e.clientX);
+          }}
+          onPointerUp={() => setDrag(null)}
+          onPointerCancel={() => setDrag(null)}
+        >
           <div className="ribbon-rail" aria-hidden="true" />
           <span className="ribbon-knob" aria-hidden="true" />
-          <ul aria-label="Choisir une saveur">
-            {FLAVORS.map((x, i) => (
-              <li key={x.slug}>
-                <button
-                  type="button"
-                  aria-label={`Dada ${x.name}`}
-                  aria-current={i === index ? "true" : undefined}
-                  onClick={() => apiRef.current?.goTo(i)}
-                />
-              </li>
-            ))}
-          </ul>
         </div>
         <p className="ribbon-hint">Glisser ou utiliser les flèches pour découvrir</p>
           <div className="ribbon-actions">
