@@ -1584,6 +1584,43 @@ function fieldSlots(w: number, h: number): [number, number, number, number][] {
   return out;
 }
 
+/**
+ * Accueil : tas de fruits en vrac au bas de l'écran (derrière la dune de sable).
+ * Les fruits sont posés un à un sur le tas, de gauche à droite au hasard ; chacun tombe sur ce qui est déjà là.
+ * w, h : demi-largeur / demi-hauteur visibles au plan de l'univers ; d : distance caméra → ce plan.
+ */
+function pileSlots(w: number, h: number, d: number, scale: number): [number, number, number, number][] {
+  let seed = 4127;
+  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  const out: [number, number, number, number][] = [];
+  const N = w > h * 1.2 ? 24 : 15;
+  const BINS = 80;
+  const heights = new Array(BINS).fill(0); // hauteur du tas (unités écran au plan de l'univers), par colonne
+  const toBin = (x: number) => Math.max(0, Math.min(BINS - 1, Math.floor(((x + w) / (2 * w)) * BINS)));
+  for (let i = 0; i < N; i++) {
+    const z = -4.6 - rnd() * 3.4;
+    const k = 1 + -z / d; // plus loin = plus petit à l'écran
+    const sc = (0.95 + rnd() * 0.6) * 2.0 * scale;
+    const r = (sc * 0.5) / k; // rayon apparent
+    const x = (rnd() * 2 - 1) * w * 0.98;
+    let top = 0;
+    for (let b = toBin(x - r); b <= toBin(x + r); b++) top = Math.max(top, heights[b]);
+    const yRest = -h + top + r * 0.75; // un peu enfoncé dans le tas : vrac
+    for (let b = toBin(x - r * 0.9); b <= toBin(x + r * 0.9); b++) heights[b] = Math.max(heights[b], top + r * 1.45);
+    out.push([x * k, yRest * k, z, sc]);
+  }
+  return out;
+}
+
+/** Rebond à l'arrivée au sol */
+function easeOutBounce(x: number) {
+  const n1 = 7.5625, d1 = 2.75;
+  if (x < 1 / d1) return n1 * x * x;
+  if (x < 2 / d1) return n1 * (x -= 1.5 / d1) * x + 0.75;
+  if (x < 2.5 / d1) return n1 * (x -= 2.25 / d1) * x + 0.9375;
+  return n1 * (x -= 2.625 / d1) * x + 0.984375;
+}
+
 /** Référence au créateur de grappes (le nom « bubbles » est repris plus bas dans buildUniverse) */
 const bubbleCluster: Maker = bubbles;
 
@@ -1648,13 +1685,13 @@ const CARD_SLOTS_BY: Record<string, [number, number, number, number][]> = {
   ],
 };
 
-export function buildUniverse(slug: string, field?: { w: number; h: number }, card = false) {
+export function buildUniverse(slug: string, field?: { w: number; h: number; d?: number }, card = false) {
   const base = RECIPES[slug] ?? RECIPES.cerise;
   // accueil : les bulles fines sont un champ à part, permanent (voir buildBubbleField)
   // sur l'accueil, toutes les bulles (fines et grappes) vivent dans le champ permanent : elles restent pendant les transitions
   const recipe: Recipe = field ? { ...base, orbit: false, bubbles: 0 } : card ? { ...base, orbit: false, bubbles: Math.round(base.bubbles * 0.35) } : base;
   const slots: [number, number, number, number][] = field
-    ? fieldSlots(field.w, field.h)
+    ? pileSlots(field.w, field.h, field.d ?? 20, recipe.scale ?? 1)
     : card
       ? (CARD_SLOTS_BY[slug] ?? CARD_SLOTS)
     : recipe.orbit
@@ -1663,14 +1700,14 @@ export function buildUniverse(slug: string, field?: { w: number; h: number }, ca
   const BW = field ? field.w : 4.5, BH = field ? field.h + 0.5 : 4.5;
   const group = new THREE.Group();
   let enter = field ? 0 : 1;
-  const items: { obj: THREE.Object3D; base: THREE.Vector3; spin: THREE.Vector3; phase: number; depth: number; steady: boolean; rx: number; ry: number; rz: number; rise: number; speed: number }[] = [];
+  const items: { obj: THREE.Object3D; base: THREE.Vector3; spin: THREE.Vector3; phase: number; depth: number; steady: boolean; rx: number; ry: number; rz: number; rise: number; speed: number; startY: number; delay: number; dur: number }[] = [];
 
   slots.forEach(([x, y, z, s], i) => {
     const maker = recipe.makers[i % recipe.makers.length];
     if (field && maker === bubbleCluster) return; // accueil : ces bulles-là sont dans le champ permanent
     // accueil : mangues entières plutôt que des moitiés vues de face (elles ressemblaient à des disques)
     const obj = field && maker === mangoHalf ? mango() : maker();
-    obj.scale.setScalar(s * (recipe.scale ?? 1) * (0.9 + ((i * 37) % 10) / 50));
+    obj.scale.setScalar(field ? s : s * (recipe.scale ?? 1) * (0.9 + ((i * 37) % 10) / 50));
     const steady = !!obj.userData.steady;
     if (steady) obj.rotation.set(0.25 * Math.sin(i * 1.7), 0.35 * Math.cos(i * 1.3), 0.5 * Math.sin(i * 2.3));
     else obj.rotation.set(i * 1.3, i * 2.1, i * 0.7);
@@ -1688,8 +1725,17 @@ export function buildUniverse(slug: string, field?: { w: number; h: number }, ca
       rz: obj.rotation.z,
       rise: 0,
       speed: obj.userData.bubble ? 0.55 + ((i * 0.37) % 1) * 0.6 : 0,
+      // accueil : chute depuis le haut de l'écran
+      startY: field ? field.h * (1.25 + ((i * 0.53) % 1) * 0.7) * (1 + -z / (field.d ?? 20)) : 0,
+      delay: 0,
+      dur: 1.05 + ((i * 0.29) % 1) * 0.35,
     });
   });
+
+  if (field) {
+    [...items].sort((a, b) => a.base.y - b.base.y).forEach((it, k) => (it.delay = k * 0.07 + ((k * 0.41) % 1) * 0.12));
+  }
+  let age = 0, prevEnter = 0, leaving = false;
 
   // Bulles fines qui montent (boissons pétillantes)
   const nb = recipe.bubbles;
@@ -1714,7 +1760,31 @@ export function buildUniverse(slug: string, field?: { w: number; h: number }, ca
     group,
     /** dt en secondes, t temps total, mouse en -1..1 */
     update(dt: number, t: number, mouse: THREE.Vector2, still: boolean) {
+      if (field) {
+        // accueil : les fruits tombent du haut, rebondissent et s'entassent derrière le sable ;
+        // quand on change de canette, le tas glisse vers le bas et disparaît
+        if (enter < prevEnter - 1e-4) leaving = true;
+        prevEnter = enter;
+        if (!leaving) age += still ? 60 : dt;
+        const out = leaving ? 1 - easeInOut(enter) : 0;
+        for (const it of items) {
+          if (it.speed) continue; // grappes de bulles : gérées plus bas
+          const ti = age - it.delay;
+          const u = Math.min(1, Math.max(0, ti / it.dur));
+          let y = ti <= 0 ? it.startY : it.base.y + (it.startY - it.base.y) * (1 - easeOutBounce(u));
+          y -= out * field.h * 2.4 * it.depth;
+          const fall = Math.min(Math.max(ti, 0), it.dur);
+          if (it.steady) {
+            const w = still ? 0 : 1;
+            it.obj.rotation.set(it.rx + w * 0.12 * Math.sin(t * 0.5 + it.phase), it.ry + w * 0.2 * Math.sin(t * 0.35 + it.phase), it.rz + (1 - u) * 1.2);
+          } else {
+            it.obj.rotation.set(it.rx + fall * it.spin.x * 9, it.ry + fall * it.spin.y * 9, it.rz);
+          }
+          it.obj.position.set(it.base.x - mouse.x * 0.3 * it.depth, y, it.base.z);
+        }
+      }
       for (const it of items) {
+        if (field && !it.speed) continue;
         if (it.steady) {
           const w = still ? 0 : 1;
           it.obj.rotation.set(

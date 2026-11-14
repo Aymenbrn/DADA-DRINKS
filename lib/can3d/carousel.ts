@@ -196,7 +196,7 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
     // demi-largeur / demi-hauteur visibles au plan de l'univers, pour le semer sur tout l'écran
     const dist = camera.position.z + 1.6;
     const hh = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * dist;
-    const u = buildUniverse(flavors[i].slug, { w: (hh * camera.aspect) / UNI_S, h: hh / UNI_S });
+    const u = buildUniverse(flavors[i].slug, { w: (hh * camera.aspect) / UNI_S, h: hh / UNI_S, d: dist / UNI_S });
     u.group.position.set(0, CAN_Y, -1.6);
     u.group.scale.setScalar(UNI_S);
     u.setEnter(0);
