@@ -871,3 +871,4 @@ button.pill { cursor: pointer; border: 0; font-family: inherit; }
 .pro-pdp-quote { height: 52px; padding: 0 22px; border-radius: 999px; display: inline-flex; align-items: center; color: var(--paper); border: 1.5px solid rgba(244,242,238,0.45); text-decoration: none; font: 700 16px var(--sans); transition: border-color 0.2s, background 0.2s; }
 .pro-pdp-quote:hover { border-color: var(--paper); background: rgba(255,255,255,0.06); }
 .cart-pro-thumb { height: 86%; width: auto; object-fit: contain; display: block; margin: auto; }
+.is-then .cmp-cans { mix-blend-mode: multiply; filter: none; }
