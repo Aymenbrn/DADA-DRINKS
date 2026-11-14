@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FLAVORS, PACK_PRICE, formatEUR } from "@/lib/flavors";
+import { formatEUR } from "@/lib/flavors";
 import { PRO_PRODUCTS } from "@/lib/pro";
 import Pro3D from "@/components/Pro3D";
 
@@ -19,22 +19,6 @@ export default function ProShop() {
         </div>
 
         <ul className="pro-grid">
-          {/* Les packs de 24 canettes, toute la gamme */}
-          <li className="pro-card">
-            <div className="pro-visual is-packs" aria-hidden="true">
-              <span className="pack-dots">
-                {FLAVORS.map((f) => (
-                  <span key={f.slug} style={{ background: f.c }} />
-                ))}
-              </span>
-            </div>
-            <div className="pro-body">
-              <h3>Packs de 24 canettes</h3>
-              <p>Les {FLAVORS.length} saveurs Dada en packs de 24 : eaux fruitées, colas et Ice Tea, à commander à l’unité ou en volume.</p>
-              <p className="pro-price"><small>le pack </small>{PACK_PRICE}</p>
-              <Link href="#devis" className="btn btn-dark pro-cta">Demander un devis</Link>
-            </div>
-          </li>
           {PRO_PRODUCTS.map((p) => (
             <li key={p.slug} className="pro-card">
               <Link href={`/professionnels/${p.slug}`} className="pro-card-link" aria-label={`Voir la fiche ${p.name}`}>
