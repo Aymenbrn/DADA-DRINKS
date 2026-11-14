@@ -50,11 +50,11 @@ export const FLAVORS: Flavor[] = [
     ingr: null,
   },
   {
-    slug: "cerise", name: "Cerise", en: "Cherry", cat: "fruit",
-    c: "#D7192D", ink: "#FFFFFF", hi: "#FF6B7A", rgb: "215,25,45",
-    liq: 0xff3a50, atten: 0x6e0012, surf: 0xff4f66, art: true, label: "/labels/cerise-label-alpha.webp",
-    note: "Rouge, franche, pétillante.",
-    desc: "Eau pétillante aromatisée à la cerise. Rouge profond, goût de cerise mûre entre douceur et acidité. À boire très frais.",
+    slug: "melon", name: "Melon", en: "Melon", cat: "fruit",
+    c: "#F7C873", ink: "#2A1600", hi: "#F7C873", rgb: "245,170,80",
+    liq: 0xffbf7a, atten: 0xb8621c, surf: 0xffcc92,
+    note: "Doux, juteux, estival.",
+    desc: "Eau pétillante aromatisée au melon. Douce et juteuse, faite pour les journées ensoleillées.",
     ingr: I_FRUIT,
   },
   {
@@ -90,11 +90,11 @@ export const FLAVORS: Flavor[] = [
     ingr: I_FRUIT,
   },
   {
-    slug: "melon", name: "Melon", en: "Melon", cat: "fruit",
-    c: "#F7C873", ink: "#2A1600", hi: "#F7C873", rgb: "245,170,80",
-    liq: 0xffbf7a, atten: 0xb8621c, surf: 0xffcc92,
-    note: "Doux, juteux, estival.",
-    desc: "Eau pétillante aromatisée au melon. Douce et juteuse, faite pour les journées ensoleillées.",
+    slug: "cerise", name: "Cerise", en: "Cherry", cat: "fruit",
+    c: "#D7192D", ink: "#FFFFFF", hi: "#FF6B7A", rgb: "215,25,45",
+    liq: 0xff3a50, atten: 0x6e0012, surf: 0xff4f66, art: true, label: "/labels/cerise-label-alpha.webp",
+    note: "Rouge, franche, pétillante.",
+    desc: "Eau pétillante aromatisée à la cerise. Rouge profond, goût de cerise mûre entre douceur et acidité. À boire très frais.",
     ingr: I_FRUIT,
   },
   {
