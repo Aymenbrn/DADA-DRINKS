@@ -759,3 +759,41 @@ button.pill { cursor: pointer; border: 0; font-family: inherit; }
 .site-header.is-home:not(.is-transparent) { box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
 .ribbon { height: 100svh; }
 @supports (height: 100dvh) { .ribbon { height: 100dvh; } }
+
+/* ---------- Fiches produits de l'offre pro ---------- */
+.pro-pdp {
+  position: relative; overflow: hidden; color: var(--paper); padding: 140px 0 72px;
+  background: radial-gradient(55% 70% at 68% 55%, #7a0f1d 0%, #2a070c 55%, #0a0a0a 85%), #0a0a0a;
+}
+.pro-pdp-nav { position: absolute; z-index: 3; top: 84px; left: 0; right: 0; overflow-x: auto; scrollbar-width: none; }
+.pro-pdp-nav::-webkit-scrollbar { display: none; }
+.pro-pdp-nav ul { display: flex; gap: 4px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 48px); list-style: none; width: max-content; }
+.pro-pdp-nav a { height: 42px; display: inline-flex; align-items: center; padding: 0 16px; border-radius: 999px; color: var(--muted-on-dark); text-decoration: none; font: 600 14px var(--sans); white-space: nowrap; }
+.pro-pdp-nav a:hover { color: var(--paper); }
+.pro-pdp-nav a[aria-current="page"] { color: var(--ink); background: var(--paper); }
+.pro-pdp-inner { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 40px; align-items: center; }
+.pro-pdp-copy { display: flex; flex-direction: column; gap: 18px; position: relative; z-index: 2; }
+.pro-pdp-back { color: var(--muted-on-dark); text-decoration: none; font: 600 14px var(--sans); align-self: flex-start; }
+.pro-pdp-back:hover { color: var(--paper); text-decoration: underline; }
+.pro-pdp-title { margin: 0; font-size: clamp(44px, 5vw, 80px); }
+.pro-pdp-title .serif-i { display: block; color: #ff6b7a; }
+.pro-pdp-lede { margin: 0; max-width: 44ch; font-size: 17px; line-height: 1.6; color: var(--muted-on-dark); }
+.pro-pdp-buy { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.pro-pdp-from { display: block !important; font-size: 13px !important; margin-bottom: 2px; }
+.pro-pdp-points { list-style: none; margin: 4px 0 0; padding: 14px 0 0; border-top: 1px solid rgba(255,255,255,0.15); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 20px; }
+.pro-pdp-points li { position: relative; padding-left: 18px; font-size: 14.5px; color: var(--paper); }
+.pro-pdp-points li::before { content: ""; position: absolute; left: 0; top: 7px; width: 8px; height: 8px; border-radius: 50%; background: #ff6b7a; }
+.pro-pdp-wa { margin: 0; font-size: 14px; color: var(--muted-on-dark); }
+.pro-pdp-wa a { color: var(--paper); }
+.pro-pdp-stage { position: relative; height: clamp(460px, 48vw, 640px); }
+.pro-pdp-stage::after { content: ""; position: absolute; left: 15%; right: 15%; bottom: 2%; height: 14%; border-radius: 50%; background: radial-gradient(closest-side, rgba(255,255,255,0.12), transparent); z-index: 0; }
+.pro-pdp-stage .pro3d { z-index: 1; }
+@media (max-width: 860px) {
+  .pro-pdp { padding-top: 136px; }
+  .pro-pdp-inner { grid-template-columns: minmax(0, 1fr); }
+  .pro-pdp-stage { order: -1; height: 440px; }
+  .pro-pdp-points { grid-template-columns: minmax(0, 1fr); }
+}
+.pro-card-link { color: inherit; text-decoration: none; display: block; }
+.pro-body h3 a { color: inherit; text-decoration: none; }
+.pro-body h3 a:hover { text-decoration: underline; text-decoration-color: var(--accent); }

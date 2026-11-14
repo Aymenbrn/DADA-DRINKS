@@ -37,11 +37,13 @@ export default function ProShop() {
           </li>
           {PRO_PRODUCTS.map((p) => (
             <li key={p.slug} className="pro-card">
-              <div className="pro-visual has-3d" aria-hidden="true">
+              <Link href={`/professionnels/${p.slug}`} className="pro-card-link" aria-label={`Voir la fiche ${p.name}`}>
+<div className="pro-visual has-3d" aria-hidden="true">
                 <Pro3D kind={p.size ?? "pallet"} fallback={p.image ?? "/pro/palette.webp"} />
               </div>
+</Link>
               <div className="pro-body">
-                <h3>{p.name}</h3>
+                <h3><Link href={`/professionnels/${p.slug}`}>{p.name}</Link></h3>
                 <p>{p.desc}</p>
                 {p.freeCases && <p className="pro-gift">+ {p.freeCases} colis offerts</p>}
                 {p.size ? (
