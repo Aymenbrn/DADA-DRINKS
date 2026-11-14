@@ -7,7 +7,7 @@ export const STORY_IMG = {
   logo2007: `${CDN}73c52175-ad08-4e2e-ad0e-83e033446a81/DADA_logo_blanc.png?format=750w`,
   cans2007: `${CDN}6f9cb8c1-248c-421b-8eb6-ab5d67fec6e8/ANCIENNE+NETTE.png?format=1500w`,
   logoNow: `${CDN}ff1f23a8-2ed0-4777-871a-7214d71d0d79/DADA_contours_blanc.png?format=750w`,
-  cansNow: `${CDN}91991609-a07c-4e7d-a29e-b144c9ede04d/canettes+fond%24.png?format=1500w`,
+  cansNow: "/story/canettes-actuelles.webp", // les canettes Dada de la home page, disposées comme le visuel « nouveau design »
 };
 
 type Step = { when: string; title: string; text: string; quote?: string; img?: { src: string; alt: string; fit?: "cover" | "contain"; bg?: string }[] };
