@@ -3,9 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Pro3D from "@/components/Pro3D";
 import { ProQuote } from "@/components/ProDetails";
-import ProOptionBuy from "@/components/ProOptionBuy";
+import ProBuy from "@/components/ProBuy";
 import { PRO_PRODUCTS, getPro } from "@/lib/pro";
-import { formatEUR, pad } from "@/lib/flavors";
+import { pad } from "@/lib/flavors";
 import { WHATSAPP_DISPLAY, WHATSAPP_URL } from "@/lib/site";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -54,18 +54,7 @@ export default async function ProProductPage({ params }: Props) {
               {lead} <span className="serif-i">{tail}.</span>
             </h1>
             <p className="pro-pdp-lede">{p.long}</p>
-            {p.options ? (
-              <ProOptionBuy options={p.options} />
-            ) : (
-            <div className="pro-pdp-buy">
-              <p className="pdp-price">
-                {p.from && <small className="pro-pdp-from">à partir de</small>}
-                {formatEUR(p.priceCents)}
-                <small>{p.freeCases ? `+ ${p.freeCases} colis Dada offerts` : "selon la composition de la palette"}</small>
-              </p>
-              <a href="#devis" className="pdp-buy">Demander un devis</a>
-            </div>
-            )}
+            <ProBuy product={p} />
             {p.specs && (
               <dl className="pdp-specs pro-pdp-specs">
                 {p.specs.map((s) => (

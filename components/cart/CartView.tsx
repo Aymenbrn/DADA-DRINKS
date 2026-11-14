@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 import RibbonCan from "@/components/RibbonCan";
 import { useCart } from "@/components/cart/CartProvider";
-import { flavorHref, formatEUR, getFlavor, packCents } from "@/lib/flavors";
+import { formatEUR } from "@/lib/flavors";
+import { describeLine } from "@/lib/cartItems";
 
 export default function CartView() {
   const { lines, count, totalCents, ready, setQty, remove } = useCart();
@@ -15,7 +16,7 @@ export default function CartView() {
       <header className="cart-head">
         <p className="eyebrow" style={{ color: "var(--muted-on-light)" }}>PANIER</p>
         <h1 className="h-xl" style={{ fontSize: "clamp(44px, 6vw, 84px)" }}>
-          Votre panier<span className="serif-i">{count > 0 ? ` · ${count} pack${count > 1 ? "s" : ""}` : "."}</span>
+          Votre panier<span className="serif-i">{count > 0 ? ` · ${count} article${count > 1 ? "s" : ""}` : "."}</span>
         </h1>
       </header>
 
@@ -30,24 +31,29 @@ export default function CartView() {
         <div className="cart-grid">
           <ul className="cart-lines">
             {lines.map((l) => {
-              const f = getFlavor(l.slug);
-              if (!f) return null;
+              const it = describeLine(l.slug, l.pack);
+              if (!it) return null;
               return (
                 <li key={`${l.slug}-${l.pack}`} className="cart-line">
-                  <Link href={flavorHref(f.slug)} className="cart-thumb" aria-label={`Voir la fiche Dada ${f.name}`}>
-                    <RibbonCan flavor={f} width={28} />
+                  <Link href={it.href} className="cart-thumb" aria-label={`Voir la fiche ${it.name}`}>
+                    {it.flavor ? (
+                      <RibbonCan flavor={it.flavor} width={28} />
+                    ) : (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={it.image} alt="" className="cart-pro-thumb" />
+                    )}
                   </Link>
                   <div className="cart-info">
-                    <Link href={flavorHref(f.slug)} className="cart-name">Dada {f.name}</Link>
-                    <span className="cart-sub">Pack de {l.pack} canettes · {formatEUR(packCents(l.pack))}</span>
+                    <Link href={it.href} className="cart-name">{it.name}</Link>
+                    <span className="cart-sub">{it.sub} · {formatEUR(it.unitCents)}</span>
                   </div>
-                  <div className="qty" role="group" aria-label={`Quantité de Dada ${f.name}`}>
-                    <button type="button" aria-label="Un pack de moins" onClick={() => setQty(l.slug, l.qty - 1, l.pack)}>−</button>
+                  <div className="qty" role="group" aria-label={`Quantité : ${it.name}`}>
+                    <button type="button" aria-label="Un de moins" onClick={() => setQty(l.slug, l.qty - 1, l.pack)}>−</button>
                     <span aria-live="polite">{l.qty}</span>
-                    <button type="button" aria-label="Un pack de plus" onClick={() => setQty(l.slug, l.qty + 1, l.pack)}>+</button>
+                    <button type="button" aria-label="Un de plus" onClick={() => setQty(l.slug, l.qty + 1, l.pack)}>+</button>
                   </div>
-                  <span className="cart-price">{formatEUR(l.qty * packCents(l.pack))}</span>
-                  <button type="button" className="link-btn" onClick={() => remove(l.slug, l.pack)} aria-label={`Retirer Dada ${f.name} du panier`}>
+                  <span className="cart-price">{formatEUR(l.qty * it.unitCents)}</span>
+                  <button type="button" className="link-btn" onClick={() => remove(l.slug, l.pack)} aria-label={`Retirer ${it.name} du panier`}>
                     Retirer
                   </button>
                 </li>

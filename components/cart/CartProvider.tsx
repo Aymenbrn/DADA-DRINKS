@@ -1,7 +1,8 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { DEFAULT_PACK, PACK_SIZES, getFlavor, packCents } from "@/lib/flavors";
+import { DEFAULT_PACK } from "@/lib/flavors";
+import { describeLine, normalizePack } from "@/lib/cartItems";
 import CartDrawer from "@/components/cart/CartDrawer";
 
 /** Une ligne = une saveur dans un format de pack (6, 12, 24 ou 32 canettes) */
@@ -45,12 +46,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         if (Array.isArray(parsed)) {
           setLines(
             parsed
-              .filter((l) => !!l && typeof l.slug === "string" && typeof l.qty === "number" && l.qty > 0 && !!getFlavor(l.slug))
-              .map((l) => ({
-                slug: l.slug as string,
-                qty: l.qty as number,
-                pack: (PACK_SIZES as readonly number[]).includes(l.pack) ? (l.pack as number) : DEFAULT_PACK, // anciens paniers : pack de 24
-              }))
+              .filter((l) => !!l && typeof l.slug === "string" && typeof l.qty === "number" && l.qty > 0)
+              .map((l) => ({ slug: l.slug as string, qty: l.qty as number, pack: normalizePack(l.slug, l.pack) })) // anciens paniers : pack de 24
+              .filter((l) => !!describeLine(l.slug, l.pack))
           );
         }
       }
@@ -76,7 +74,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [toast]);
 
   const add = useCallback((slug: string, qty = 1, pack: number = DEFAULT_PACK) => {
-    if (!getFlavor(slug)) return;
+    const info = describeLine(slug, pack);
+    if (!info) return;
     setLines((prev) => {
       const i = prev.findIndex((l) => l.slug === slug && l.pack === pack);
       if (i < 0) return [...prev, { slug, qty: Math.min(MAX_QTY, qty), pack }];
@@ -84,7 +83,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       next[i] = { slug, pack, qty: Math.min(MAX_QTY, next[i].qty + qty) };
       return next;
     });
-    setToast(`Dada ${getFlavor(slug)?.name} (pack de ${pack}) ajoutée au panier`);
+    setToast(`${info.name} (${info.sub.toLowerCase()}) ajouté au panier`);
   }, []);
 
   const setQty = useCallback((slug: string, qty: number, pack: number) => {
@@ -101,7 +100,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const value = useMemo<CartContextValue>(() => {
     const count = lines.reduce((n, l) => n + l.qty, 0);
-    const totalCents = lines.reduce((n, l) => n + l.qty * packCents(l.pack), 0);
+    const totalCents = lines.reduce((n, l) => n + l.qty * (describeLine(l.slug, l.pack)?.unitCents ?? 0), 0);
     return { lines, count, totalCents, ready, add, setQty, remove, clear, drawerOpen, openCart, closeCart };
   }, [lines, ready, add, setQty, remove, clear, drawerOpen, openCart, closeCart]);
 
