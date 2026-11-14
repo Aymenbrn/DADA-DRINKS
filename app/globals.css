@@ -272,6 +272,10 @@ button { font-family: inherit; }
 .pro-price { font-size: 26px !important; font-weight: 800; color: var(--ink) !important; margin-top: auto !important; padding-top: 8px; font-variant-numeric: tabular-nums; }
 .pro-price small { font-size: 13px; font-weight: 500; }
 .pro-cta { margin-top: 8px; }
+.pro-buy { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: auto; padding-top: 8px; }
+.pro-buy .pro-price { margin-top: 0 !important; padding-top: 0; }
+.pro-add { flex: none; width: 48px; height: 48px; border-radius: 50%; background: var(--ink); color: var(--paper); display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
+.pro-add:hover { transform: scale(1.08); }
 .retailers { list-style: none; margin: 8px 0 0; padding: 0; border-top: 2px solid var(--paper); }
 .retailers li { font-size: clamp(32px, 4vw, 48px); font-weight: 800; letter-spacing: -0.03em; padding: 10px 0; border-bottom: 2px solid var(--paper); }
 .retailers.is-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); column-gap: 32px; border-top: 0; margin-top: 16px; }
