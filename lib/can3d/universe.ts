@@ -1626,7 +1626,7 @@ export function buildBubbleField(w: number, h: number, n = 70, o: { z0?: number;
       x: ln.x,
       y,
       z: ln.z,
-      r: Math.min(r, gap * 0.42),
+      r: Math.min(r, gap * 0.5),
       v: ln.v,
       ph: rnd() * Math.PI * 2,
       wob: 0.02 + rnd() * 0.03,

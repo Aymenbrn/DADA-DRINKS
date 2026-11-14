@@ -295,7 +295,7 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
   const bubbleField = (() => {
     const dist = camera.position.z + 13.5; // plan du fond des bulles
     const hh = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * dist;
-    const b = buildBubbleField(hh * Math.max(camera.aspect, 1.9) * 1.05, hh + 0.5, 330, { z0: 0, zSpan: 5, size: 2.6, perLane: 2 });
+    const b = buildBubbleField(hh * Math.max(camera.aspect, 1.9) * 1.05, hh + 0.5, 300, { z0: 0, zSpan: 5, size: 4.2, perLane: 2 });
     b.mesh.position.set(0, CAN_Y - 1.2, -11);
     scene.add(b.mesh);
     return b;
