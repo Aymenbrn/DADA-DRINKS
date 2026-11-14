@@ -48,7 +48,6 @@ export default async function ProProductPage({ params }: Props) {
         </nav>
         <div className="container pro-pdp-inner">
           <div className="pro-pdp-copy">
-            <Link href="/professionnels" className="pro-pdp-back">← Toute l’offre pro</Link>
             <p className="pdp-eyebrow">PROFESSIONNELS — {p.format.toUpperCase()} — N° {pad(index)} / {PRO_PRODUCTS.length}</p>
             <h1 id="pro-title" className="h-xl pro-pdp-title">
               {lead} <span className="serif-i">{tail}.</span>
