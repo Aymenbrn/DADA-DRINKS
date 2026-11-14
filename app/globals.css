@@ -215,6 +215,11 @@ button { font-family: inherit; }
 
 /* Pages intérieures */
 .page-hero { background: radial-gradient(60% 80% at 85% 100%, color-mix(in srgb, var(--accent) 28%, transparent) 0%, transparent 70%), var(--ink); color: var(--paper); }
+.page-hero.has-decor { position: relative; overflow: hidden; }
+.page-hero.has-decor .page-hero-inner { position: relative; z-index: 1; }
+.hero-arm { position: absolute; top: 0; right: 0; bottom: 0; width: min(46%, 640px); height: 100%; display: block; opacity: 0; transition: opacity 0.8s ease; pointer-events: none; }
+.hero-arm.is-ready { opacity: 1; }
+@media (max-width: 760px) { .hero-arm { width: 62%; right: -14%; } .hero-arm.is-ready { opacity: 0.45; } }
 .page-hero-inner { display: flex; flex-direction: column; gap: 22px; padding-block: 88px 96px; }
 .page-hero-title { font-size: clamp(52px, 8vw, 128px); max-width: 14ch; text-wrap: balance; }
 .page-hero-lede { margin: 0; max-width: 56ch; font-size: 19px; line-height: 1.55; color: var(--muted-on-dark); }

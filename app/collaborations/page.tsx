@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
+import HeroArm from "@/components/HeroArm";
 import { COLLABS } from "@/lib/collabs";
 
 export const metadata: Metadata = {
@@ -23,6 +24,7 @@ export default function CollaborationsPage() {
         title="Ils ont tenu"
         accent="la canette."
         lede="Rap, MMA, basket, affichage : là où la culture se passe, la canette Dada n’est jamais loin."
+        decor={<HeroArm />}
       />
       <section className="section page-light">
         <div className="container">
