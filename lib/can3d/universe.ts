@@ -1584,10 +1584,9 @@ function fieldSlots(w: number, h: number): [number, number, number, number][] {
   return out;
 }
 
-/** Arrivée douce avec un léger dépassement (le fruit se pose en lévitation) */
-function easeOutBack(x: number) {
-  const c1 = 1.3, c3 = c1 + 1;
-  return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
+/** Arrivée fluide : le fruit ralentit en douceur jusqu'à sa place en lévitation */
+function easeOutCubic(x: number) {
+  return 1 - Math.pow(1 - x, 3);
 }
 
 /** Référence au créateur de grappes (le nom « bubbles » est repris plus bas dans buildUniverse) */
@@ -1696,8 +1695,8 @@ export function buildUniverse(slug: string, field?: { w: number; h: number; d?: 
       speed: obj.userData.bubble ? 0.55 + ((i * 0.37) % 1) * 0.6 : 0,
       // accueil : chute depuis le haut de l'écran jusqu'à sa place en lévitation
       startY: field ? field.h * (1.2 + ((i * 0.53) % 1) * 0.5) * (1 + -z / (field.d ?? 20)) + s * 1.5 : 0,
-      delay: field ? ((i * 0.37) % 1) * 0.55 : 0,
-      dur: 1.0 + ((i * 0.29) % 1) * 0.4,
+      delay: field ? ((i * 0.37) % 1) * 0.22 : 0,
+      dur: 0.72 + ((i * 0.29) % 1) * 0.18,
     });
   });
 
@@ -1770,8 +1769,8 @@ export function buildUniverse(slug: string, field?: { w: number; h: number; d?: 
         let drop = 0, land = 1;
         if (field) {
           const u = Math.min(1, Math.max(0, (age - it.delay) / it.dur));
-          drop = (it.startY - it.base.y) * (1 - easeOutBack(u));
-          land = u * u;
+          drop = (it.startY - it.base.y) * (1 - easeOutCubic(u));
+          land = u * u * (3 - 2 * u);
           if (u < 1 && !it.steady) {
             it.obj.rotation.x += it.spin.x * dt * 6 * (1 - u);
             it.obj.rotation.y += it.spin.y * dt * 6 * (1 - u);
@@ -1780,16 +1779,16 @@ export function buildUniverse(slug: string, field?: { w: number; h: number; d?: 
         // sortie : les fruits continuent leur chute et quittent l'écran par le bas (effet de défilement)
         if (field && leaving) {
           // chute accélérée (gravité) : hors de l'écran en ~1 s, les plus hauts partent un peu après
-          const lt = Math.max(0, leftT - ((it.base.y + it.startY) / (it.startY * 2)) * 0.15);
-          const p = Math.min(1, lt);
-          drop -= (it.base.y + it.startY) * (lt / 1.05) ** 2;
+          const lt = Math.max(0, leftT - ((it.base.y + it.startY) / (it.startY * 2)) * 0.08);
+          const p = Math.min(1, lt / 0.7);
+          drop -= (it.base.y + it.startY) * (lt / 0.7) ** 2;
           if (!it.steady) {
             it.obj.rotation.x += it.spin.x * dt * 6 * p;
             it.obj.rotation.y += it.spin.y * dt * 6 * p;
           }
         }
         // sortie : les fruits reculent au second plan en tombant (ils passent derrière le sable)
-        const back = field && leaving ? -Math.min(1, leftT / 1.05) * 3.5 : 0;
+        const back = field && leaving ? -Math.min(1, leftT / 0.7) * 3.5 : 0;
         it.obj.position.set(
           bx - mouse.x * 0.45 * it.depth,
           it.base.y + drop + bob * land + mouse.y * 0.3 * it.depth * land,
