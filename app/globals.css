@@ -759,10 +759,10 @@ button.pill { cursor: pointer; border: 0; font-family: inherit; }
 
 /* ---------- Fiches produits de l'offre pro ---------- */
 .pro-pdp {
-  position: relative; overflow: hidden; color: var(--paper); padding: 140px 0 72px;
+  position: relative; overflow: hidden; color: var(--paper); padding: 76px 0 64px;
   background: radial-gradient(55% 70% at 68% 55%, #7a0f1d 0%, #2a070c 55%, #0a0a0a 85%), #0a0a0a;
 }
-.pro-pdp-nav { position: absolute; z-index: 3; top: 84px; left: 0; right: 0; overflow-x: auto; scrollbar-width: none; }
+.pro-pdp-nav { position: absolute; z-index: 3; top: 16px; left: 0; right: 0; overflow-x: auto; scrollbar-width: none; }
 .pro-pdp-nav::-webkit-scrollbar { display: none; }
 .pro-pdp-nav ul { display: flex; gap: 4px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 48px); list-style: none; width: max-content; }
 .pro-pdp-nav a { height: 42px; display: inline-flex; align-items: center; padding: 0 16px; border-radius: 999px; color: var(--muted-on-dark); text-decoration: none; font: 600 14px var(--sans); white-space: nowrap; }
@@ -786,7 +786,7 @@ button.pill { cursor: pointer; border: 0; font-family: inherit; }
 .pro-pdp-stage::after { content: ""; position: absolute; left: 15%; right: 15%; bottom: 2%; height: 14%; border-radius: 50%; background: radial-gradient(closest-side, rgba(255,255,255,0.12), transparent); z-index: 0; }
 .pro-pdp-stage .pro3d { z-index: 1; }
 @media (max-width: 860px) {
-  .pro-pdp { padding-top: 136px; }
+  .pro-pdp { padding-top: 72px; }
   .pro-pdp-inner { grid-template-columns: minmax(0, 1fr); }
   .pro-pdp-stage { order: -1; height: 440px; }
   .pro-pdp-points { grid-template-columns: minmax(0, 1fr); }
