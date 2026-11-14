@@ -50,19 +50,12 @@ export default function ProfessionnelsPage() {
                   <h3><Link href={`/professionnels/${p.slug}`}>{p.name}</Link></h3>
                   <p>{p.desc}</p>
                   {p.freeCases && <p className="pro-gift">+ {p.freeCases} colis offerts</p>}
-                  {p.size ? (
-                    <div className="pro-buy">
-                      <p className="pro-price">{formatEUR(p.priceCents)}</p>
-                      <a href="#devis" className="pro-add" aria-label={`Demander un devis pour la ${p.name}`}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
-                      </a>
-                    </div>
-                  ) : (
-                    <>
-                      <p className="pro-price">{p.from && <small>à partir de </small>}{formatEUR(p.priceCents)}</p>
-                      <a href="#devis" className="btn btn-dark pro-cta">Demander un devis</a>
-                    </>
-                  )}
+                  <div className="pro-buy">
+                    <p className="pro-price">{p.from && <small>à partir de </small>}{formatEUR(p.priceCents)}</p>
+                    <Link href="#devis" className="pro-add" aria-label={`Demander un devis pour : ${p.name}`}>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+                    </Link>
+                  </div>
                 </div>
               </li>
             ))}
