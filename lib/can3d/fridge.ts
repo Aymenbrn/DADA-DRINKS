@@ -14,7 +14,7 @@ type Spec = {
 };
 
 const SPECS: Record<FridgeVariant, Spec> = {
-  slim: { w: 0.42, h: 1.75, d: 0.45, feet: "pads", glass: [0.17, 0.93, 0.15, 0.84], handles: [[0.08, 0.06, 0.38, 0.52]] },
+  slim: { w: 0.39, h: 1.855, d: 0.48, feet: "pads", glass: [0.17, 0.93, 0.15, 0.84], handles: [[0.08, 0.06, 0.38, 0.52]] },
   moyen: { w: 0.62, h: 1.95, d: 0.62, feet: "casters", glass: [0.1, 0.95, 0.15, 0.84], handles: [[0.06, 0.05, 0.43, 0.56]] },
   big: { w: 1.0, h: 2.0, d: 0.65, feet: "casters", glass: [0.04, 0.97, 0.15, 0.85], handles: [[0.475, 0.025, 0.43, 0.56], [0.525, 0.025, 0.43, 0.56]] },
 };

@@ -61,6 +61,13 @@ export default async function ProProductPage({ params }: Props) {
               </p>
               <a href="#devis" className="pdp-buy">Demander un devis</a>
             </div>
+            {p.specs && (
+              <dl className="pdp-specs pro-pdp-specs">
+                {p.specs.map((s) => (
+                  <div key={s.label}><dt>{s.label.toUpperCase()}</dt><dd>{s.value}</dd></div>
+                ))}
+              </dl>
+            )}
             <ul className="pro-pdp-points">
               {p.points.map((pt) => <li key={pt}>{pt}</li>)}
             </ul>

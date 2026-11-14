@@ -799,3 +799,5 @@ button.pill { cursor: pointer; border: 0; font-family: inherit; }
 .header-back:hover { opacity: 1; text-decoration: underline; }
 @media (max-width: 640px) { .header-back { display: none; } }
 #offre { scroll-margin-top: 110px; }
+.pro-pdp-specs { margin: 0; }
+.pro-pdp-specs + .pro-pdp-points { border-top: 0; padding-top: 4px; }

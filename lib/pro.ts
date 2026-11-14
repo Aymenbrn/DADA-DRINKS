@@ -17,6 +17,8 @@ export type ProProduct = {
   long: string;
   format: string;
   points: string[];
+  /** Caractéristiques techniques fournies par Dada */
+  specs?: { label: string; value: string }[];
 };
 
 export const PRO_PRODUCTS: ProProduct[] = [
@@ -40,6 +42,10 @@ export const PRO_PRODUCTS: ProProduct[] = [
     desc: "Le réfrigérateur vitré aux couleurs de Dada pour les petits espaces : caisse, comptoir, snack.",
     long: "La vitrine réfrigérée Dada la plus compacte : une porte vitrée, un habillage tropical aux couleurs de la marque et des étagères réglables pour mettre les canettes en avant près de la caisse ou sur un petit espace de vente.",
     format: "Vitrine 1 porte, format slim",
+    specs: [
+      { label: "Dimensions", value: "390 × 480 × 1 880 mm" },
+      { label: "Poids", value: "60 kg" },
+    ],
     points: ["Porte vitrée et éclairage intérieur", "Habillage Dada sur le flanc et le fronton", "Idéale près de la caisse", "10 colis offerts à la commande"],
   },
   {
