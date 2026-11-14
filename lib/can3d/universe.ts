@@ -1788,10 +1788,12 @@ export function buildUniverse(slug: string, field?: { w: number; h: number; d?: 
             it.obj.rotation.y += it.spin.y * dt * 6 * p;
           }
         }
+        // sortie : les fruits reculent au second plan en tombant (ils passent derrière le sable)
+        const back = field && leaving ? -Math.min(1, leftT / 1.05) * 3.5 : 0;
         it.obj.position.set(
           bx - mouse.x * 0.45 * it.depth,
           it.base.y + drop + bob * land + mouse.y * 0.3 * it.depth * land,
-          bz
+          bz + back
         );
       }
       if (bubbles) {
