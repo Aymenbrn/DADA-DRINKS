@@ -6,6 +6,7 @@ import { PRO_PRODUCTS } from "@/lib/pro";
 import { formatEUR } from "@/lib/flavors";
 import { WHATSAPP_DISPLAY, WHATSAPP_URL } from "@/lib/site";
 import ProScene from "@/components/ProScene";
+import Pallet3D from "@/components/Pallet3D";
 
 export const metadata: Metadata = {
   title: "Professionnels",
@@ -40,7 +41,7 @@ export default function ProfessionnelsPage() {
           <ul className="pro-grid">
             {PRO_PRODUCTS.map((p) => (
               <li key={p.slug} className="pro-card">
-                <div className={`pro-visual${p.image ? " has-photo" : ""}${p.size ? ` is-${p.size}` : " is-pallet"}`} aria-hidden="true">
+                <div className={`pro-visual${p.image || !p.size ? " has-photo" : ""}${p.size ? ` is-${p.size}` : " is-pallet"}`} aria-hidden="true">
                   {p.image ? (
                     <>
                       <ProScene width={p.size === "slim" ? 64 : p.size === "moyen" ? 84 : 132} />
@@ -52,7 +53,10 @@ export default function ProfessionnelsPage() {
                   {p.size ? (
                     <span className="fridge"><span className="fridge-logo">DADA</span><span className="fridge-shelves" /></span>
                   ) : (
-                    <span className="pallet"><span /><span /><span /></span>
+                    <>
+                      <ProScene width={150} />
+                      <Pallet3D />
+                    </>
                   )}
                 </>
                   )}
