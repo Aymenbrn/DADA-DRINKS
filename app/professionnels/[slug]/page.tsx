@@ -37,7 +37,7 @@ export default async function ProProductPage({ params }: Props) {
   return (
     <main>
       <MarkPro />
-      <section className="pro-pdp" aria-labelledby="pro-title">
+      <section className={`pro-pdp${p.size ? " is-vitrine" : ""}`} aria-labelledby="pro-title">
         <nav className="pro-pdp-nav" aria-label="Les produits pros">
           <ul>
             {PRO_PRODUCTS.map((x) => (
