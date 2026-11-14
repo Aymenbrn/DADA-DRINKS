@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { FLAVORS, PACK_PRICE, formatEUR } from "@/lib/flavors";
 import { PRO_PRODUCTS } from "@/lib/pro";
+import ProScene from "@/components/ProScene";
 
 /** Accueil, côté « Pro » : packs de canettes, palette mixte et vitrines réfrigérées */
 export default function ProShop() {
@@ -38,8 +39,11 @@ export default function ProShop() {
             <li key={p.slug} className="pro-card">
               <div className={`pro-visual${p.image ? " has-photo" : ""}${p.size ? ` is-${p.size}` : " is-pallet"}`} aria-hidden="true">
                   {p.image ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={p.image} alt="" className="pro-photo" loading="lazy" />
+                    <>
+                      <ProScene />
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={p.image} alt="" className="pro-photo" loading="lazy" />
+                    </>
                   ) : (
                   <>
                 {p.size ? (
