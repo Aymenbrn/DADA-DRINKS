@@ -2,7 +2,6 @@
 // qui flottent autour de la canette, en profondeur. Peu d'objets, matières naturelles,
 // mouvement lent : un décor, pas un feu d'artifice.
 import * as THREE from "three";
-import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 
 type Maker = () => THREE.Object3D;
 
@@ -12,13 +11,6 @@ const glossy = (color: number, roughness = 0.3) =>
 const matte = (color: number, roughness = 0.6) => new THREE.MeshStandardMaterial({ color, roughness });
 const leafMat = (color = 0x2f7d32) =>
   new THREE.MeshStandardMaterial({ color, roughness: 0.55, side: THREE.DoubleSide });
-// Glace : vraie transparence (réfraction), légèrement bleutée, arêtes brillantes
-const iceMat = () =>
-  new THREE.MeshPhysicalMaterial({
-    color: 0xffffff, roughness: 0.08, metalness: 0, transmission: 1, thickness: 0.8, ior: 1.31,
-    attenuationColor: new THREE.Color(0xcfe9ff), attenuationDistance: 1.5,
-    clearcoat: 1, clearcoatRoughness: 0.03, specularIntensity: 1, envMapIntensity: 1.6,
-  });
 
 /** Couleurs par sommet, d'après une fonction de la position */
 function paint(geo: THREE.BufferGeometry, fn: (p: THREE.Vector3) => THREE.Color) {
@@ -128,11 +120,6 @@ function leaf(color = 0x2f7d32, len = 0.7, width = 0.28): THREE.Object3D {
 function stem(points: [number, number, number][], radius = 0.02, color = 0x5d6b2c) {
   const curve = new THREE.CatmullRomCurve3(points.map((p) => new THREE.Vector3(...p)));
   return new THREE.Mesh(new THREE.TubeGeometry(curve, 24, radius, 8, false), matte(color, 0.7));
-}
-
-function ice(): THREE.Object3D {
-  const s = 0.42 + Math.random() * 0.18;
-  return new THREE.Mesh(new RoundedBoxGeometry(s, s * 0.9, s, 3, s * 0.12), iceMat());
 }
 
 /** Couleurs d'un agrume coupé */
@@ -312,18 +299,6 @@ function cherrySingle(): THREE.Object3D {
   m.rotation.set(0.15, 0.3, 0.1);
   g.add(m);
   g.add(cherryStem([[0, 0.16, 0], [0.02, 0.38, 0.01], [0.07, 0.62, 0.01], [0.15, 0.82, 0.02]]));
-  return g;
-}
-
-function mangoCubes(): THREE.Object3D {
-  const g = new THREE.Group();
-  const mat = new THREE.MeshPhysicalMaterial({ color: 0xffa21f, roughness: 0.3, clearcoat: 0.7, transmission: 0 });
-  [[0, 0, 0], [0.3, 0.06, 0.05], [0.12, 0.3, -0.05]].forEach(([x, y, z], i) => {
-    const m = new THREE.Mesh(new RoundedBoxGeometry(0.28, 0.28, 0.28, 3, 0.05), mat);
-    m.position.set(x, y, z);
-    m.rotation.set(i * 0.6, i * 0.9, i * 0.3);
-    g.add(m);
-  });
   return g;
 }
 

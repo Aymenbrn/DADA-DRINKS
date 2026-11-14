@@ -6,8 +6,8 @@
 import type { Flavor } from "@/lib/flavors";
 
 const BASE = "/labels";
-const OFFICIAL = `${BASE}/cola-cherry-label.jpg`;
-const TEMPLATE = `${BASE}/label-template.png`;
+const OFFICIAL = `${BASE}/cola-cherry-label.webp`;
+const TEMPLATE = `${BASE}/label-template.webp`;
 const PLUM = [137, 45, 115];
 
 const cache = new Map<string, Promise<HTMLCanvasElement | HTMLImageElement>>();

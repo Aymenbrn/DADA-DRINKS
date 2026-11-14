@@ -44,7 +44,7 @@ export const FLAVORS: Flavor[] = [
   {
     slug: "cola-cherry", name: "Cola Cherry", en: "Cherry Cola", cat: "cola",
     c: "#892D73", ink: "#FFFFFF", hi: "#E58AD0", rgb: "137,45,115",
-    liq: 0x6a1420, atten: 0x200308, surf: 0x8a2030, dark: true, art: true, labelFull: "/labels/cola-cherry-label.jpg",
+    liq: 0x6a1420, atten: 0x200308, surf: 0x8a2030, dark: true, art: true, labelFull: "/labels/cola-cherry-label.webp",
     note: "Cola, cerise, caractère.",
     desc: "Un cola aux notes de cerise intensément fruitées. À savourer bien frais.",
     ingr: null,
@@ -52,7 +52,7 @@ export const FLAVORS: Flavor[] = [
   {
     slug: "cerise", name: "Cerise", en: "Cherry", cat: "fruit",
     c: "#D7192D", ink: "#FFFFFF", hi: "#FF6B7A", rgb: "215,25,45",
-    liq: 0xff3a50, atten: 0x6e0012, surf: 0xff4f66, art: true, label: "/labels/cerise-label-alpha.png",
+    liq: 0xff3a50, atten: 0x6e0012, surf: 0xff4f66, art: true, label: "/labels/cerise-label-alpha.webp",
     note: "Rouge, franche, pétillante.",
     desc: "Eau pétillante aromatisée à la cerise. Rouge profond, goût de cerise mûre entre douceur et acidité. À boire très frais.",
     ingr: I_FRUIT,
@@ -166,7 +166,6 @@ export const packCents = (size: number) => Math.round((PACK_PRICE_CENTS * size) 
 /** Prix d'appel : le plus petit pack */
 export const FROM_PRICE = formatEUR(packCents(PACK_SIZES[0]));
 export const PACK_RANGE = `${PACK_SIZES[0]} à ${PACK_SIZES[PACK_SIZES.length - 1]} canettes`;
-export const PACK_SIZE = 24;
 
 export const getFlavor = (slug: string) => FLAVORS.find((f) => f.slug === slug);
 export const flavorHref = (slug: string) => `/saveurs/${slug}`;

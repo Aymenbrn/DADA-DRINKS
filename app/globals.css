@@ -39,22 +39,15 @@ button { font-family: inherit; }
 .btn-accent { background: var(--accent); color: var(--ink); }
 .btn-dark { background: var(--ink); color: var(--paper); }
 .btn-light { background: var(--paper); color: var(--ink); }
-.btn-outline-dark { background: transparent; color: var(--ink); border: 2px solid var(--ink); }
-.btn-ghost { background: transparent; color: inherit; padding: 0 12px; }
 
-.icon-btn {
-  width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.22); background: rgba(255, 255, 255, 0.06); color: var(--paper);
-}
-.icon-btn.solid { border: 0; background: var(--paper); color: var(--ink); }
+.btn-ghost { background: transparent; color: inherit; padding: 0 12px; }
 
 /* ---------- Header ---------- */
 .header { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; padding-block: 20px; }
 .logo { display: flex; align-items: baseline; gap: 6px; text-decoration: none; }
 .logo-img { display: block; height: 44px; width: auto; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25)); }
 @media (max-width: 860px) { .logo-img { height: 36px; } }
-.logo-dada { font-family: var(--display); font-size: 34px; letter-spacing: 0.04em; line-height: 1; }
-.logo-drinks { font-family: var(--serif); font-style: italic; font-size: 22px; display: inline-block; transform: rotate(-8deg); }
+
 .nav { display: flex; gap: 28px; flex-wrap: wrap; font-size: 15px; font-weight: 500; }
 .nav a { text-decoration: none; color: #d4d4d8; }
 .nav a:hover { color: #fff; }
@@ -62,7 +55,7 @@ button { font-family: inherit; }
   height: 44px; display: inline-flex; align-items: center; gap: 8px; padding: 0 18px; border-radius: 999px;
   font: 600 14px var(--sans); text-decoration: none; cursor: pointer;
 }
-.pill-outline { color: var(--paper); border: 1px solid rgba(255, 255, 255, 0.18); background: transparent; }
+
 .pill-light { color: var(--ink); background: var(--paper); border: 0; }
 
 /* ---------- Canette ---------- */
@@ -76,51 +69,19 @@ button { font-family: inherit; }
 .can-name { position: absolute; left: 0; right: 0; text-align: center; font-family: var(--serif); font-style: italic; }
 
 /* ---------- Hero ---------- */
-.hero { position: relative; overflow: hidden; transition: background 0.6s; }
-.hero-inner { display: flex; flex-wrap: wrap; align-items: center; gap: 40px; padding-block: 40px 72px; }
-.hero-copy { flex: 1 1 440px; min-width: 0; display: flex; flex-direction: column; gap: 28px; }
-.hero-stage { flex: 1 1 480px; min-width: 0; position: relative; height: 640px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-.hero-ghost {
-  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-  font-family: var(--display); font-size: clamp(120px, 15vw, 230px); line-height: 1; white-space: nowrap; color: transparent;
-  transition: -webkit-text-stroke-color 0.6s;
-}
+
 .halftone { background-image: radial-gradient(rgba(255, 255, 255, 0.16) 1px, transparent 1.5px); background-size: 9px 9px; }
-.swatches { display: flex; flex-wrap: wrap; gap: 2px; margin-left: -8px; }
-.swatch { width: 44px; height: 44px; border-radius: 999px; border: 0; padding: 0; cursor: pointer; transition: box-shadow 0.2s; }
 
 @keyframes dadaFloat { 0%, 100% { transform: translateY(0) rotate(-8deg); } 50% { transform: translateY(-16px) rotate(-5deg); } }
 .float { animation: dadaFloat 6s ease-in-out infinite; }
 
 /* ---------- Histoire (scroll story) ---------- */
-.story { position: relative; height: calc(min(100svh, 860px) + 3250px); overflow-x: clip; transition: background-color 0.8s ease, color 0.8s ease; }
-.story-sticky { position: sticky; top: 0; height: min(100svh, 860px); display: flex; flex-direction: column; overflow: hidden; }
-.story-inner { flex: 1; min-height: 0; width: 100%; display: flex; flex-direction: column; gap: 28px; padding-block: 32px 28px; }
-.story-row { flex: 1; min-height: 0; display: flex; flex-wrap: wrap; gap: 48px; align-items: stretch; }
-.story-text { flex: 1 1 400px; min-width: 0; display: flex; flex-direction: column; gap: 18px; justify-content: center; }
-.story-stage { flex: 1 1 520px; min-width: 0; position: relative; min-height: 440px; border-radius: 32px; overflow: hidden; }
-.story-big { margin: 0; font-family: var(--display); font-size: clamp(48px, 6.2vw, 92px); line-height: 0.92; letter-spacing: 0.01em; }
-.story-title { margin: 0; font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 34px; line-height: 1.1; }
-.story-body { margin: 0; max-width: 520px; font-size: 18px; line-height: 1.6; }
-.story-tabs { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; }
-.story-tab { background: transparent; border: 0; padding: 0 0 6px; cursor: pointer; text-align: left; color: inherit; display: flex; flex-direction: column; gap: 10px; min-height: 44px; }
-.piece { position: absolute; white-space: nowrap; line-height: 1; }
-.poem-layer { display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: 14px; padding: 40px; }
-.poem-layer .piece { position: relative; display: inline-block; line-height: 1.1; }
 
 @keyframes dadaBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
 .bob { display: inline-block; animation: dadaBob 1.4s ease-in-out infinite; }
 
-@media (max-width: 900px) {
-  .story-stage { min-height: 300px; flex-basis: 100%; }
-  .story-body { display: none; }
-  .story-title { font-size: 24px; }
-  .story-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-}
-
 /* ---------- Bandeau défilant ---------- */
 @keyframes dadaMarquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-.marquee-track { display: flex; gap: 36px; width: max-content; align-items: center; color: var(--ink); animation: dadaMarquee 40s linear infinite; }
 
 /* ---------- Cartes ---------- */
 .shop { background: var(--paper); color: var(--ink); padding: 120px 0 140px; }
@@ -159,7 +120,6 @@ button { font-family: inherit; }
 .card { background: #fff; border-radius: 28px; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s; }
 .card:hover { transform: translateY(-8px); box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.35); }
 .tag { position: absolute; padding: 6px 10px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; }
-.chip { height: 44px; padding: 0 20px; border-radius: 999px; font: 600 15px var(--sans); cursor: pointer; border: 1.5px solid var(--ink); }
 
 /* ---------- Footer ---------- */
 .footer-links { display: flex; flex-direction: column; gap: 12px; font-size: 15px; }
@@ -176,17 +136,7 @@ button { font-family: inherit; }
 }
 
 /* ---------- Fiche produit 3D (/saveurs/[slug]) ---------- */
-.pdp {
-  position: relative; overflow: hidden; background: #0a0a0b; color: var(--paper);
-  height: calc(100svh - 84px); min-height: 640px; max-height: 980px;
-}
-.pdp-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; }
-.pdp-canvas:active { cursor: grabbing; }
-.pdp-canvas:focus-visible { outline: 2px solid var(--accent); outline-offset: -4px; }
-.pdp-status {
-  position: absolute; inset: 0; margin: 0; display: flex; align-items: center; justify-content: center;
-  font-family: var(--mono); font-size: 13px; letter-spacing: 0.14em; color: var(--muted-on-dark); pointer-events: none;
-}
+
 .pdp-flavors {
   position: absolute; z-index: 3; top: 12px; left: 0; right: 0; overflow-x: auto; scrollbar-width: none;
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 32px, #000 calc(100% - 32px), transparent);
@@ -201,25 +151,10 @@ button { font-family: inherit; }
 .pdp-flavors a:hover { color: var(--paper); }
 .pdp-flavors a[aria-current="page"] { color: var(--ink); background: var(--paper); }
 .pdp-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.25); }
-.pdp-copy {
-  position: absolute; z-index: 2; top: calc(50% + 28px); transform: translateY(-50%);
-  left: max(16px, env(safe-area-inset-left, 0px)); padding-left: clamp(0px, 4vw, 48px);
-  width: min(400px, calc(100% - 32px)); max-height: calc(100% - 200px); overflow-y: auto; scrollbar-width: none;
-  display: flex; flex-direction: column; gap: 16px;
-}
-.pdp-copy::-webkit-scrollbar { display: none; }
+
 .pdp-eyebrow { margin: 0; font-family: var(--mono); font-size: 12px; letter-spacing: 0.16em; color: var(--muted-on-dark); }
 .pdp-title-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
-.pdp-title { flex: 1; min-width: 0; margin: 0; font-weight: 800; font-size: clamp(56px, 7vw, 104px); line-height: 0.9; letter-spacing: -0.04em; }
-.pdp-title em { display: inline-block; white-space: nowrap; font-family: var(--serif); font-weight: 400; letter-spacing: -0.02em; color: var(--accent); transition: color 0.5s; }
-.pdp-nav-pair { display: flex; gap: 6px; flex: none; padding-bottom: 6px; }
-.pdp-nav-btn {
-  width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(244,242,238,0.18); color: var(--paper);
-  display: flex; align-items: center; justify-content: center; text-decoration: none;
-}
-.pdp-nav-btn:hover { background: rgba(244,242,238,0.08); }
-.pdp-badge { align-self: flex-start; margin: 0; font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; padding: 6px 10px; background: var(--paper); color: var(--ink); transform: rotate(-2deg); }
-.pdp-lede { margin: 0; font-size: 14px; line-height: 1.55; color: var(--muted-on-dark); max-width: 34ch; }
+
 .pdp-buy-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
 .pdp-packs { flex-basis: 100%; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; max-width: 420px; }
 .pdp-packs button { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 6px; border-radius: 14px; border: 1.5px solid rgba(244,242,238,0.3); background: transparent; color: var(--paper); cursor: pointer; font: inherit; transition: background 0.2s, border-color 0.2s, color 0.2s; }
@@ -236,33 +171,16 @@ button { font-family: inherit; }
 .pdp-specs div { display: flex; flex-direction: column; gap: 4px; }
 .pdp-specs dt { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; color: var(--muted-on-dark); }
 .pdp-specs dd { margin: 0; font-size: 17px; font-weight: 700; }
-.pdp-ingr { border-top: 1px solid rgba(244,242,238,0.18); padding-top: 12px; }
-.pdp-ingr summary { cursor: pointer; font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; color: var(--muted-on-dark); min-height: 28px; display: flex; align-items: center; }
-.pdp-ingr p { margin: 8px 0 0; font-size: 14px; line-height: 1.55; color: var(--muted-on-dark); }
-.pdp-toast {
-  position: absolute; z-index: 4; left: 50%; bottom: 92px; transform: translateX(-50%); margin: 0; padding: 10px 16px;
-  border-radius: 999px; background: var(--paper); color: var(--ink); font: 600 14px var(--sans); white-space: nowrap;
-}
-.pdp-controls {
-  position: absolute; z-index: 2; bottom: 24px; left: 50%; transform: translateX(-50%);
-  display: flex; gap: 6px; padding: 6px; border-radius: 999px; max-width: calc(100% - 32px); overflow-x: auto;
-  background: rgba(244,242,238,0.08); border: 1px solid rgba(244,242,238,0.18);
-  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-}
-.pdp-controls button {
-  height: 44px; padding: 0 18px; border-radius: 999px; border: 0; cursor: pointer;
-  font: 600 14px var(--sans); color: var(--paper); background: transparent; white-space: nowrap;
-}
-.pdp-controls button[aria-pressed="true"] { background: var(--paper); color: var(--ink); }
+
 .pdp-flavors a:focus-visible, .pdp-buy:focus-visible, .pdp-nav-btn:focus-visible, .pdp-controls button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 @media (max-width: 760px) {
-  .pdp { height: calc(100svh - 120px); }
-  .pdp-copy { top: 68px; transform: none; padding-left: 0; gap: 10px; max-height: none; overflow: visible; }
-  .pdp-title { font-size: 44px; }
+  
+  
+  
   .pdp-lede, .pdp-specs, .pdp-ingr, .pdp-eyebrow, .pdp-badge { display: none; }
   .pdp-price { font-size: 22px; }
   .pdp-buy { height: 44px; padding: 0 18px; font-size: 14px; }
-  .pdp-controls button { padding: 0 12px; font-size: 13px; }
+  
 }
 
 /* =========================================================
@@ -361,10 +279,6 @@ button { font-family: inherit; }
 .page-dark .container > .salon { margin-top: 28px; }
 .salon { margin: 12px 0 0; font-size: 15px; color: var(--muted-on-dark); line-height: 1.5; }
 .salon span { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; color: var(--paper); margin-right: 8px; }
-.highlights { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 18px; }
-.highlights li { border-top: 1px solid rgba(255,255,255,0.18); padding-top: 18px; }
-.highlights h3 { margin: 0 0 6px; font-size: 24px; }
-.highlights p { margin: 0; color: var(--muted-on-dark); line-height: 1.55; }
 
 /* Notre histoire */
 .timeline { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
@@ -497,29 +411,10 @@ button { font-family: inherit; }
 .btn:focus-visible, .chip:focus-visible, .qty button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 
 /* ---------- Nouveauté : Dada Cola Cherry en 3D ---------- */
-.launch {
-  position: relative; overflow: hidden; color: var(--paper);
-  background:
-    radial-gradient(55% 70% at 70% 55%, rgba(137, 45, 115, 0.55) 0%, rgba(137, 45, 115, 0) 70%),
-    linear-gradient(180deg, #0a0a0a 0%, #1a0816 100%);
-}
-.launch-inner { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 40px; align-items: center; padding-block: 96px; }
-.launch-copy { display: flex; flex-direction: column; gap: 22px; }
-.launch-eyebrow { color: #e58ad0; }
-.launch-title { font-size: clamp(52px, 6.6vw, 104px); }
-.launch-lede { margin: 0; max-width: 40ch; font-size: 18px; line-height: 1.6; color: var(--muted-on-dark); }
-.launch-specs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 0; max-width: 460px; padding-top: 16px; border-top: 1px solid rgba(255, 255, 255, 0.16); }
-.launch-specs dt { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted-on-dark); }
-.launch-specs dd { margin: 4px 0 0; font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; }
-.launch-btn { background: #f4f2ee; color: #1a0816; }
-.launch-stage { position: relative; height: clamp(440px, 52vw, 640px); }
+
 .launch-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity 0.8s ease; }
 .launch-canvas.is-ready { opacity: 1; }
 .launch-fallback { position: absolute; inset: 0; margin: 0; display: flex; align-items: center; justify-content: center; color: var(--muted-on-dark); }
-@media (max-width: 860px) {
-  .launch-inner { grid-template-columns: minmax(0, 1fr); padding-block: 72px 24px; }
-  .launch-stage { height: 460px; order: -1; }
-}
 
 /* ---------- Univers 3D de chaque saveur (fiches produits) ---------- */
 .universe {
@@ -530,11 +425,11 @@ button { font-family: inherit; }
 }
 .universe-inner { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 32px; align-items: center; padding-block: 88px; }
 .universe-copy { display: flex; flex-direction: column; gap: 22px; position: relative; z-index: 1; }
-.universe-eyebrow { color: var(--u-hi); }
+
 .universe-title { font-size: clamp(48px, 6vw, 96px); }
 .universe-title .serif-i { color: var(--u-hi); }
 .universe-lede { margin: 0; max-width: 36ch; font-size: 17px; line-height: 1.6; color: var(--muted-on-dark); }
-.universe-btn { background: var(--paper); color: var(--ink); }
+
 .universe-stage { position: relative; height: clamp(480px, 56vw, 700px); }
 @media (max-width: 860px) {
   .universe-inner { grid-template-columns: minmax(0, 1fr); padding-block: 64px 24px; }
@@ -584,12 +479,7 @@ button { font-family: inherit; }
 .beach-leaf { transform-box: view-box; transform-origin: 0 0; animation: leafSway var(--dur, 8s) ease-in-out var(--delay, 0s) infinite alternate; }
 @keyframes leafSway { from { transform: rotate(-2.2deg); } to { transform: rotate(2.6deg); } }
 .beach-sand { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: clamp(110px, 24%, 230px); display: block; }
-.beach-grains { position: absolute; inset: 0; z-index: 1; }
-.beach-grains span {
-  position: absolute; border-radius: 50%; background: #f0d9a8; opacity: 0;
-  box-shadow: 0 0 3px rgba(240, 217, 168, 0.7);
-  animation-name: sandGrain; animation-timing-function: linear; animation-iteration-count: infinite;
-}
+
 /* chaque grain reste posé la plupart du temps, puis la rafale le soulève et l'emporte */
 @keyframes sandGrain {
   0%, 68% { opacity: 0; transform: translate(0, 0) scale(1); }
@@ -651,16 +541,7 @@ button { font-family: inherit; }
   animation: ribbonName 0.55s cubic-bezier(.2,.8,.2,1) both;
 }
 @keyframes ribbonName { from { opacity: 0; transform: skewX(-6deg) translateY(18px); } to { opacity: 1; transform: skewX(-6deg) translateY(0); } }
-.ribbon-slider { position: relative; width: min(78vw, 420px); height: 26px; margin-top: 14px; }
-.ribbon-rail { position: absolute; left: 0; right: 0; top: 50%; height: 4px; margin-top: -2px; border-radius: 4px; background: var(--rail); opacity: 0.95; box-shadow: 0 1px 6px rgba(0,0,0,0.3); }
-.ribbon-knob {
-  position: absolute; top: 50%; left: var(--pct); width: 18px; height: 18px; border-radius: 50%; transform: translate(-50%, -50%);
-  background: #fff; box-shadow: 0 0 0 4px color-mix(in srgb, var(--u-hi) 55%, transparent), 0 2px 8px rgba(0,0,0,0.4);
-  transition: left 0.6s cubic-bezier(.2,.8,.2,1), box-shadow 0.6s;
-}
-.ribbon-slider ul { position: absolute; inset: 0; display: flex; margin: 0; padding: 0; list-style: none; }
-.ribbon-slider li { flex: 1; }
-.ribbon-slider button { width: 100%; height: 100%; border: 0; padding: 0; background: transparent; cursor: pointer; }
+
 .ribbon-hint { margin: 6px 0 0; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.75); }
 @media (max-width: 640px) { .ribbon-hint { display: none; } }
 
@@ -676,7 +557,7 @@ button { font-family: inherit; }
   box-shadow: 0 0 0 0 color-mix(in srgb, var(--u-hi) 50%, transparent), 0 8px 24px rgba(0,0,0,0.35); transition: transform 0.2s, box-shadow 0.3s;
 }
 .ribbon-buy:hover { transform: translateY(-2px); box-shadow: 0 0 0 6px color-mix(in srgb, var(--u-hi) 45%, transparent), 0 10px 28px rgba(0,0,0,0.4); }
-.ribbon-more { height: 40px; padding: 0 18px; font-size: 13.5px; color: #fff; border: 1px solid rgba(255,255,255,0.55); }
+
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 @media (max-width: 1100px) {
@@ -726,13 +607,6 @@ button { font-family: inherit; }
 @media (prefers-reduced-motion: reduce) { .home-shop-swap { animation: none; } }
 
 /* Bande « Vous êtes : Particulier | Pro » entre l'accueil et la boutique */
-.aud-band {
-  display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap;
-  padding: 44px 16px 0; background: var(--paper); color: var(--ink);
-}
-.aud-band-label { margin: 0; font-family: var(--mono); font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted-on-light); }
-.aud-band-switch { width: 280px; height: 52px; background: #111; border-color: #111; }
-.aud-band-switch button { font-size: 15px; }
 
 /* Boutique : canette 3D et univers de la saveur dans chaque carte */
 .card-can3d { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
@@ -761,7 +635,7 @@ button { font-family: inherit; }
 .pdp-topbar-links { display: flex; align-items: center; gap: 18px; }
 .pdp-back { color: var(--paper); text-decoration: none; font: 600 14px var(--sans); opacity: 0.85; }
 .pdp-back:hover { opacity: 1; text-decoration: underline; }
-.pdp-cart { color: var(--ink); background: var(--paper); text-decoration: none; font: 700 14px var(--sans); padding: 10px 16px; border-radius: 999px; }
+
 .universe .pdp-flavors { top: 76px; }
 .universe .universe-inner { padding-top: 150px; }
 .pdp-page .universe { min-height: 100svh; }
@@ -799,7 +673,6 @@ button { font-family: inherit; }
 .scroll-top:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 /* L'en-tête collant ne doit rien masquer : ancres et histoire en 6 actes démarrent sous lui */
 section[id] { scroll-margin-top: 80px; }
-.story-sticky { top: 72px; height: min(calc(100svh - 72px), 860px); }
 
 /* ---------- Panier en volet latéral ---------- */
 button.pill { cursor: pointer; border: 0; font-family: inherit; }
