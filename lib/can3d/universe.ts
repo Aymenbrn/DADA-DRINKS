@@ -1498,7 +1498,7 @@ const bubbleMat = () =>
         float rim = pow(1.0 - abs(dot(n, normalize(vV))), 3.4);
         float spec = pow(max(dot(n, normalize(vec3(-0.45, 0.6, 0.65))), 0.0), 140.0);
         float glow = pow(max(dot(n, normalize(vec3(0.25, -0.75, 0.6))), 0.0), 18.0) * 0.32;
-        float a = clamp(rim * 0.8 + spec * 1.1 + glow + 0.015, 0.0, 1.0);
+        float a = clamp(rim * 1.0 + spec * 1.2 + glow + 0.03, 0.0, 1.0);
         gl_FragColor = vec4(uTint * (0.8 + spec * 0.6), a);
       }`,
   });
@@ -1619,7 +1619,7 @@ export function buildBubbleField(w: number, h: number, n = 70, o: { z0?: number;
       x: x + (rnd() - 0.5) * gap * 0.3,
       y: (rnd() * 2 - 1) * h,
       z: z0 - rnd() * zSpan,
-      r: Math.min(r, gap * 0.32),
+      r: Math.min(r, gap * 0.42),
       v: 0.35 + rnd() * 0.5 + r * 2.5, // les grosses montent un peu plus vite
       ph: rnd() * Math.PI * 2,
       wob: 0.02 + rnd() * 0.03,
