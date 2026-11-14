@@ -1593,18 +1593,20 @@ function pileSlots(w: number, h: number, d: number, scale: number): [number, num
   let seed = 4127;
   const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
   const out: [number, number, number, number][] = [];
-  const N = w > h * 1.2 ? 24 : 15;
-  const BINS = 80;
+  const N = w > h * 1.2 ? 26 : 16;
+  const maxTop = h * 0.62; // le tas ne dépasse pas le bas de l'écran (environ un tiers de la hauteur)
+  const BINS = 90;
   const heights = new Array(BINS).fill(0); // hauteur du tas (unités écran au plan de l'univers), par colonne
   const toBin = (x: number) => Math.max(0, Math.min(BINS - 1, Math.floor(((x + w) / (2 * w)) * BINS)));
-  for (let i = 0; i < N; i++) {
+  for (let tries = 0; out.length < N && tries < 400; tries++) {
     const z = -4.6 - rnd() * 3.4;
     const k = 1 + -z / d; // plus loin = plus petit à l'écran
-    const sc = (0.95 + rnd() * 0.6) * 2.0 * scale;
+    const sc = (0.8 + rnd() * 0.5) * 1.75 * scale;
     const r = (sc * 0.5) / k; // rayon apparent
     const x = (rnd() * 2 - 1) * w * 0.98;
     let top = 0;
     for (let b = toBin(x - r); b <= toBin(x + r); b++) top = Math.max(top, heights[b]);
+    if (top + r * 1.2 > maxTop) continue; // trop haut ici : on essaie ailleurs
     const yRest = -h + top + r * 0.75; // un peu enfoncé dans le tas : vrac
     for (let b = toBin(x - r * 0.9); b <= toBin(x + r * 0.9); b++) heights[b] = Math.max(heights[b], top + r * 1.45);
     out.push([x * k, yRest * k, z, sc]);
