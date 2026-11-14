@@ -68,7 +68,7 @@ export function StoryTimeline() {
     <ol className="timeline">
       {STEPS.map((s, i) => (
         <li key={s.title} className="tl-item">
-          <span className="tl-when">{s.when}</span>
+          <span className={`tl-when${s.when === "Aujourd’hui" ? " is-small" : ""}`}>{s.when}</span>
           <div className="tl-body">
             <span className="tl-n">{String(i + 1).padStart(2, "0")}</span>
             <h2>{s.title}</h2>
