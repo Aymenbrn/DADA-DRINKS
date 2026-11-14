@@ -645,6 +645,12 @@ button { font-family: inherit; }
   content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 240px; pointer-events: none; z-index: 1;
   background: linear-gradient(180deg, rgba(10,10,10,0) 0%, color-mix(in srgb, var(--u) 10%, rgba(10,10,10,0.6)) 45%, #0a0a0a 100%);
 }
+@media (max-width: 860px) {
+  /* mobile : le fondu commence sous les infos produit, sans les recouvrir */
+  .pdp-page .universe .universe-inner { padding-bottom: 150px; }
+  .pdp-page .universe .universe-copy { z-index: 2; }
+  .pdp-page .universe::after { height: 160px; }
+}
 .pdp-page + footer, .pdp-page ~ footer { background: linear-gradient(180deg, #0a0a0a 0%, var(--ink) 100%) !important; }
 
 /* En-tête aligné sur la barre des fiches produit : logo collé à gauche, panier à droite, même hauteur */
