@@ -1,71 +1,78 @@
 /**
- * Décor d'ambiance derrière la photo d'une vitrine (fiche pro) : coin d'épicerie,
- * mur chaud, étagères de canettes, comptoir, carrelage en perspective, lumière douce.
- * Volontairement flou et sourd pour que la vitrine reste au premier plan.
+ * Mise en situation de la vitrine : le mur d'un commerce (peinture, soubassement en carreaux
+ * métro, sol béton ciré), une étagère de canettes et une ardoise, un spot au-dessus de la vitrine.
+ * La photo de la vitrine se pose devant, contre le mur ; le décor reste discret et un peu flou.
  */
 const CANS = ["#D7192D", "#FFB547", "#4ADE80", "#F7A8CB", "#892D73", "#F2C418", "#E89A3C", "#3E2A1E"];
 
 export default function ProScene() {
-  const tiles = [];
-  // carrelage en perspective : lignes de fuite vers un point au centre
-  for (let k = -10; k <= 10; k++) {
-    tiles.push(<line key={`v${k}`} x1={200 + k * 9} y1={212} x2={200 + k * 60} y2={300} stroke="#c9c2b6" strokeWidth="1" />);
-  }
-  [218, 227, 239, 254, 273, 297].forEach((y, i) => tiles.push(<line key={`h${i}`} x1={0} y1={y} x2={400} y2={y} stroke="#c9c2b6" strokeWidth="1" />));
-  const shelf = (y: number, seed: number) =>
-    Array.from({ length: 9 }, (_, i) => (
-      <rect key={`${y}-${i}`} x={268 + i * 13} y={y - 18} width={9} height={18} rx={2} fill={CANS[(i + seed) % CANS.length]} />
+  const shelf = (x: number, y: number, seed: number) =>
+    Array.from({ length: 6 }, (_, i) => (
+      <rect key={`${y}-${i}`} x={x + 4 + i * 11} y={y - 16} width={8} height={16} rx={1.6} fill={CANS[(i + seed) % CANS.length]} />
     ));
   return (
     <svg className="pro-scene" viewBox="0 0 400 300" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
       <defs>
-        <linearGradient id="psWall" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#efe4d2" />
-          <stop offset="1" stopColor="#e2d3bc" />
+        <linearGradient id="psPaint" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#ece6dc" />
+          <stop offset="1" stopColor="#e3dbcd" />
         </linearGradient>
+        <pattern id="psTiles" width="24" height="12" patternUnits="userSpaceOnUse">
+          <rect width="24" height="12" fill="#f7f6f2" />
+          <path d="M0 11.5H24M12 0V12" stroke="#d9d5cc" strokeWidth="1" />
+          <path d="M0 5.5H24" stroke="#d9d5cc" strokeWidth="1" />
+          <path d="M0 0V6M24 0V6" stroke="#d9d5cc" strokeWidth="1" />
+        </pattern>
         <linearGradient id="psFloor" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#e9e4db" />
-          <stop offset="1" stopColor="#f6f3ee" />
+          <stop offset="0" stopColor="#bdb7ad" />
+          <stop offset="1" stopColor="#d9d4cb" />
         </linearGradient>
-        <radialGradient id="psLight" cx="50%" cy="10%" r="70%">
-          <stop offset="0" stopColor="#fff6dc" stopOpacity="0.9" />
-          <stop offset="1" stopColor="#fff6dc" stopOpacity="0" />
+        <radialGradient id="psSpot" cx="50%" cy="0%" r="60%">
+          <stop offset="0" stopColor="#fffaf0" stopOpacity="0.95" />
+          <stop offset="1" stopColor="#fffaf0" stopOpacity="0" />
         </radialGradient>
-        <radialGradient id="psShadow" cx="50%" cy="50%" r="50%">
-          <stop offset="0" stopColor="#000" stopOpacity="0.35" />
-          <stop offset="1" stopColor="#000" stopOpacity="0" />
-        </radialGradient>
+        <filter id="psSoft" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="9" />
+        </filter>
       </defs>
-      {/* mur */}
-      <rect width="400" height="212" fill="url(#psWall)" />
-      <rect y="200" width="400" height="12" fill="#d6c6ad" />
-      {/* étagères murales avec canettes, à droite */}
-      <g opacity="0.85">
-        {[70, 110, 150].map((y, i) => (
+
+      {/* mur peint et soubassement carrelé */}
+      <rect width="400" height="262" fill="url(#psPaint)" />
+      <rect y="168" width="400" height="94" fill="url(#psTiles)" />
+      <rect y="164" width="400" height="5" fill="#cfc6b6" />
+      <rect y="258" width="400" height="5" fill="#a9a196" />
+
+      {/* spot au plafond qui éclaire la vitrine */}
+      <rect width="400" height="262" fill="url(#psSpot)" />
+      <rect x="188" y="0" width="24" height="6" rx="2" fill="#2b2b2b" />
+
+      {/* ombre portée de la vitrine sur le mur */}
+      <rect x="172" y="40" width="64" height="222" rx="6" fill="#000" opacity="0.22" filter="url(#psSoft)" />
+
+      {/* à gauche : ardoise du commerce */}
+      <g opacity="0.9">
+        <rect x="58" y="62" width="74" height="84" rx="3" fill="#8a6a48" />
+        <rect x="62" y="66" width="66" height="76" rx="2" fill="#2f3431" />
+        {[80, 92, 104, 116, 128].map((y, i) => (
+          <line key={y} x1="70" y1={y} x2={i % 2 ? 110 : 120} y2={y} stroke="#e7e7e2" strokeOpacity="0.65" strokeWidth="2" strokeLinecap="round" />
+        ))}
+      </g>
+
+      {/* à droite : étagère murale de canettes */}
+      <g opacity="0.9">
+        {[96, 140].map((y, i) => (
           <g key={y}>
-            {shelf(y, i * 3)}
-            <rect x={262} y={y} width={126} height={5} fill="#a07b55" />
+            {shelf(266, y, i * 3)}
+            <rect x="264" y={y} width="74" height="4" rx="1" fill="#9a7650" />
+            <path d={`M272 ${y + 4} v8 h3 v-8 Z M327 ${y + 4} v8 h3 v-8 Z`} fill="#555" />
           </g>
         ))}
       </g>
-      {/* comptoir à gauche, avec une plante */}
-      <g opacity="0.9">
-        <rect x={0} y={150} width={120} height={62} fill="#b88a5c" />
-        <rect x={0} y={144} width={128} height={8} rx={2} fill="#8a6440" />
-        <rect x={34} y={120} width={22} height={24} rx={3} fill="#3a3a40" />
-        <rect x={30} y={116} width={30} height={6} rx={2} fill="#5a5a62" />
-        <path d="M92 144 q-4 -14 4 -22 q8 8 4 22 Z" fill="#c9773a" />
-        <path d="M96 124 q-18 -16 -10 -38 q14 14 10 38 Z M98 122 q4 -26 22 -30 q-2 22 -22 30 Z M97 126 q-22 -4 -28 -22 q22 0 28 22 Z" fill="#3f7f3a" />
-      </g>
-      {/* lampe suspendue et halo */}
-      <rect width="400" height="300" fill="url(#psLight)" />
-      <line x1="200" y1="0" x2="200" y2="18" stroke="#2a2a2a" strokeWidth="1.5" />
-      <path d="M186 30 q14 -16 28 0 Z" fill="#2a2a2a" />
-      {/* sol carrelé */}
-      <rect y="212" width="400" height="88" fill="url(#psFloor)" />
-      <g opacity="0.7">{tiles}</g>
-      {/* ombre au pied de la vitrine */}
-      <ellipse cx="200" cy="288" rx="70" ry="10" fill="url(#psShadow)" />
+
+      {/* sol en béton ciré, avec reflet et ombre au pied de la vitrine */}
+      <rect y="263" width="400" height="37" fill="url(#psFloor)" />
+      <rect x="150" y="263" width="100" height="22" fill="#fff" opacity="0.12" />
+      <ellipse cx="204" cy="286" rx="58" ry="7" fill="#000" opacity="0.32" filter="url(#psSoft)" />
     </svg>
   );
 }
