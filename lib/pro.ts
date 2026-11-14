@@ -74,6 +74,10 @@ export const PRO_PRODUCTS: ProProduct[] = [
     desc: "La grande vitrine pour les points de vente à fort passage et les supérettes.",
     long: "La vitrine double porte Dada pour les points de vente à fort passage : deux portes vitrées, une grande capacité et un habillage XXL aux couleurs de la marque, pensé pour les supérettes et la grande distribution.",
     format: "Vitrine 2 portes",
+    specs: [
+      { label: "Dimensions", value: "1 130 × 725 × 2 025 mm" },
+      { label: "Poids", value: "175 kg" },
+    ],
     points: ["Double porte vitrée", "Grande capacité, toute la gamme", "Montée sur roulettes", "24 colis offerts à la commande"],
   },
 ];
