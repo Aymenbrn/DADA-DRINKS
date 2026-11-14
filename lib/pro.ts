@@ -47,6 +47,7 @@ export const PRO_PRODUCTS: ProProduct[] = [
     priceCents: 162000,
     freeCases: 24,
     size: "big",
+    image: "/pro/vitrine-big.webp",
     desc: "La grande vitrine pour les points de vente à fort passage et les supérettes.",
   },
 ];

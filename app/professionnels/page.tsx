@@ -43,7 +43,7 @@ export default function ProfessionnelsPage() {
                 <div className={`pro-visual${p.image ? " has-photo" : ""}${p.size ? ` is-${p.size}` : " is-pallet"}`} aria-hidden="true">
                   {p.image ? (
                     <>
-                      <ProScene width={p.size === "slim" ? 64 : p.size === "moyen" ? 84 : 110} />
+                      <ProScene width={p.size === "slim" ? 64 : p.size === "moyen" ? 84 : 132} />
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={p.image} alt="" className="pro-photo" loading="lazy" />
                     </>
