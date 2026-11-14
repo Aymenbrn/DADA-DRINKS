@@ -307,6 +307,16 @@ button { font-family: inherit; }
 
 /* Avant / après (Notre histoire) */
 .cmp-section { background: var(--ink); color: var(--paper); }
+/* Notre histoire : en-tête et avant/après sur un seul fond — même noir, dégradé rouge continu de l'un à l'autre */
+.story-top {
+  background:
+    radial-gradient(55% 38% at 88% 34%, color-mix(in srgb, var(--accent) 30%, transparent) 0%, transparent 70%),
+    radial-gradient(50% 30% at 8% 70%, color-mix(in srgb, var(--accent) 18%, transparent) 0%, transparent 72%),
+    radial-gradient(60% 25% at 60% 100%, color-mix(in srgb, var(--accent) 14%, transparent) 0%, transparent 70%),
+    var(--ink);
+}
+.story-top .page-hero, .story-top .cmp-section { background: transparent; }
+.story-top .cmp-section { padding-top: 24px; }
 .cmp-section .eyebrow { color: #ff6b7a; }
 .cmp-section .section-lede { color: var(--muted-on-dark); }
 .cmp-stage { position: relative; aspect-ratio: 16 / 8; min-height: 300px; border-radius: 28px; overflow: hidden; cursor: ew-resize; touch-action: pan-y; user-select: none; -webkit-user-select: none; box-shadow: 0 30px 60px rgba(0,0,0,0.45); }

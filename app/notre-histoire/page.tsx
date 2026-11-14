@@ -13,6 +13,7 @@ export const metadata: Metadata = {
 export default function HistoirePage() {
   return (
     <main>
+      <div className="story-top">
       <PageHero
         eyebrow="NOTRE HISTOIRE"
         title="De la banlieue"
@@ -32,6 +33,7 @@ export default function HistoirePage() {
           <StoryCompare />
         </div>
       </section>
+      </div>
 
       <section className="section page-light">
         <div className="container">
