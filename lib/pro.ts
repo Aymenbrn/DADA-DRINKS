@@ -38,6 +38,7 @@ export const PRO_PRODUCTS: ProProduct[] = [
     priceCents: 91800,
     freeCases: 20,
     size: "moyen",
+    image: "/pro/vitrine-moyen.webp",
     desc: "Le format intermédiaire pour les épiceries et restaurants qui veulent toute la gamme en vue.",
   },
   {

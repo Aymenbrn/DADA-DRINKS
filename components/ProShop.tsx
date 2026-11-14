@@ -40,7 +40,7 @@ export default function ProShop() {
               <div className={`pro-visual${p.image ? " has-photo" : ""}${p.size ? ` is-${p.size}` : " is-pallet"}`} aria-hidden="true">
                   {p.image ? (
                     <>
-                      <ProScene />
+                      <ProScene width={p.size === "slim" ? 64 : p.size === "moyen" ? 84 : 110} />
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={p.image} alt="" className="pro-photo" loading="lazy" />
                     </>

@@ -5,7 +5,8 @@
  */
 const CANS = ["#D7192D", "#FFB547", "#4ADE80", "#F7A8CB", "#892D73", "#F2C418", "#E89A3C", "#3E2A1E"];
 
-export default function ProScene() {
+/** width : largeur de la vitrine, en unités du dessin (400 de large), pour caler son ombre sur le mur */
+export default function ProScene({ width = 70 }: { width?: number }) {
   const shelf = (x: number, y: number, seed: number) =>
     Array.from({ length: 6 }, (_, i) => (
       <rect key={`${y}-${i}`} x={x + 4 + i * 11} y={y - 16} width={8} height={16} rx={1.6} fill={CANS[(i + seed) % CANS.length]} />
@@ -47,7 +48,7 @@ export default function ProScene() {
       <rect x="188" y="0" width="24" height="6" rx="2" fill="#2b2b2b" />
 
       {/* ombre portée de la vitrine sur le mur */}
-      <rect x="172" y="40" width="64" height="222" rx="6" fill="#000" opacity="0.22" filter="url(#psSoft)" />
+      <rect x={204 - width / 2} y="40" width={width} height="222" rx="6" fill="#000" opacity="0.22" filter="url(#psSoft)" />
 
       {/* à gauche : ardoise du commerce */}
       <g opacity="0.9">
@@ -72,7 +73,7 @@ export default function ProScene() {
       {/* sol en béton ciré, avec reflet et ombre au pied de la vitrine */}
       <rect y="263" width="400" height="37" fill="url(#psFloor)" />
       <rect x="150" y="263" width="100" height="22" fill="#fff" opacity="0.12" />
-      <ellipse cx="204" cy="286" rx="58" ry="7" fill="#000" opacity="0.32" filter="url(#psSoft)" />
+      <ellipse cx="204" cy="286" rx={width * 0.8} ry="7" fill="#000" opacity="0.32" filter="url(#psSoft)" />
     </svg>
   );
 }
