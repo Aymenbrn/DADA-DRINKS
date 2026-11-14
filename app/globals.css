@@ -297,13 +297,13 @@ button { font-family: inherit; }
 @media (max-width: 700px) { .tl-item { grid-template-columns: minmax(0, 1fr); gap: 12px; } }
 .tl-media { display: grid; gap: 14px; margin-top: 10px; }
 .tl-media.is-duo { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); }
-.tl-fig { position: relative; margin: 0; border-radius: 22px; overflow: hidden; aspect-ratio: 16 / 9; display: flex; align-items: center; justify-content: center; box-shadow: 0 14px 34px rgba(0,0,0,0.12); }
-.tl-fig img { width: 100%; height: 100%; display: block; }
+.tl-fig { position: relative; margin: 0; border-radius: 22px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 14px 34px rgba(0,0,0,0.12); }
+.tl-fig img { width: 100%; aspect-ratio: 16 / 9; height: auto; display: block; }
 .tl-fig.is-cover img { object-fit: cover; transition: transform 1.2s cubic-bezier(.2,.7,.2,1); }
 .tl-fig.is-cover:hover img { transform: scale(1.04); }
 .tl-fig.is-contain img { object-fit: contain; padding: 6%; }
-.tl-fig figcaption { position: absolute; left: 12px; bottom: 12px; padding: 6px 10px; border-radius: 999px; background: rgba(10,10,10,0.72); color: #fff; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.08em; }
-@media (max-width: 700px) { .tl-media.is-duo { grid-template-columns: minmax(0, 1fr); } }
+.tl-fig figcaption { padding: 10px 14px; background: #0a0a0a; color: #e4e4e7; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.08em; }
+@media (max-width: 980px) { .tl-media.is-duo { grid-template-columns: minmax(0, 1fr); } }
 
 /* Avant / après (Notre histoire) */
 .cmp-section { background: var(--ink); color: var(--paper); }
