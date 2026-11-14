@@ -40,19 +40,6 @@ const hexToRgb = (hex: string) => {
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 };
 
-/** Teinte de canette assez soutenue pour garder le logo blanc lisible (Lemon, Melon…) */
-function deepTone(hex: string) {
-  let [r, g, b] = hexToRgb(hex);
-  const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-  if (lum > 0.5) {
-    const k = 0.5 / lum;
-    r *= k; g *= k; b *= k;
-  }
-  // un peu plus de saturation pour l'aspect métal anodisé
-  const m = (r + g + b) / 3;
-  return [r, g, b].map((v) => Math.max(0, Math.min(255, m + (v - m) * 1.15)));
-}
-
 /** Design officiel recoloré (Cola, Cola Zero ; toute la gamme sur l'accueil) */
 async function recolored(f: Flavor, ribbon = false) {
   const [img] = await Promise.all([loadImg(OFFICIAL), fontsReady()]);
@@ -64,7 +51,8 @@ async function recolored(f: Flavor, ribbon = false) {
   g.drawImage(img, 0, 0);
   const data = g.getImageData(0, 0, W, H);
   const px = data.data;
-  const [tr, tg, tb] = ribbon ? deepTone(f.c) : hexToRgb(f.c);
+  const [tr, tg, tb] = hexToRgb(f.can ?? f.c);
+  const [lr, lg, lb] = f.logo ? hexToRgb(f.logo) : [236, 236, 238];
   const keep = ribbon && f.slug === "cola-cherry";
   for (let i = 0; i < px.length; i += 4) {
     if (keep) break;
@@ -73,9 +61,9 @@ async function recolored(f: Flavor, ribbon = false) {
     const a = Math.min(1, Math.max(0, (gg - 45) / (232 - 45))); // part de blanc (logo, texte)
     let s = 1;
     if (a < 0.08) s = Math.min(1.35, Math.max(0.7, (r / PLUM[0] + b / PLUM[2]) / 2)); // nuances du métal
-    px[i] = a * 236 + (1 - a) * tr * s;
-    px[i + 1] = a * 236 + (1 - a) * tg * s;
-    px[i + 2] = a * 238 + (1 - a) * tb * s;
+    px[i] = a * lr + (1 - a) * tr * s;
+    px[i + 1] = a * lg + (1 - a) * tg * s;
+    px[i + 2] = a * lb + (1 - a) * tb * s;
   }
   g.putImageData(data, 0, 0);
 
@@ -91,7 +79,7 @@ async function recolored(f: Flavor, ribbon = false) {
     g.fillStyle = `rgb(${sr},${sg},${sb})`;
     g.fillRect((300 + off) * k, 1440 * k, 480 * k, 96 * k);
     g.fillStyle = "#ecebef";
-    g.fillText(f.name.toUpperCase(), (540 + off) * k, 1500 * k);
+    g.fillText(f.name.toUpperCase(), (540 + off) * k, 1500 * k, 460 * k);
   }
 
   // Accueil : mention verticale le long du logo, comme sur les canettes de la référence
@@ -123,7 +111,14 @@ async function fromTemplate(f: Flavor) {
   c.width = W;
   c.height = H;
   const g = c.getContext("2d")!;
-  g.fillStyle = "#050505";
+  // fond à la couleur réelle de la canette, avec un léger modelé métallique
+  g.fillStyle = f.can ?? "#050505";
+  g.fillRect(0, 0, W, H);
+  const sh = g.createLinearGradient(0, 0, 0, H);
+  sh.addColorStop(0, "rgba(255,255,255,0.10)");
+  sh.addColorStop(0.5, "rgba(255,255,255,0)");
+  sh.addColorStop(1, "rgba(0,0,0,0.12)");
+  g.fillStyle = sh;
   g.fillRect(0, 0, W, H);
   g.drawImage(img, 0, 0);
 
@@ -205,7 +200,7 @@ export function getLabelImage(f: Flavor) {
     p =
       f.slug === "cola-cherry"
         ? loadImg(OFFICIAL)
-        : f.cat === "cola"
+        : f.cat === "cola" || f.big
           ? recolored(f)
           : fromTemplate(f);
     cache.set(f.slug, p);

@@ -26,6 +26,11 @@ export type Flavor = {
   label?: string;
   /** Étiquette complète déjà dépliée (photo officielle), utilisée telle quelle sur la canette 3D */
   labelFull?: string;
+  /** Couleur réelle de la canette (d'après dadadrinks.com) */
+  can?: string;
+  /** Canette au grand logo DADA (comme les colas), et couleur de ce logo si elle n'est pas blanche */
+  big?: boolean;
+  logo?: string;
   /** Accroche courte (cartes de l'accueil) */
   note: string;
   /** Description de la fiche produit (d'après le site actuel) */
@@ -51,6 +56,7 @@ export const FLAVORS: Flavor[] = [
   },
   {
     slug: "melon", name: "Melon", en: "Melon", cat: "fruit",
+    can: "#E8962A",
     c: "#F7C873", ink: "#2A1600", hi: "#F7C873", rgb: "245,170,80",
     liq: 0xffbf7a, atten: 0xb8621c, surf: 0xffcc92,
     note: "Doux, juteux, estival.",
@@ -59,6 +65,7 @@ export const FLAVORS: Flavor[] = [
   },
   {
     slug: "mangue", name: "Mangue", en: "Mango", cat: "fruit",
+    can: "#5FB5A5",
     c: "#FF9F1C", ink: "#1A0F00", hi: "#FFB547", rgb: "255,150,20",
     liq: 0xffa62b, atten: 0x9a4a00, surf: 0xffc04d,
     note: "Le soleil en canette.",
@@ -67,6 +74,7 @@ export const FLAVORS: Flavor[] = [
   },
   {
     slug: "lychee", name: "Lychee", en: "Lychee", cat: "fruit",
+    can: "#E48A9C",
     c: "#F49AC1", ink: "#3A0A22", hi: "#F7A8CB", rgb: "240,120,170",
     liq: 0xffcfe0, atten: 0xc0577e, surf: 0xffdce8,
     note: "Floral et inattendu.",
@@ -75,6 +83,7 @@ export const FLAVORS: Flavor[] = [
   },
   {
     slug: "mojito", name: "Mojito", en: "Mojito", cat: "fruit",
+    can: "#C4C94C",
     c: "#2BCB6E", ink: "#04230F", hi: "#4ADE80", rgb: "60,200,110",
     liq: 0xc9f2b0, atten: 0x3f8f2a, surf: 0xd8f8c4,
     note: "Menthe, citron vert, fraîcheur.",
@@ -83,6 +92,7 @@ export const FLAVORS: Flavor[] = [
   },
   {
     slug: "fraise", name: "Fraise", en: "Strawberry", cat: "fruit",
+    can: "#D3122C",
     c: "#FF3D68", ink: "#FFFFFF", hi: "#FF7593", rgb: "255,60,100",
     liq: 0xff4a6e, atten: 0x9a0f2a, surf: 0xff6a86,
     note: "Gourmande et acidulée.",
@@ -91,6 +101,7 @@ export const FLAVORS: Flavor[] = [
   },
   {
     slug: "cerise", name: "Cerise", en: "Cherry", cat: "fruit",
+    can: "#0A0A0A",
     c: "#D7192D", ink: "#FFFFFF", hi: "#FF6B7A", rgb: "215,25,45",
     liq: 0xff3a50, atten: 0x6e0012, surf: 0xff4f66, art: true, label: "/labels/cerise-label-alpha.webp",
     note: "Rouge, franche, pétillante.",
@@ -99,6 +110,7 @@ export const FLAVORS: Flavor[] = [
   },
   {
     slug: "peche", name: "Pêche", en: "Peach", cat: "fruit",
+    can: "#F2C47C",
     c: "#FF8A5B", ink: "#2A0E00", hi: "#FFA27F", rgb: "255,130,90",
     liq: 0xffa985, atten: 0xb44a24, surf: 0xffbb9c,
     note: "Veloutée et pétillante.",
@@ -107,6 +119,7 @@ export const FLAVORS: Flavor[] = [
   },
   {
     slug: "pomme", name: "Pomme", en: "Apple", cat: "fruit",
+    can: "#8CBF52",
     c: "#7ED957", ink: "#0E2A00", hi: "#9BE77A", rgb: "150,210,60",
     liq: 0xe2f28e, atten: 0x7c9a1c, surf: 0xeaf6a8,
     note: "Verte, vive, croquante.",
@@ -115,6 +128,7 @@ export const FLAVORS: Flavor[] = [
   },
   {
     slug: "lemon", name: "Lemon", en: "Lemon", cat: "fruit",
+    can: "#0E8C3C", big: true,
     c: "#FFE14D", ink: "#2A2300", hi: "#FFE66B", rgb: "250,215,40",
     liq: 0xfff08a, atten: 0xb89600, surf: 0xfff4a8,
     note: "Le citron qui réveille.",
@@ -123,6 +137,7 @@ export const FLAVORS: Flavor[] = [
   },
   {
     slug: "cola", name: "Cola", en: "Cola", cat: "cola",
+    can: "#CF0B10",
     c: "#3B1E12", ink: "#FFFFFF", hi: "#E0A27A", rgb: "150,70,30",
     liq: 0x5a2410, atten: 0x1a0703, surf: 0x7a3418, dark: true,
     note: "Le classique, version Dada.",
@@ -131,6 +146,7 @@ export const FLAVORS: Flavor[] = [
   },
   {
     slug: "cola-zero", name: "Cola Zero", en: "Zero Sugar", cat: "cola",
+    can: "#141414",
     c: "#161616", ink: "#FFFFFF", hi: "#E5E5E5", rgb: "150,150,150",
     liq: 0x4e1f0e, atten: 0x150602, surf: 0x6e2e15, dark: true,
     note: "Tout le goût, zéro sucre.",
@@ -139,6 +155,7 @@ export const FLAVORS: Flavor[] = [
   },
   {
     slug: "ice-tea-peche", name: "Ice Tea Pêche", en: "Peach Iced Tea", cat: "the",
+    can: "#F5CF1E", big: true, logo: "#E0103A",
     c: "#E89A3C", ink: "#2A1600", hi: "#F4B266", rgb: "220,130,40",
     liq: 0xd9822b, atten: 0x6e3208, surf: 0xe8973e,
     note: "Thé glacé, saveur pêche.",
