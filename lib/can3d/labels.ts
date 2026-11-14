@@ -187,7 +187,15 @@ const ribbonCache = new Map<string, Promise<HTMLCanvasElement>>();
 export function getRibbonLabel(f: Flavor) {
   let p = ribbonCache.get(f.slug);
   if (!p) {
-    p = recolored(f, true);
+    p = f.labelFull
+      ? loadImg(f.labelFull).then((im) => {
+          const c = document.createElement("canvas");
+          c.width = im.width;
+          c.height = im.height;
+          c.getContext("2d")!.drawImage(im, 0, 0);
+          return c;
+        })
+      : recolored(f, true);
     ribbonCache.set(f.slug, p);
   }
   return p;
@@ -198,7 +206,9 @@ export function getLabelImage(f: Flavor) {
   let p = cache.get(f.slug);
   if (!p) {
     p =
-      f.slug === "cola-cherry"
+      f.labelFull
+        ? loadImg(f.labelFull) // design officiel de la canette, déplié d'après la photo produit
+        : f.slug === "cola-cherry"
         ? loadImg(OFFICIAL)
         : f.cat === "cola" || f.big
           ? recolored(f)

@@ -49,13 +49,14 @@ export const FLAVORS: Flavor[] = [
   {
     slug: "cola-cherry", name: "Cola Cherry", en: "Cherry Cola", cat: "cola",
     c: "#892D73", ink: "#FFFFFF", hi: "#E58AD0", rgb: "137,45,115",
-    liq: 0x6a1420, atten: 0x200308, surf: 0x8a2030, dark: true, art: true, labelFull: "/labels/cola-cherry-label.webp",
+    liq: 0x6a1420, atten: 0x200308, surf: 0x8a2030, dark: true, art: true, labelFull: "/labels/cans/cola-cherry.webp",
     note: "Cola, cerise, caractère.",
     desc: "Un cola aux notes de cerise intensément fruitées. À savourer bien frais.",
     ingr: null,
   },
   {
     slug: "melon", name: "Melon", en: "Melon", cat: "fruit",
+    labelFull: "/labels/cans/melon.webp",
     can: "#E8962A",
     c: "#F7C873", ink: "#2A1600", hi: "#F7C873", rgb: "245,170,80",
     liq: 0xffbf7a, atten: 0xb8621c, surf: 0xffcc92,
@@ -65,6 +66,7 @@ export const FLAVORS: Flavor[] = [
   },
   {
     slug: "mangue", name: "Mangue", en: "Mango", cat: "fruit",
+    labelFull: "/labels/cans/mangue.webp",
     can: "#5FB5A5",
     c: "#FF9F1C", ink: "#1A0F00", hi: "#FFB547", rgb: "255,150,20",
     liq: 0xffa62b, atten: 0x9a4a00, surf: 0xffc04d,
@@ -74,6 +76,7 @@ export const FLAVORS: Flavor[] = [
   },
   {
     slug: "lychee", name: "Lychee", en: "Lychee", cat: "fruit",
+    labelFull: "/labels/cans/lychee.webp",
     can: "#E48A9C",
     c: "#F49AC1", ink: "#3A0A22", hi: "#F7A8CB", rgb: "240,120,170",
     liq: 0xffcfe0, atten: 0xc0577e, surf: 0xffdce8,
@@ -83,6 +86,7 @@ export const FLAVORS: Flavor[] = [
   },
   {
     slug: "mojito", name: "Mojito", en: "Mojito", cat: "fruit",
+    labelFull: "/labels/cans/mojito.webp",
     can: "#C4C94C",
     c: "#2BCB6E", ink: "#04230F", hi: "#4ADE80", rgb: "60,200,110",
     liq: 0xc9f2b0, atten: 0x3f8f2a, surf: 0xd8f8c4,
@@ -92,6 +96,7 @@ export const FLAVORS: Flavor[] = [
   },
   {
     slug: "fraise", name: "Fraise", en: "Strawberry", cat: "fruit",
+    labelFull: "/labels/cans/fraise.webp",
     can: "#D3122C",
     c: "#FF3D68", ink: "#FFFFFF", hi: "#FF7593", rgb: "255,60,100",
     liq: 0xff4a6e, atten: 0x9a0f2a, surf: 0xff6a86,
@@ -101,6 +106,7 @@ export const FLAVORS: Flavor[] = [
   },
   {
     slug: "cerise", name: "Cerise", en: "Cherry", cat: "fruit",
+    labelFull: "/labels/cans/cerise.webp",
     can: "#0A0A0A",
     c: "#D7192D", ink: "#FFFFFF", hi: "#FF6B7A", rgb: "215,25,45",
     liq: 0xff3a50, atten: 0x6e0012, surf: 0xff4f66, art: true, label: "/labels/cerise-label-alpha.webp",
@@ -110,6 +116,7 @@ export const FLAVORS: Flavor[] = [
   },
   {
     slug: "peche", name: "Pêche", en: "Peach", cat: "fruit",
+    labelFull: "/labels/cans/peche.webp",
     can: "#F2C47C",
     c: "#FF8A5B", ink: "#2A0E00", hi: "#FFA27F", rgb: "255,130,90",
     liq: 0xffa985, atten: 0xb44a24, surf: 0xffbb9c,
@@ -119,6 +126,7 @@ export const FLAVORS: Flavor[] = [
   },
   {
     slug: "pomme", name: "Pomme", en: "Apple", cat: "fruit",
+    labelFull: "/labels/cans/pomme.webp",
     can: "#8CBF52",
     c: "#7ED957", ink: "#0E2A00", hi: "#9BE77A", rgb: "150,210,60",
     liq: 0xe2f28e, atten: 0x7c9a1c, surf: 0xeaf6a8,
@@ -128,6 +136,7 @@ export const FLAVORS: Flavor[] = [
   },
   {
     slug: "lemon", name: "Lemon", en: "Lemon", cat: "fruit",
+    labelFull: "/labels/cans/lemon.webp",
     can: "#0E8C3C", big: true,
     c: "#FFE14D", ink: "#2A2300", hi: "#FFE66B", rgb: "250,215,40",
     liq: 0xfff08a, atten: 0xb89600, surf: 0xfff4a8,
@@ -137,6 +146,7 @@ export const FLAVORS: Flavor[] = [
   },
   {
     slug: "cola", name: "Cola", en: "Cola", cat: "cola",
+    labelFull: "/labels/cans/cola.webp",
     can: "#CF0B10",
     c: "#3B1E12", ink: "#FFFFFF", hi: "#E0A27A", rgb: "150,70,30",
     liq: 0x5a2410, atten: 0x1a0703, surf: 0x7a3418, dark: true,
@@ -146,6 +156,7 @@ export const FLAVORS: Flavor[] = [
   },
   {
     slug: "cola-zero", name: "Cola Zero", en: "Zero Sugar", cat: "cola",
+    labelFull: "/labels/cans/cola-zero.webp",
     can: "#141414",
     c: "#161616", ink: "#FFFFFF", hi: "#E5E5E5", rgb: "150,150,150",
     liq: 0x4e1f0e, atten: 0x150602, surf: 0x6e2e15, dark: true,
@@ -155,6 +166,7 @@ export const FLAVORS: Flavor[] = [
   },
   {
     slug: "ice-tea-peche", name: "Ice Tea Pêche", en: "Peach Iced Tea", cat: "the",
+    labelFull: "/labels/cans/ice-tea-peche.webp",
     can: "#F5CF1E", big: true, logo: "#E0103A",
     c: "#E89A3C", ink: "#2A1600", hi: "#F4B266", rgb: "220,130,40",
     liq: 0xd9822b, atten: 0x6e3208, surf: 0xe8973e,
