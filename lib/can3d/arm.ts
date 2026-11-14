@@ -17,8 +17,8 @@ export function createArm(canvas: HTMLCanvasElement, flavor: Flavor, opts: { onR
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 
   const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
-  camera.position.set(0, -1.2, 25);
-  camera.lookAt(0.8, -2.2, 0);
+  camera.position.set(0, -0.6, 28);
+  camera.lookAt(-1.0, -1.6, 0);
 
   const key = new THREE.DirectionalLight(0xffffff, 2.4);
   key.position.set(-5, 6, 7);
@@ -42,7 +42,11 @@ export function createArm(canvas: HTMLCanvasElement, flavor: Flavor, opts: { onR
   scene.add(rig);
   const hand = new THREE.Group(); // poing + canette
   rig.add(hand);
-  hand.position.set(0, 1.4, 0);
+  hand.position.set(0, 0.9, 0);
+  // la main est construite côté droit puis retournée : le bras part en bas à gauche, comme sur le croquis
+  const grip = new THREE.Group();
+  grip.scale.x = -1;
+  hand.add(grip);
 
   // ---------- Canette (33 cl slim, même gabarit que les fiches) ----------
   const R = 1, H = 4.62, HALF = H / 2;
@@ -71,7 +75,7 @@ export function createArm(canvas: HTMLCanvasElement, flavor: Flavor, opts: { onR
     .catch(() => opts.onReady?.());
 
   // ---------- Poing ----------
-  const add = (g: THREE.BufferGeometry, p: [number, number, number], s: [number, number, number] = [1, 1, 1], parent: THREE.Object3D = hand) => {
+  const add = (g: THREE.BufferGeometry, p: [number, number, number], s: [number, number, number] = [1, 1, 1], parent: THREE.Object3D = grip) => {
     const m = new THREE.Mesh(g, skin);
     m.position.set(...p);
     m.scale.set(...s);
@@ -124,8 +128,8 @@ export function createArm(canvas: HTMLCanvasElement, flavor: Flavor, opts: { onR
 
   // ---------- Avant-bras : du poignet vers le bas de l'écran ----------
   {
-    const a = new THREE.Vector3(1.15, -2.25, -0.55);
-    const b = new THREE.Vector3(5.2, -13.5, -1.6);
+    const a = new THREE.Vector3(-1.15, -2.25, -0.55);
+    const b = new THREE.Vector3(-4.6, -13.5, -1.6);
     const dir = b.clone().sub(a);
     const len = dir.length();
     // profil légèrement galbé (muscle) : du poignet fin vers l'avant-bras plus épais
@@ -138,13 +142,14 @@ export function createArm(canvas: HTMLCanvasElement, flavor: Flavor, opts: { onR
     const g = new THREE.LatheGeometry(prof, 64);
     const m = new THREE.Mesh(g, skin);
     m.position.copy(a).add(hand.position);
+    m.position.y += 0.05;
     m.quaternion.setFromUnitVectors(new THREE.Vector3(0, -1, 0), dir.clone().normalize());
     m.scale.set(1, 1, 0.86);
     rig.add(m);
   }
 
   // Pose : poing levé, légèrement penché, vu de trois-quarts
-  hand.rotation.set(0.05, -0.32, 0.1);
+  hand.rotation.set(0.05, 0.32, -0.1);
 
   // ---------- Taille / animation ----------
   const resize = () => {
