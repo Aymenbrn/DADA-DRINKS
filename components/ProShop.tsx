@@ -36,13 +36,20 @@ export default function ProShop() {
           </li>
           {PRO_PRODUCTS.map((p) => (
             <li key={p.slug} className="pro-card">
-              <div className={`pro-visual${p.size ? ` is-${p.size}` : " is-pallet"}`} aria-hidden="true">
+              <div className={`pro-visual${p.image ? " has-photo" : ""}${p.size ? ` is-${p.size}` : " is-pallet"}`} aria-hidden="true">
+                  {p.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={p.image} alt="" className="pro-photo" loading="lazy" />
+                  ) : (
+                  <>
                 {p.size ? (
                   <span className="fridge"><span className="fridge-logo">DADA</span><span className="fridge-shelves" /></span>
                 ) : (
                   <span className="pallet"><span /><span /><span /></span>
                 )}
-              </div>
+              </>
+                  )}
+                </div>
               <div className="pro-body">
                 <h3>{p.name}</h3>
                 <p>{p.desc}</p>

@@ -10,6 +10,8 @@ export type ProProduct = {
   /** Colis offerts avec la vitrine */
   freeCases?: number;
   size?: "slim" | "moyen" | "big";
+  /** Photo du produit (fond transparent) ; sinon un visuel dessiné */
+  image?: string;
   desc: string;
 };
 
@@ -27,6 +29,7 @@ export const PRO_PRODUCTS: ProProduct[] = [
     priceCents: 71800,
     freeCases: 10,
     size: "slim",
+    image: "/pro/vitrine-slim.webp",
     desc: "Le réfrigérateur vitré aux couleurs de Dada pour les petits espaces : caisse, comptoir, snack.",
   },
   {
