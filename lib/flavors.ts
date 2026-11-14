@@ -50,6 +50,14 @@ export const FLAVORS: Flavor[] = [
     ingr: null,
   },
   {
+    slug: "cerise", name: "Cerise", en: "Cherry", cat: "fruit",
+    c: "#D7192D", ink: "#FFFFFF", hi: "#FF6B7A", rgb: "215,25,45",
+    liq: 0xff3a50, atten: 0x6e0012, surf: 0xff4f66, art: true, label: "/labels/cerise-label-alpha.png",
+    note: "Rouge, franche, pétillante.",
+    desc: "Eau pétillante aromatisée à la cerise. Rouge profond, goût de cerise mûre entre douceur et acidité. À boire très frais.",
+    ingr: I_FRUIT,
+  },
+  {
     slug: "mangue", name: "Mangue", en: "Mango", cat: "fruit",
     c: "#FF9F1C", ink: "#1A0F00", hi: "#FFB547", rgb: "255,150,20",
     liq: 0xffa62b, atten: 0x9a4a00, surf: 0xffc04d,

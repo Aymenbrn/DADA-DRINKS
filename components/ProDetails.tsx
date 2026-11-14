@@ -6,7 +6,7 @@ import { RETAILERS, WHATSAPP_DISPLAY, WHATSAPP_URL } from "@/lib/site";
 
 const REASONS = [
   { n: "01", t: "Une marque qui fait vendre", d: "Des clips, des campagnes d’affichage, des partenariats MMA : vos clients connaissent déjà la canette." },
-  { n: "02", t: "12 saveurs, une seule commande", d: "Composez une palette mixte avec les eaux fruitées, les colas et l’Ice Tea, en packs de 24." },
+  { n: "02", t: "13 saveurs, une seule commande", d: "Composez une palette mixte avec les eaux fruitées, les colas et l’Ice Tea, en packs de 24." },
   { n: "03", t: "La vitrine qui attire l’œil", d: "Trois tailles de vitrines réfrigérées aux couleurs de Dada, livrées avec des colis offerts." },
   { n: "04", t: "Un interlocuteur direct", d: "Une question, une commande urgente : on vous répond directement, y compris sur WhatsApp." },
 ];

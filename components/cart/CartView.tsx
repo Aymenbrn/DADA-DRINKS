@@ -23,7 +23,7 @@ export default function CartView() {
         <p className="cart-empty">Chargement du panier…</p>
       ) : lines.length === 0 ? (
         <div className="cart-empty">
-          <p>Votre panier est vide. Douze saveurs vous attendent.</p>
+          <p>Votre panier est vide. Treize saveurs vous attendent.</p>
           <Link href="/#saveurs" className="btn btn-dark">Aller à la boutique</Link>
         </div>
       ) : (
