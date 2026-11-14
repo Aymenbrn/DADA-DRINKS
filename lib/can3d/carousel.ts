@@ -373,7 +373,7 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
     // Univers : l'ancien s'efface, le nouveau apparaît
     for (let j = universes.length - 1; j >= 0; j--) {
       const x = universes[j];
-      // les fruits arrivent par les côtés de l'écran, les précédents repartent par les côtés
+      // les fruits arrivent par le haut ; les précédents continuent leur chute par le bas
       x.p += (x.target - x.p) * k(x.target ? 2.4 : 3);
       x.u.setEnter(x.p);
       x.u.update(dt, t, cur, reduceMotion);

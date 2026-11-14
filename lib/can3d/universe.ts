@@ -1701,7 +1701,7 @@ export function buildUniverse(slug: string, field?: { w: number; h: number; d?: 
     });
   });
 
-  let age = 0, prevEnter = 0, leaving = false;
+  let age = 0, prevEnter = 0, leaving = false, leftT = 0;
 
   // Bulles fines qui montent (boissons pétillantes)
   const nb = recipe.bubbles;
@@ -1730,6 +1730,7 @@ export function buildUniverse(slug: string, field?: { w: number; h: number; d?: 
       if (field) {
         age += still ? 60 : dt;
         if (enter < prevEnter - 1e-4) leaving = true;
+        if (leaving) leftT += still ? 60 : dt;
         prevEnter = enter;
       }
       for (const it of items) {
@@ -1776,9 +1777,19 @@ export function buildUniverse(slug: string, field?: { w: number; h: number; d?: 
             it.obj.rotation.y += it.spin.y * dt * 6 * (1 - u);
           }
         }
-        const slide = field && leaving ? Math.sign(it.base.x || 1) * (1 - easeInOut(enter)) * field.w * 1.5 : 0;
+        // sortie : les fruits continuent leur chute et quittent l'écran par le bas (effet de défilement)
+        if (field && leaving) {
+          // chute accélérée (gravité) : hors de l'écran en ~1 s, les plus hauts partent un peu après
+          const lt = Math.max(0, leftT - ((it.base.y + it.startY) / (it.startY * 2)) * 0.15);
+          const p = Math.min(1, lt);
+          drop -= (it.base.y + it.startY) * (lt / 1.05) ** 2;
+          if (!it.steady) {
+            it.obj.rotation.x += it.spin.x * dt * 6 * p;
+            it.obj.rotation.y += it.spin.y * dt * 6 * p;
+          }
+        }
         it.obj.position.set(
-          bx - mouse.x * 0.45 * it.depth + slide,
+          bx - mouse.x * 0.45 * it.depth,
           it.base.y + drop + bob * land + mouse.y * 0.3 * it.depth * land,
           bz
         );
