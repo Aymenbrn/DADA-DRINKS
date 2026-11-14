@@ -1600,27 +1600,34 @@ const easeInOut = (x: number) => {
 };
 
 /** Champ de bulles fines qui montent en continu (accueil) : il ne change pas avec la saveur */
-export function buildBubbleField(w: number, h: number, n = 70, o: { z0?: number; zSpan?: number; size?: number } = {}) {
-  const z0 = o.z0 ?? -1, zSpan = o.zSpan ?? 6, size = o.size ?? 1;
+export function buildBubbleField(w: number, h: number, n = 70, o: { z0?: number; zSpan?: number; size?: number; perLane?: number } = {}) {
+  const z0 = o.z0 ?? -1, zSpan = o.zSpan ?? 6, size = o.size ?? 1, per = Math.max(1, o.perLane ?? 1);
   // Bulles de gaz : chacune monte dans son propre couloir vertical, à sa vitesse ;
   // les couloirs sont espacés, donc deux bulles ne se touchent jamais.
   let seed = 7919;
   const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-  const lanes = Array.from({ length: n }, (_, i) => -w + ((i + 0.5) / n) * 2 * w);
-  for (let i = n - 1; i > 0; i--) {
+  // plusieurs bulles par couloir possibles : elles y montent à la même vitesse, bien espacées en hauteur
+  const L = Math.ceil(n / per);
+  const lanes = Array.from({ length: L }, (_, i) => -w + ((i + 0.5) / L) * 2 * w);
+  for (let i = L - 1; i > 0; i--) {
     const j = Math.floor(rnd() * (i + 1));
     [lanes[i], lanes[j]] = [lanes[j], lanes[i]];
   }
-  const gap = (2 * w) / n;
-  const data = lanes.map((x) => {
+  const gap = (2 * w) / L;
+  const laneInfo = lanes.map((x) => ({ x: x + (rnd() - 0.5) * gap * 0.3, y: (rnd() * 2 - 1) * h, z: z0 - rnd() * zSpan, v: 0.45 + rnd() * 0.5 }));
+  const data = Array.from({ length: n }, (_, i) => {
+    const ln = laneInfo[i % L];
+    const k = Math.floor(i / L);
     const big = rnd() < 0.12;
     const r = (big ? 0.05 + rnd() * 0.035 : 0.012 + rnd() * 0.028) * size;
+    let y = ln.y + (k * 2 * h) / per;
+    if (y > h) y -= 2 * h;
     return {
-      x: x + (rnd() - 0.5) * gap * 0.3,
-      y: (rnd() * 2 - 1) * h,
-      z: z0 - rnd() * zSpan,
+      x: ln.x,
+      y,
+      z: ln.z,
       r: Math.min(r, gap * 0.42),
-      v: 0.35 + rnd() * 0.5 + r * 2.5, // les grosses montent un peu plus vite
+      v: ln.v,
       ph: rnd() * Math.PI * 2,
       wob: 0.02 + rnd() * 0.03,
     };
