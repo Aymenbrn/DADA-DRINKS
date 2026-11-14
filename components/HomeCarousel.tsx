@@ -10,11 +10,11 @@ import AudienceSwitch from "@/components/AudienceSwitch";
 
 /** La nouveauté mise en avant à chaque ouverture / actualisation de la page */
 const NEW_RELEASE = "cola-cherry";
-/** Gamme de l'accueil : la canette Cerise n'y figure pas (le Cola Cherry porte l'univers de la cerise) */
-const FLAVORS = ALL_FLAVORS.filter((f) => f.slug !== "cerise");
+/** Gamme de l'accueil : toutes les canettes, Cerise comprise */
+const FLAVORS = ALL_FLAVORS;
 
 /**
- * Accueil : les 13 canettes Dada en ruban 3D. La nouveauté (Cola Cherry) est au centre,
+ * Accueil : toutes les canettes Dada en ruban 3D. La nouveauté (Cola Cherry) est au centre,
  * avec l'univers de sa saveur derrière elle ; deux flèches font défiler la gamme.
  */
 export default function HomeCarousel() {
