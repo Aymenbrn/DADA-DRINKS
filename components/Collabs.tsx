@@ -1,8 +1,57 @@
-const COLLABS = [
-  { title: "Ninho — Carolina", text: "Dada Drinks à l’image, dans le clip.", tag: "MUSIQUE", bg: "#0A0A0A", label: "[ VISUEL — EXTRAIT DU CLIP ]", light: true, rot: -3 },
-  { title: "Jul — Canette dans les mains", text: "La canette Dada, en plein cadre.", tag: "MUSIQUE", bg: "var(--accent)", label: "[ VISUEL — EXTRAIT DU CLIP ]", light: false, rot: 2 },
-  { title: "PFL Europe", text: "Partenaire des soirées MMA de Nantes et Lyon.", tag: "SPORT", bg: "#1F1F23", label: "[ VISUEL — CAGE PFL ]", light: true, rot: -2 },
+import NewsVideo from "@/components/NewsVideo";
+
+type CollabCard = { title: string; text: string; tag: string; rot: number; video?: { id: string; poster: string } };
+
+const COLLABS: CollabCard[] = [
+  { title: "Ninho — Carolina", text: "Dada Drinks à l’image, dans le clip.", tag: "MUSIQUE", rot: -3, video: { id: "JjqBlp6hLv4", poster: "/news/ninho-carolina.webp" } },
+  { title: "Jul — Canette dans les mains", text: "La canette Dada, en plein cadre.", tag: "MUSIQUE", rot: 2, video: { id: "iFY615_FQOw", poster: "/news/jul-canette.webp" } },
+  { title: "PFL Europe", text: "Partenaire des soirées MMA de Nantes et Lyon.", tag: "SPORT", rot: -2 },
 ];
+
+/** Visuel PFL Europe : la cage octogonale sous les projecteurs (illustration, sans logo) */
+function PflVisual() {
+  const oct = (r: number) =>
+    Array.from({ length: 8 }, (_, k) => {
+      const a = Math.PI / 8 + (k * Math.PI) / 4;
+      return `${200 + Math.cos(a) * r},${170 + Math.sin(a) * r * 0.42}`;
+    }).join(" ");
+  return (
+    <div className="collab-pfl" aria-label="Illustration : la cage de la PFL Europe" role="img">
+      <svg viewBox="0 0 400 340" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <radialGradient id="pflSpot" cx="50%" cy="38%" r="65%">
+            <stop offset="0" stopColor="#8a1420" />
+            <stop offset="0.45" stopColor="#3a0a10" />
+            <stop offset="1" stopColor="#0a0a0a" />
+          </radialGradient>
+          <linearGradient id="pflBeam" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#fff" stopOpacity="0.28" />
+            <stop offset="1" stopColor="#fff" stopOpacity="0" />
+          </linearGradient>
+          <pattern id="pflMesh" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <path d="M0 0H10M0 0V10" stroke="#fff" strokeOpacity="0.16" strokeWidth="1" />
+          </pattern>
+        </defs>
+        <rect width="400" height="340" fill="url(#pflSpot)" />
+        <polygon points="150,0 250,0 300,240 100,240" fill="url(#pflBeam)" />
+        {/* tapis, grillage et poteaux de la cage */}
+        <polygon points={oct(150)} fill="#1c1c22" stroke="#d4d4d8" strokeOpacity="0.5" strokeWidth="2" />
+        <polygon points={oct(150)} fill="url(#pflMesh)" transform="translate(0,-58)" />
+        <polygon points={oct(150)} fill="none" stroke="#e4e4e7" strokeOpacity="0.7" strokeWidth="3" transform="translate(0,-58)" />
+        {Array.from({ length: 8 }, (_, k) => {
+          const a = Math.PI / 8 + (k * Math.PI) / 4;
+          const x = 200 + Math.cos(a) * 150, y = 170 + Math.sin(a) * 63;
+          return <line key={k} x1={x} y1={y} x2={x} y2={y - 58} stroke="#f4f4f5" strokeOpacity="0.8" strokeWidth="4" />;
+        })}
+        <ellipse cx="200" cy="170" rx="70" ry="22" fill="#d7192d" fillOpacity="0.55" />
+      </svg>
+      <div className="collab-pfl-text">
+        <strong>PFL EUROPE</strong>
+        <span>NANTES · LYON — 2025</span>
+      </div>
+    </div>
+  );
+}
 
 export default function Collabs() {
   return (
@@ -20,13 +69,9 @@ export default function Collabs() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 20, marginTop: 56 }}>
           {COLLABS.map((c) => (
             <article key={c.title} className="card">
-              {/* Remplacer ce bloc par <video> ou <Image> avec les visuels officiels */}
-              <div className="halftone" style={{ height: 340, backgroundColor: c.bg, display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
-                <span style={{ fontFamily: "var(--mono)", fontSize: 12, letterSpacing: "0.14em", color: c.light ? "#A1A1AA" : "#0A0A0A" }}>{c.label}</span>
-                <span
-                  className="tag"
-                  style={{ top: 18, left: 18, background: c.light ? "var(--paper)" : "var(--ink)", color: c.light ? "var(--ink)" : "var(--paper)", transform: `rotate(${c.rot}deg)` }}
-                >
+              <div className="collab-media">
+                {c.video ? <NewsVideo id={c.video.id} poster={c.video.poster} title={c.title} /> : <PflVisual />}
+                <span className="tag" style={{ top: 18, left: 18, zIndex: 3, background: "var(--paper)", color: "var(--ink)", transform: `rotate(${c.rot}deg)` }}>
                   {c.tag}
                 </span>
               </div>
