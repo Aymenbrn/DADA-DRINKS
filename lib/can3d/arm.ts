@@ -17,24 +17,32 @@ export function createArm(canvas: HTMLCanvasElement, flavor: Flavor, opts: { onR
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 
   const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
-  camera.position.set(0, -0.6, 28);
-  camera.lookAt(-1.0, -1.6, 0);
+  camera.position.set(0, -0.8, 27);
+  camera.lookAt(-1.6, -2.0, 0);
 
   const key = new THREE.DirectionalLight(0xffffff, 2.4);
   key.position.set(-5, 6, 7);
   scene.add(key);
   const rim = new THREE.DirectionalLight(0xff3b30, 3.2);
   rim.position.set(6, 1, -4);
+  rim.intensity = 2.2;
   scene.add(rim);
   const fill = new THREE.DirectionalLight(0xffd2c2, 0.5);
   fill.position.set(2, -4, 6);
   scene.add(fill);
 
   // ---------- Matières ----------
+  // peau : teinte naturelle, légèrement satinée, reflets chauds (diffusion sous la peau)
   const skin = new THREE.MeshPhysicalMaterial({
-    color: 0xb3142b, roughness: 0.5, clearcoat: 0.35, clearcoatRoughness: 0.45,
-    sheen: 1, sheenColor: new THREE.Color(0xff7a86), sheenRoughness: 0.55, envMapIntensity: 0.7,
+    color: 0xb9805c, roughness: 0.58, clearcoat: 0.08, clearcoatRoughness: 0.6,
+    sheen: 0.6, sheenColor: new THREE.Color(0xff9a7a), sheenRoughness: 0.6, envMapIntensity: 0.55,
   });
+  const nail = new THREE.MeshPhysicalMaterial({ color: 0xe2b3a0, roughness: 0.3, clearcoat: 0.6, envMapIntensity: 0.6 });
+  // manche longue : coton molletonné rouge Dada
+  const cloth = new THREE.MeshPhysicalMaterial({
+    color: 0xb40f25, roughness: 0.92, sheen: 1, sheenColor: new THREE.Color(0xff8a8a), sheenRoughness: 0.8, envMapIntensity: 0.35,
+  });
+  const clothDark = new THREE.MeshPhysicalMaterial({ color: 0x8e0a1c, roughness: 0.95, sheen: 1, sheenColor: new THREE.Color(0xff7070), sheenRoughness: 0.85, envMapIntensity: 0.3 });
   const metal = new THREE.MeshStandardMaterial({ color: 0xdfe1e5, metalness: 1, roughness: 0.22, envMapIntensity: 0.7 });
   const metalDark = new THREE.MeshStandardMaterial({ color: 0xb6b9bf, metalness: 1, roughness: 0.3, envMapIntensity: 0.7 });
 
@@ -117,6 +125,9 @@ export function createArm(canvas: HTMLCanvasElement, flavor: Flavor, opts: { onR
     th.rotation.z = -0.12;
     const end = (128 + 92) * deg;
     add(ball, [Math.cos(end) * r, 0.18 + 0.12, Math.sin(end) * r], [t, t, t]);
+    const n = add(ball, [Math.cos(end - 0.18) * (r + t * 0.78), 0.34, Math.sin(end - 0.18) * (r + t * 0.78)], [t * 0.55, t * 0.12, t * 0.42]);
+    n.material = nail;
+    n.rotation.set(0.25, -end, 0.2);
     add(ball, [Math.cos(128 * deg) * r, 0.16, Math.sin(128 * deg) * r], [t * 1.05, t, t * 1.05]);
   }
   // Dos de la main (côté droit), paume derrière la canette, éminence du pouce
@@ -126,30 +137,60 @@ export function createArm(canvas: HTMLCanvasElement, flavor: Flavor, opts: { onR
   // Poignet
   add(ball, [1.15, -2.25, -0.55], [0.9, 0.95, 0.85]);
 
-  // ---------- Avant-bras : du poignet vers le bas de l'écran ----------
+  // ---------- Manche longue : poignet côtelé puis manche plissée jusqu'en bas de l'écran ----------
   {
-    const a = new THREE.Vector3(-1.15, -2.25, -0.55);
-    const b = new THREE.Vector3(-4.6, -13.5, -1.6);
+    const a = new THREE.Vector3(-1.2, -2.35, -0.55); // poignet (repère de la main)
+    const b = new THREE.Vector3(-10.5, -12.5, -1.4);
     const dir = b.clone().sub(a);
     const len = dir.length();
-    // profil légèrement galbé (muscle) : du poignet fin vers l'avant-bras plus épais
-    const prof: THREE.Vector2[] = [];
-    for (let i = 0; i <= 24; i++) {
-      const u = i / 24;
-      const rr = 0.86 + 0.42 * Math.sin(Math.min(1, u * 1.6) * Math.PI * 0.5) - 0.06 * u;
-      prof.push(new THREE.Vector2(rr, -u * len));
+    const q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, -1, 0), dir.clone().normalize());
+    // bord côtelé
+    const cuffGeo = new THREE.CylinderGeometry(0.98, 1.0, 0.9, 96, 6, true);
+    const cp = cuffGeo.attributes.position;
+    for (let i = 0; i < cp.count; i++) {
+      const x = cp.getX(i), z = cp.getZ(i);
+      const th = Math.atan2(z, x);
+      const k = 1 + 0.025 * Math.sin(th * 46);
+      cp.setXYZ(i, x * k, cp.getY(i), z * k);
     }
-    const g = new THREE.LatheGeometry(prof, 64);
-    const m = new THREE.Mesh(g, skin);
-    m.position.copy(a).add(hand.position);
-    m.position.y += 0.05;
-    m.quaternion.setFromUnitVectors(new THREE.Vector3(0, -1, 0), dir.clone().normalize());
-    m.scale.set(1, 1, 0.86);
-    rig.add(m);
+    cuffGeo.computeVertexNormals();
+    const cuff = new THREE.Mesh(cuffGeo, clothDark);
+    cuff.position.copy(a).add(dir.clone().normalize().multiplyScalar(0.35));
+    cuff.quaternion.copy(q);
+    hand.add(cuff);
+    const lip = new THREE.Mesh(new THREE.TorusGeometry(0.99, 0.06, 12, 96), clothDark);
+    lip.position.copy(a);
+    lip.quaternion.copy(q).multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.PI / 2, 0, 0)));
+    hand.add(lip);
+    // manche : s'évase, avec des plis de tissu
+    const prof: THREE.Vector2[] = [];
+    const N = 60;
+    for (let i = 0; i <= N; i++) {
+      const u = i / N;
+      prof.push(new THREE.Vector2(1.04 + 0.62 * Math.pow(u, 0.7), -0.75 - u * (len - 0.75)));
+    }
+    const sg = new THREE.LatheGeometry(prof, 120);
+    const sp = sg.attributes.position;
+    for (let i = 0; i < sp.count; i++) {
+      const x = sp.getX(i), y = sp.getY(i), z = sp.getZ(i);
+      const th = Math.atan2(z, x);
+      const d = -y;
+      // plis en accordéon près du poignet + grands plis obliques
+      const acc = 0.09 * Math.sin(d * 3.1 + Math.sin(th * 2) * 1.4) * Math.exp(-d * 0.22);
+      const obl = 0.07 * Math.sin(d * 0.9 + th * 3 + 0.6) + 0.04 * Math.sin(th * 5 - d * 1.7);
+      const k = 1 + (acc + obl) / Math.hypot(x, z || 1e-6);
+      sp.setXYZ(i, x * k, y, z * k);
+    }
+    sg.computeVertexNormals();
+    const sleeve = new THREE.Mesh(sg, cloth);
+    sleeve.position.copy(a);
+    sleeve.quaternion.copy(q);
+    sleeve.scale.set(1, 1, 0.9);
+    hand.add(sleeve);
   }
 
   // Pose : poing levé, légèrement penché, vu de trois-quarts
-  hand.rotation.set(0.05, 0.32, -0.1);
+  hand.rotation.set(0.08, 0.38, 0.32); // poing penché, canette inclinée vers la gauche, comme sur le croquis
 
   // ---------- Taille / animation ----------
   const resize = () => {
