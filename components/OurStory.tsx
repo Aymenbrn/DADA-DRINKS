@@ -1,10 +1,23 @@
 // « Notre histoire » : le parcours de Mohamed, fondateur (page /notre-histoire et accueil en mode Particulier)
 
+// Images reprises de la page « Notre histoire » de dadadrinks.com (servies par leur hébergeur)
+const CDN = "https://images.squarespace-cdn.com/content/v1/64218fe88bd257683c3684a0/";
+export const STORY_IMG = {
+  nanterre: `${CDN}186ee32d-58c4-4253-a065-0352bbaa7073/pablo.png?format=1500w`,
+  logo2007: `${CDN}73c52175-ad08-4e2e-ad0e-83e033446a81/DADA_logo_blanc.png?format=750w`,
+  cans2007: `${CDN}6f9cb8c1-248c-421b-8eb6-ab5d67fec6e8/ANCIENNE+NETTE.png?format=1500w`,
+  logoNow: `${CDN}ff1f23a8-2ed0-4777-871a-7214d71d0d79/DADA_contours_blanc.png?format=750w`,
+  cansNow: `${CDN}91991609-a07c-4e7d-a29e-b144c9ede04d/canettes+fond%24.png?format=1500w`,
+};
+
+type Step = { when: string; title: string; text: string; quote?: string; img?: { src: string; alt: string; fit?: "cover" | "contain"; bg?: string }[] };
+
 // D'après la page « Notre histoire » du site actuel
-const STEPS = [
+const STEPS: Step[] = [
   {
     when: "Les débuts",
     title: "Un aîné de Nanterre",
+    img: [{ src: STORY_IMG.nanterre, alt: "Les tours Aillaud à Nanterre", fit: "cover" }],
     text: "Mohamed grandit à Nanterre, aîné d’une famille modeste. Vendeur sur les marchés, voiturier, groom, livreur : il enchaîne les petits boulots et garde de sa famille une énergie qui ne le quittera plus.",
     quote: "Ma famille m’a transmis sa niaque.",
   },
@@ -21,6 +34,7 @@ const STEPS = [
   {
     when: "2007",
     title: "Naissance de Dada",
+    img: [{ src: STORY_IMG.logo2007, alt: "Premier logo officiel Dada Drinks (2007)", bg: "#f4f2ee" }, { src: STORY_IMG.cans2007, alt: "Premières canettes transparentes Dada Drinks", bg: "#ffffff" }],
     text: "Il conçoit une canette transparente, le packaging et le logo, imprime brochures et flyers. Les supermarchés hésitent ; les restaurants et les épiceries de quartier, eux, se lancent. Les grossistes suivent peu à peu.",
   },
   {
@@ -37,11 +51,13 @@ const STEPS = [
   {
     when: "Le renouveau",
     title: "Dada repart",
+    img: [{ src: STORY_IMG.logoNow, alt: "Nouveau logo officiel Dada Drinks", bg: "#0a0a0a" }],
     text: "Nouveau logo, nouvelle communication, réseaux sociaux, partenariats avec des influenceurs et des artistes, nouveaux clients : la croissance revient.",
   },
   {
     when: "Aujourd’hui",
     title: "À côté des géants",
+    img: [{ src: STORY_IMG.cansNow, alt: "Nouveau design des canettes Dada Drinks", bg: "radial-gradient(circle at 50% 60%, #ffe3b0, #f4f2ee 70%)" }],
     text: "Les canettes Dada sont en rayon à côté des sodas les plus célèbres, en supermarché comme en supérette. Prochaines étapes : une usine en France, plus de présence en ligne et toujours plus de points de vente partout dans le pays.",
   },
 ];
@@ -58,6 +74,17 @@ export function StoryTimeline() {
             <h2>{s.title}</h2>
             <p>{s.text}</p>
             {s.quote && <blockquote>« {s.quote} »<cite>Mohamed, fondateur</cite></blockquote>}
+            {s.img && (
+              <div className={`tl-media${s.img.length > 1 ? " is-duo" : ""}`}>
+                {s.img.map((m) => (
+                  <figure key={m.src} className={`tl-fig is-${m.fit ?? "contain"}`} style={{ background: m.bg }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={m.src} alt={m.alt} loading="lazy" decoding="async" />
+                    <figcaption>{m.alt}</figcaption>
+                  </figure>
+                ))}
+              </div>
+            )}
           </div>
         </li>
       ))}
