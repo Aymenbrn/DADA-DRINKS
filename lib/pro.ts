@@ -19,6 +19,8 @@ export type ProProduct = {
   points: string[];
   /** Caractéristiques techniques fournies par Dada */
   specs?: { label: string; value: string }[];
+  /** Choix proposés (palette : nombre de packs), avec leur prix TTC */
+  options?: { label: string; priceCents: number }[];
 };
 
 export const PRO_PRODUCTS: ProProduct[] = [
@@ -30,6 +32,12 @@ export const PRO_PRODUCTS: ProProduct[] = [
     desc: "Composez votre palette avec les saveurs de votre choix, en packs de 24 canettes.",
     long: "Une palette 100 % Dada, composée selon vos ventes : eaux pétillantes fruitées, colas et Ice Tea, en packs de 24 canettes. Mélangez les saveurs par plateau pour tester la gamme ou miser sur vos meilleures références, avec un bandeau « Saveurs au choix » prêt à poser en rayon.",
     format: "Palette mixte",
+    options: [
+      { label: "25 packs au choix", priceCents: 45000 },
+      { label: "50 packs au choix", priceCents: 90000 },
+      { label: "70 packs au choix", priceCents: 115500 },
+      { label: "100 packs au choix", priceCents: 160000 },
+    ],
     points: ["Saveurs au choix, par plateau", "Packs de 24 canettes 33 cl", "Prête à installer en magasin", "Prix selon la composition"],
   },
   {

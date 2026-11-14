@@ -801,3 +801,11 @@ button.pill { cursor: pointer; border: 0; font-family: inherit; }
 #offre { scroll-margin-top: 110px; }
 .pro-pdp-specs { margin: 0; }
 .pro-pdp-specs + .pro-pdp-points { border-top: 0; padding-top: 4px; }
+.pro-pdp-options { display: flex; flex-direction: column; gap: 14px; }
+.pro-pdp-select { display: flex; flex-direction: column; gap: 8px; max-width: 320px; }
+.pro-pdp-select span { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; color: var(--muted-on-dark); }
+.pro-pdp-select select { appearance: none; height: 50px; padding: 0 44px 0 18px; border-radius: 14px; border: 1.5px solid rgba(244,242,238,0.35); color: var(--paper); font: 600 16px var(--sans); cursor: pointer;
+  background: rgba(255,255,255,0.06) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23f4f2ee' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 16px center; }
+.pro-pdp-select select:focus-visible { outline: 2px solid #ff6b7a; outline-offset: 2px; }
+.pro-pdp-select option { color: #0a0a0a; }
+.pro-pdp-note { margin: 0; font-size: 12.5px; color: var(--muted-on-dark); font-style: italic; }
