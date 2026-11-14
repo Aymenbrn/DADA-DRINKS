@@ -4,7 +4,7 @@
 import * as THREE from "three";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import type { Flavor } from "@/lib/flavors";
-import { getLabelImage, getRibbonLabel } from "./labels";
+import { getLabelImage } from "./labels";
 import { buildUniverse } from "./universe";
 
 export type ShowcaseOptions = {
@@ -102,7 +102,7 @@ export function createShowcase(canvas: HTMLCanvasElement, opts: ShowcaseOptions)
   const body = new THREE.Mesh(new THREE.CylinderGeometry(R, R, H, 160, 1, true), bodyMat);
   can.add(body);
 
-  (opts.cardMode ? getRibbonLabel(opts.flavor) : getLabelImage(opts.flavor)).then((img) => {
+  getLabelImage(opts.flavor).then((img) => { // cartes et fiches : même étiquette
     const tex = img instanceof HTMLCanvasElement ? new THREE.CanvasTexture(img) : new THREE.Texture(img);
     tex.needsUpdate = true;
     tex.colorSpace = THREE.SRGBColorSpace;

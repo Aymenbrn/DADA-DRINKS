@@ -4,7 +4,7 @@
 import * as THREE from "three";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import type { Flavor } from "@/lib/flavors";
-import { getRibbonLabel } from "./labels";
+import { getLabelImage } from "./labels";
 import { buildUniverse, buildBubbleField } from "./universe";
 import { backdropColor } from "./showcase";
 
@@ -131,7 +131,7 @@ export function createCarousel(canvas: HTMLCanvasElement, opts: CarouselOptions)
     let first = true;
     for (const i of order) {
       try {
-        const img = await getRibbonLabel(flavors[i]);
+        const img = await getLabelImage(flavors[i]); // même étiquette que sur les fiches produit
         if (disposed) return;
         const c = cans[i];
         c.bodyMat.map = toTexture(img, maxAniso);
