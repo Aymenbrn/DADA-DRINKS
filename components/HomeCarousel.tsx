@@ -66,6 +66,8 @@ export default function HomeCarousel() {
   }, []);
 
   const isNew = f.slug === NEW_RELEASE;
+  const pct = FLAVORS.length > 1 ? (index / (FLAVORS.length - 1)) * 100 : 0;
+  const rail = `linear-gradient(90deg, ${FLAVORS.map((x, i) => `${x.hi} ${((i / (FLAVORS.length - 1)) * 100).toFixed(1)}%`).join(", ")})`;
 
   return (
     <section className="ribbon" aria-roledescription="carrousel" aria-label="La gamme Dada en 3D" style={{ "--u-hi": f.hi } as CSSProperties}>
@@ -111,6 +113,22 @@ export default function HomeCarousel() {
           <span className="sr-only">Dada </span>
           {f.name}
         </h1>
+        <div className="ribbon-slider" style={{ "--rail": rail, "--pct": `${pct}%` } as CSSProperties}>
+          <div className="ribbon-rail" aria-hidden="true" />
+          <span className="ribbon-knob" aria-hidden="true" />
+          <ul aria-label="Choisir une saveur">
+            {FLAVORS.map((x, i) => (
+              <li key={x.slug}>
+                <button
+                  type="button"
+                  aria-label={`Dada ${x.name}`}
+                  aria-current={i === index ? "true" : undefined}
+                  onClick={() => apiRef.current?.goTo(i)}
+                />
+              </li>
+            ))}
+          </ul>
+        </div>
         <p className="ribbon-hint">Glisser ou utiliser les flèches pour découvrir</p>
           <div className="ribbon-actions">
             <AudienceSwitch className="ribbon-switch" />
