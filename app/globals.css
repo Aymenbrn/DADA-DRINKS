@@ -490,7 +490,7 @@ button { font-family: inherit; }
 .beach-corner.is-right { right: 0; transform: translate(20%, -12%); }
 .beach-leaf { transform-box: view-box; transform-origin: 0 0; animation: leafSway var(--dur, 8s) ease-in-out var(--delay, 0s) infinite alternate; }
 @keyframes leafSway { from { transform: rotate(-2.2deg); } to { transform: rotate(2.6deg); } }
-.beach-sand { position: absolute; z-index: 1; left: 0; right: 0; bottom: 0; width: 100%; height: clamp(110px, 24%, 230px); display: block; }
+.beach-sand { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: clamp(110px, 24%, 230px); display: block; }
 
 /* chaque grain reste posé la plupart du temps, puis la rafale le soulève et l'emporte */
 @keyframes sandGrain {
