@@ -3,7 +3,7 @@
 export default function HeroArm() {
   return (
     <div className="hero-arm" aria-hidden="true">
-      <img src="/brand/bras-canette.webp" alt="" width={418} height={654} decoding="async" />
+      <img src="/brand/bras-canette.webp?v=2" alt="" width={840} height={1291} decoding="async" />
     </div>
   );
 }
