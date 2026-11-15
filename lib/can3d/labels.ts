@@ -21,6 +21,22 @@ function loadImg(src: string) {
   });
 }
 
+/**
+ * Étiquette dépliée : le fichier ne contient qu'une face (fichier deux fois plus léger) ;
+ * on la duplique pour couvrir tout le tour de la canette (face avant centrée à u = 0,25).
+ */
+function loadFull(src: string) {
+  return loadImg(src).then((im) => {
+    const c = document.createElement("canvas");
+    c.width = im.width * 2;
+    c.height = im.height;
+    const g = c.getContext("2d")!;
+    g.drawImage(im, 0, 0);
+    g.drawImage(im, im.width, 0);
+    return c;
+  });
+}
+
 /** Police des noms de saveur (posée par next/font dans app/layout.tsx) */
 function labelFont() {
   const v = getComputedStyle(document.documentElement).getPropertyValue("--font-montserrat").trim();
@@ -188,13 +204,7 @@ export function getRibbonLabel(f: Flavor) {
   let p = ribbonCache.get(f.slug);
   if (!p) {
     p = f.labelFull
-      ? loadImg(f.labelFull).then((im) => {
-          const c = document.createElement("canvas");
-          c.width = im.width;
-          c.height = im.height;
-          c.getContext("2d")!.drawImage(im, 0, 0);
-          return c;
-        })
+      ? loadFull(f.labelFull)
       : recolored(f, true);
     ribbonCache.set(f.slug, p);
   }
@@ -207,7 +217,7 @@ export function getLabelImage(f: Flavor) {
   if (!p) {
     p =
       f.labelFull
-        ? loadImg(f.labelFull) // design officiel de la canette, déplié d'après la photo produit
+        ? loadFull(f.labelFull) // design officiel de la canette, déplié d'après la photo produit
         : f.slug === "cola-cherry"
         ? loadImg(OFFICIAL)
         : f.cat === "cola" || f.big
