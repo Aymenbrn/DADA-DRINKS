@@ -986,30 +986,34 @@ button.pill { cursor: pointer; border: 0; font-family: inherit; }
   .cart-drawer .cart-drawer-foot { padding: 14px 18px 18px; }
 }
 
-/* Bouton « Remplir le frigo » / « Équiper mon commerce » : au survol, un liquide de la couleur de la canette monte de bas en haut */
-.ribbon-buy { position: relative; overflow: hidden; isolation: isolate; transition: transform 0.2s, box-shadow 0.3s, color 0.35s; }
+/* Bouton « Remplir le frigo » / « Équiper mon commerce » : au survol, le bouton se remplit comme un verre,
+   d'un liquide de la couleur de la canette (deux vagues qui ondulent, niveau qui monte lentement, petit roulis) */
+.ribbon-buy { position: relative; overflow: hidden; isolation: isolate; transition: transform 0.2s, box-shadow 0.3s, color 0.5s 0.35s, text-shadow 0.5s 0.35s; }
+.ribbon-buy::before, .ribbon-buy::after {
+  content: ""; position: absolute; left: -30%; width: 160%; bottom: 0; height: 170%; z-index: -1; pointer-events: none;
+  -webkit-mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 14' preserveAspectRatio='none'%3E%3Cpath d='M0 7 C 20 0, 40 0, 60 7 S 100 14, 120 7 V14 H0Z' fill='black'/%3E%3C/svg%3E") 0 0 / 70px 14px repeat-x,
+    linear-gradient(#000, #000) 0 13px / 100% 100% no-repeat;
+  mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 14' preserveAspectRatio='none'%3E%3Cpath d='M0 7 C 20 0, 40 0, 60 7 S 100 14, 120 7 V14 H0Z' fill='black'/%3E%3C/svg%3E") 0 0 / 70px 14px repeat-x,
+    linear-gradient(#000, #000) 0 13px / 100% 100% no-repeat;
+  transform: translateY(100%); transition: transform 1.25s cubic-bezier(.35,.6,.25,1);
+}
+/* vague de devant : la couleur de la canette, avec un reflet */
 .ribbon-buy::before {
-  content: ""; position: absolute; left: -12%; right: -12%; bottom: 0; height: 135%; z-index: -1; pointer-events: none;
-  background:
-    radial-gradient(15px 10px at 50% 100%, var(--u-can, var(--u-hi)) 96%, transparent 100%) 0 0 / 30px 10px repeat-x,
-    linear-gradient(var(--u-can, var(--u-hi)), color-mix(in srgb, var(--u-can, var(--u-hi)) 75%, #000)) 0 9px / 100% 100% no-repeat;
-  transform: translateY(102%); transition: transform 0.75s cubic-bezier(.3,.75,.2,1);
-  animation: liquidWave 1.1s linear infinite;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--u-can, var(--u-hi)) 82%, #fff) 0, var(--u-can, var(--u-hi)) 18%, color-mix(in srgb, var(--u-can, var(--u-hi)) 78%, #000) 100%);
+  animation: liquidWaveA 1.6s linear infinite, liquidSlosh 2.6s ease-in-out infinite;
 }
+/* vague de derrière : plus claire, en décalé et dans l'autre sens */
 .ribbon-buy::after {
-  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: 0; transition: opacity 0.4s 0.25s;
-  background:
-    radial-gradient(circle, rgba(255,255,255,0.75) 0 2px, transparent 2.5px) 18% 110% / 100% 100% no-repeat,
-    radial-gradient(circle, rgba(255,255,255,0.6) 0 1.5px, transparent 2px) 46% 120% / 100% 100% no-repeat,
-    radial-gradient(circle, rgba(255,255,255,0.7) 0 2.5px, transparent 3px) 72% 115% / 100% 100% no-repeat,
-    radial-gradient(circle, rgba(255,255,255,0.55) 0 1.5px, transparent 2px) 88% 125% / 100% 100% no-repeat;
+  background: color-mix(in srgb, var(--u-can, var(--u-hi)) 55%, #fff);
+  opacity: 0.85; transition-delay: 0.08s;
+  animation: liquidWaveB 2.3s linear infinite;
 }
-.ribbon-buy:hover, .ribbon-buy:focus-visible { color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,0.45); }
-.ribbon-buy:hover::before, .ribbon-buy:focus-visible::before { transform: translateY(6%); }
-.ribbon-buy:hover::after, .ribbon-buy:focus-visible::after { opacity: 1; animation: liquidBubbles 1.6s ease-in infinite; }
-@keyframes liquidWave { to { background-position: 30px 0, 0 9px; } }
-@keyframes liquidBubbles {
-  from { background-position: 18% 110%, 46% 120%, 72% 115%, 88% 125%; }
-  to { background-position: 22% -20%, 42% -30%, 76% -25%, 84% -35%; }
-}
+.ribbon-buy:hover, .ribbon-buy:focus-visible { color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,0.5); }
+.ribbon-buy:hover::before, .ribbon-buy:focus-visible::before { transform: translateY(14%); }
+.ribbon-buy:hover::after, .ribbon-buy:focus-visible::after { transform: translateY(8%); }
+@keyframes liquidWaveA { to { -webkit-mask-position: 70px 0, 0 13px; mask-position: 70px 0, 0 13px; } }
+@keyframes liquidWaveB { from { -webkit-mask-position: 35px 0, 0 13px; mask-position: 35px 0, 0 13px; } to { -webkit-mask-position: -35px 0, 0 13px; mask-position: -35px 0, 0 13px; } }
+@keyframes liquidSlosh { 0%, 100% { rotate: -2deg; } 50% { rotate: 2deg; } }
 @media (prefers-reduced-motion: reduce) { .ribbon-buy::before, .ribbon-buy::after { animation: none; } }
