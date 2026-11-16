@@ -32,7 +32,25 @@ function knockOutWhite(src: string): Promise<string> {
           }
         }
         g.putImageData(d, 0, 0);
-        resolve(c.toDataURL("image/png"));
+        // recadrage au plus près du logo (les fichiers d'origine ont beaucoup de marge blanche)
+        let x0 = c.width, y0 = c.height, x1 = -1, y1 = -1;
+        for (let y = 0; y < c.height; y++) {
+          for (let x = 0; x < c.width; x++) {
+            if (p[(y * c.width + x) * 4 + 3] > 24) {
+              if (x < x0) x0 = x;
+              if (x > x1) x1 = x;
+              if (y < y0) y0 = y;
+              if (y > y1) y1 = y;
+            }
+          }
+        }
+        if (x1 < 0) return resolve(c.toDataURL("image/png"));
+        const pad = 2, w = x1 - x0 + 1 + pad * 2, h = y1 - y0 + 1 + pad * 2;
+        const o = document.createElement("canvas");
+        o.width = w;
+        o.height = h;
+        o.getContext("2d")!.drawImage(c, x0 - pad, y0 - pad, w, h, 0, 0, w, h);
+        resolve(o.toDataURL("image/png"));
       } catch {
         resolve(src);
       }
