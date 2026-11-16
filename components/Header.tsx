@@ -55,7 +55,8 @@ export default function Header() {
               <circle cx="9.5" cy="20" r="1.4" />
               <circle cx="17.5" cy="20" r="1.4" />
             </svg>
-            Panier · {count}
+            <span className="cart-label">Panier · </span>
+            <span className="cart-count">{count}</span>
           </button>
           <button
             type="button"

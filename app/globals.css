@@ -893,3 +893,9 @@ button.pill { cursor: pointer; border: 0; font-family: inherit; }
 .pro-pdp-quote:hover { border-color: var(--paper); background: rgba(255,255,255,0.06); }
 .cart-pro-thumb { height: 86%; width: auto; object-fit: contain; display: block; margin: auto; }
 .is-then .cmp-cans { mix-blend-mode: multiply; filter: none; }
+
+/* Petit écran : le bouton panier n'affiche que l'icône et le nombre d'articles */
+@media (max-width: 640px) {
+  .header-actions .cart-label { display: none; }
+  .header-actions .pill { gap: 6px; padding-inline: 14px; }
+}
