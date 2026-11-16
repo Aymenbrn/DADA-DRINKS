@@ -24,12 +24,7 @@ export default function CartDrawer() {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && closeCart();
     window.addEventListener("keydown", onKey);
     panelRef.current?.focus({ preventScroll: true });
-    // grand écran : la page se resserre à gauche du panier, toutes les fiches restent accessibles
-    document.documentElement.classList.add("cart-open");
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      document.documentElement.classList.remove("cart-open");
-    };
+    return () => window.removeEventListener("keydown", onKey);
   }, [drawerOpen, closeCart]);
 
   return (

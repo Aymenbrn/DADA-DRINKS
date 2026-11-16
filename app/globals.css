@@ -974,8 +974,7 @@ button.pill { cursor: pointer; border: 0; font-family: inherit; }
 }
 @media (max-width: 640px) and (prefers-reduced-motion: no-preference) { .ribbon-new-tag { animation: ribbonPulseM 2.2s ease-out infinite; } }
 
-/* Panier ouvert sur grand écran : volet compact et flottant, la page se décale pour rester entièrement accessible */
-#contenu, #contenu ~ footer { transition: margin-right 0.35s cubic-bezier(.2,.8,.2,1); }
+/* Panier ouvert sur grand écran : volet compact et flottant, par-dessus la page (rien ne se déplace) */
 @media (min-width: 641px) {
   .cart-drawer .cart-drawer-panel {
     top: 84px; right: 14px; bottom: 14px; width: 340px; border-radius: 24px;
@@ -985,5 +984,4 @@ button.pill { cursor: pointer; border: 0; font-family: inherit; }
   .cart-drawer .cart-drawer-head { padding: 16px 18px; }
   .cart-drawer .cart-drawer-lines { padding: 4px 18px; }
   .cart-drawer .cart-drawer-foot { padding: 14px 18px 18px; }
-  html.cart-open #contenu, html.cart-open #contenu ~ footer { margin-right: 368px; }
 }
