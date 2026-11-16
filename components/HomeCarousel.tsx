@@ -167,7 +167,7 @@ export default function HomeCarousel() {
             {/* mobile : l'interrupteur reste en bas, avec le bouton d'action */}
             <AudienceSwitch className="ribbon-switch is-mobile-only" />
             {audience === "pro" ? (
-              <a href="#offre-pro" className="btn ribbon-buy">Équiper mon commerce</a>
+              <a href="#confiance" className="btn ribbon-buy">Équiper mon commerce</a>
             ) : (
               <Link href="/#saveurs" className="btn ribbon-buy">Remplir le frigo</Link>
             )}
