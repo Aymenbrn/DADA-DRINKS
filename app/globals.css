@@ -225,10 +225,12 @@ button { font-family: inherit; }
 @keyframes armRaise { from { transform: translateY(30%) rotate(6deg); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes armFloat { 0%, 100% { transform: none; } 50% { transform: translateY(-1.5%) rotate(-1.2deg); } }
 @media (prefers-reduced-motion: reduce) { .hero-arm img { animation: none; } }
-/* mobile : la main passe sous le texte, entièrement visible, un peu vers la gauche */
+/* mobile : pas de main, le texte occupe toute la largeur */
 @media (max-width: 760px) {
-  .page-hero.has-decor .page-hero-inner { padding-bottom: 250px; }
-  .hero-arm { right: auto; left: 50%; transform: translateX(-30%); height: 240px; opacity: 1; }
+  .hero-arm { display: none; }
+  .page-hero-title { font-size: clamp(40px, 12vw, 64px); max-width: none; overflow-wrap: break-word; }
+  .page-hero-lede { font-size: 17px; max-width: none; }
+  .page-hero-inner { padding-block: 64px 72px; }
 }
 .page-hero-inner { display: flex; flex-direction: column; gap: 22px; padding-block: 88px 96px; }
 .page-hero-title { font-size: clamp(52px, 8vw, 128px); max-width: 14ch; text-wrap: balance; }
