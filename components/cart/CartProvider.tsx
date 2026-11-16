@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { DEFAULT_PACK } from "@/lib/flavors";
 import { describeLine, normalizePack } from "@/lib/cartItems";
 import CartDrawer from "@/components/cart/CartDrawer";
@@ -33,7 +33,8 @@ const MAX_QTY = 99;
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [lines, setLines] = useState<CartLine[]>([]);
   const [ready, setReady] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
+  const [toasts, setToasts] = useState<{ id: number; text: string }[]>([]);
+  const toastId = useRef(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const openCart = useCallback(() => setDrawerOpen(true), []);
   const closeCart = useCallback(() => setDrawerOpen(false), []);
@@ -67,11 +68,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [lines, ready]);
 
-  useEffect(() => {
-    if (!toast) return;
-    const t = setTimeout(() => setToast(null), 2800);
-    return () => clearTimeout(t);
-  }, [toast]);
+  // Plusieurs ajouts à la suite : un toast par ajout, empilés en bas à droite, chacun disparaît seul
+  const pushToast = useCallback((text: string) => {
+    const id = ++toastId.current;
+    setToasts((prev) => [...prev, { id, text }].slice(-4));
+    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 3200);
+  }, []);
 
   const add = useCallback((slug: string, qty = 1, pack: number = DEFAULT_PACK) => {
     const info = describeLine(slug, pack);
@@ -83,8 +85,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       next[i] = { slug, pack, qty: Math.min(MAX_QTY, next[i].qty + qty) };
       return next;
     });
-    setToast(`${info.name} (${info.sub.toLowerCase()}) ajouté au panier`);
-  }, []);
+    pushToast(`${info.name} (${info.sub.toLowerCase()}) ajouté au panier`);
+  }, [pushToast]);
 
   const setQty = useCallback((slug: string, qty: number, pack: number) => {
     const same = (l: CartLine) => l.slug === slug && l.pack === pack;
@@ -109,12 +111,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       {children}
       <CartDrawer />
       <div className="cart-toast-zone" role="status" aria-live="polite">
-        {toast && (
-          <div className="cart-toast">
-            <span>{toast}</span>
-            <button type="button" className="cart-toast-btn" onClick={() => { setToast(null); setDrawerOpen(true); }}>Voir le panier</button>
+        {toasts.map((t) => (
+          <div className="cart-toast" key={t.id}>
+            <span>{t.text}</span>
+            <button type="button" className="cart-toast-btn" onClick={() => { setToasts([]); setDrawerOpen(true); }}>Voir le panier</button>
           </div>
-        )}
+        ))}
       </div>
     </CartContext.Provider>
   );
