@@ -180,25 +180,28 @@ export default function HomeCarousel() {
 
 /** Chevron dessiné en points, comme sur la référence */
 function DottedChevron({ dir }: { dir: 1 | -1 }) {
-  // Forme du « Ↄ » du logo Dada (anneau ouvert rouge et jaune, liseré blanc), flèche blanche au centre.
-  // Flèche précédente : la forme est retournée en miroir.
+  // Forme du « D » du logo Dada : lettre blanche cernée de rouge, contour blanc extérieur,
+  // l'œil du D en rouge avec une flèche blanche au centre. Flèche précédente : D en miroir.
+  const D = "M13 8 H35 A28 28 0 0 1 35 64 H13 Z";
+  const eye = "M26 21.5 H35 A14.5 14.5 0 0 1 35 50.5 H26 Z";
   return (
     <svg width="72" height="72" viewBox="0 0 72 72" aria-hidden="true" className="dada-arrow">
       <g transform={dir === -1 ? "translate(72 0) scale(-1 1)" : undefined}>
-        <path d="M7.26 24.39 A31 31 0 1 1 8.63 50.55 L20.99 43.98 A17 17 0 1 0 20.24 29.63 Z" fill="none" stroke="#fff" strokeWidth="5" strokeLinejoin="round" />
-        <path d="M7.26 24.39 A31 31 0 0 1 66.32 42.45 L52.63 39.53 A17 17 0 0 0 20.24 29.63 Z" fill="#E2072F" />
-        <path d="M66.32 42.45 A31 31 0 0 1 8.63 50.55 L20.99 43.98 A17 17 0 0 0 52.63 39.53 Z" fill="#FFD400" />
-        <path d="M7.26 24.39 A31 31 0 1 1 8.63 50.55 L20.99 43.98 A17 17 0 1 0 20.24 29.63 Z" fill="url(#dadaGloss)" />
-        <circle cx="36" cy="36" r="15.5" className="dada-arrow-core" />
+        <g transform="skewX(-6) translate(4 0)">
+          <path d={D} fill="none" stroke="#fff" strokeWidth="13" strokeLinejoin="round" />
+          <path d={D} fill="#fff" stroke="#E2072F" strokeWidth="7" strokeLinejoin="round" />
+          <path d={eye} fill="#E2072F" />
+          <path d={D} fill="url(#dadaGloss)" />
+        </g>
       </g>
       <defs>
         <linearGradient id="dadaGloss" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#fff" stopOpacity="0.22" />
-          <stop offset="0.45" stopColor="#fff" stopOpacity="0.06" />
-          <stop offset="1" stopColor="#000" stopOpacity="0.12" />
+          <stop offset="0.45" stopColor="#fff" stopOpacity="0.04" />
+          <stop offset="1" stopColor="#000" stopOpacity="0.10" />
         </linearGradient>
       </defs>
-      <path d={dir === 1 ? "M32 28.5l7.5 7.5-7.5 7.5" : "M40 28.5L32.5 36l7.5 7.5"} fill="none" stroke="#fff" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d={dir === 1 ? "M36 29l6 7-6 7" : "M38 29l-6 7 6 7"} fill="none" stroke="#fff" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
