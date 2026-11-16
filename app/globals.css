@@ -29,7 +29,7 @@ button { font-family: inherit; }
 .eyebrow { margin: 0; font-family: var(--mono); font-size: 13px; letter-spacing: 0.16em; }
 .serif-i { font-family: var(--serif); font-style: italic; font-weight: 200; letter-spacing: -0.02em; }
 .display { font-family: var(--display); }
-.h-xl { margin: 0; font-weight: 900; letter-spacing: -0.04em; line-height: 0.92; }
+.h-xl { margin: 0; font-weight: 800; letter-spacing: -0.04em; line-height: 0.92; }
 
 .btn {
   height: 56px; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
@@ -419,7 +419,7 @@ button { font-family: inherit; }
 
 /* Contact & formulaires */
 .contact-side { gap: 36px !important; }
-.contact-big { margin: 6px 0 0; font-size: clamp(44px, 6vw, 80px); font-weight: 900; letter-spacing: -0.04em; line-height: 0.95; }
+.contact-big { margin: 6px 0 0; font-size: clamp(44px, 6vw, 80px); font-weight: 800; letter-spacing: -0.04em; line-height: 0.95; }
 .contact-big a { color: inherit; text-decoration-color: var(--accent); text-underline-offset: 8px; }
 .contact-num { margin: 6px 0 0; font-family: var(--mono); font-size: 16px; user-select: all; }
 .contact-socials { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 20px; }
@@ -1183,18 +1183,15 @@ button.pill { cursor: pointer; border: 0; font-family: inherit; }
 .ribbon-arrow::before { transition: transform 0.2s; }
 
 /* Typographie unifiée : Montserrat partout, titres en Black 900, italiques en Extra Light 200 */
-h1, h2, h3, .display, .h-xl, .page-hero-title, .section-title { font-weight: 900; }
+h1, h2, h3, .display, .h-xl, .page-hero-title, .section-title { font-weight: 800; }
 .serif-i, .can-name, .tl-body blockquote, .article-lede, .cart-drawer-title span, em, i { font-style: italic; font-weight: 200; }
 .h-xl .serif-i, h1 .serif-i, h2 .serif-i, h3 .serif-i { font-weight: 200; }
-.can-word, .fridge-logo, .tl-when, .collab-pfl-text strong, .collab-big, .footer-mega { font-weight: 900; }
+.can-word, .fridge-logo, .tl-when, .collab-pfl-text strong, .collab-big, .footer-mega { font-weight: 800; }
 
 /* Notre histoire : les repères de la frise (« Le renouveau », « Aujourd'hui »…) tiennent dans la colonne de gauche */
 .tl-when, .tl-when.is-small { font-size: clamp(22px, 2.2vw, 28px); line-height: 1.08; letter-spacing: -0.02em; overflow-wrap: anywhere; hyphens: auto; min-width: 0; }
 @media (max-width: 700px) { .tl-when, .tl-when.is-small { font-size: 26px; } }
 
-/* Titres un peu plus épais que le Black 900 (léger contour de la même couleur) ; les parties en italique fin restent fines */
-h1, h2, h3, .h-xl, .tl-when, .ribbon-name { -webkit-text-stroke: 0.018em currentColor; paint-order: stroke fill; }
-h1 .serif-i, h2 .serif-i, h3 .serif-i, .h-xl .serif-i, .serif-i { -webkit-text-stroke: 0; }
 
 /* En-têtes de page : le titre s'adapte à la largeur de l'écran */
 .page-hero-title { font-size: clamp(40px, 9vw, 128px); overflow-wrap: break-word; hyphens: manual; }
@@ -1230,3 +1227,7 @@ h1 .serif-i, h2 .serif-i, h3 .serif-i, .h-xl .serif-i, .serif-i { -webkit-text-s
 .news-feature-actions { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
 .news-feature-actions .news-source { align-self: center; }
 @media (max-width: 420px) { .news-actions { flex-wrap: wrap; } }
+
+/* Tous les titres du site en Montserrat Extra Bold 800 (les parties en italique restent en Extra Light 200) */
+h1, h2, h3, h4, .h-xl, .page-hero-title, .section-title, .ribbon-name, .tl-when, .collab-big, .shop-name, .pro-body h3, .collab-body h2, .news-item h3, .pdp-title, .pro-pdp-title, .universe-title { font-weight: 800; }
+h1 .serif-i, h2 .serif-i, h3 .serif-i, h4 .serif-i, .h-xl .serif-i { font-weight: 200; }
