@@ -15,6 +15,12 @@ const nextConfig: NextConfig = {
 };
 
 // Actualités rédigées en MDX (content/actualites/*.mdx)
-const withMDX = createMDX({});
+// les sauts de ligne entre paragraphes sont retirés : HTML identique à l'ancien rendu
+type HastNode = { type: string; value?: string; children?: HastNode[] };
+const rehypeTrimWhitespace = () => (tree: HastNode) => {
+  tree.children = (tree.children ?? []).filter((c) => !(c.type === "text" && /^\s*$/.test(c.value ?? "")));
+};
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const withMDX = createMDX({ options: { rehypePlugins: [rehypeTrimWhitespace] } as any });
 
 export default withMDX(nextConfig);
