@@ -164,6 +164,8 @@ export default function HomeCarousel() {
         </div>
         <p className="ribbon-hint">Glisser ou utiliser les flèches pour découvrir</p>
           <div className="ribbon-actions">
+            {/* mobile : l'interrupteur reste en bas, avec le bouton d'action */}
+            <AudienceSwitch className="ribbon-switch is-mobile-only" />
             {audience === "pro" ? (
               <a href="#offre-pro" className="btn ribbon-buy">Équiper mon commerce</a>
             ) : (
