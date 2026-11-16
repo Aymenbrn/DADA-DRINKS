@@ -55,7 +55,7 @@ function knockOutWhite(src: string): Promise<string> {
   });
 }
 
-/** Logos officiels sans fond, en défilement automatique (pause au survol) */
+/** Logos officiels sans fond, en défilement automatique (le défilement continue au survol) */
 export default function LogoMarquee({ logos }: { logos: Logo[] }) {
   const [srcs, setSrcs] = useState<string[] | null>(null);
   useEffect(() => {

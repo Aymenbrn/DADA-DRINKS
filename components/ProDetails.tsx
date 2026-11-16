@@ -44,7 +44,7 @@ export function ProTrust() {
             <p className="eyebrow" style={{ color: "var(--muted-on-light)" }}>ILS NOUS FONT DÉJÀ CONFIANCE</p>
             <h2 className="h-xl section-title">Déjà<span className="serif-i"> en rayon.</span></h2>
           </div>
-          {/* Défilement automatique des logos officiels, sans fond (pause au survol) */}
+          {/* Défilement automatique des logos officiels, sans fond (le défilement continue au survol) */}
           <LogoMarquee logos={RETAILER_LOGOS} />
           <div className="container">
             <p className="salon"><span>LES SALONS</span> Dada était présent à l’ANUGA 2023, le grand salon international de l’alimentation à Cologne.</p>
