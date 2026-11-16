@@ -15,15 +15,8 @@ export default function Header() {
   // Le menu mobile se referme à chaque changement de page
   useEffect(() => setOpen(false), [pathname]);
 
-  // Accueil : en-tête transparent sur la scène plein écran, noir dès qu'on défile
+  // En-tête en verre liquide opaque sur toutes les pages
   const isHome = pathname === "/";
-  const [scrolled, setScrolled] = useState(false);
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   const isCurrent = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
@@ -31,7 +24,7 @@ export default function Header() {
   if (pathname.startsWith("/saveurs/")) return null;
 
   return (
-    <header className={`site-header${isHome ? " is-home" : ""}${isHome && !scrolled && !open ? " is-transparent" : ""}${scrolled || open ? " is-glass" : ""}${open ? " is-menu-open" : ""}`}>
+    <header className={`site-header is-glass${isHome ? " is-home" : ""}${open ? " is-menu-open" : ""}`}>
       <div className="container header">
         <Link href="/" className="logo" aria-label="Dada Drinks, accueil">
           <Image src="/brand/dada-logo.webp" alt="Dada" width={750} height={303} priority className="logo-img" />
