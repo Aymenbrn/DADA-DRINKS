@@ -60,7 +60,7 @@ export default function Collabs() {
         <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: 24 }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <p className="eyebrow" style={{ color: "var(--muted-on-light)" }}>COLLABS &amp; CULTURE</p>
-            <h2 className="h-xl" style={{ fontSize: "clamp(44px, 5.4vw, 80px)", lineHeight: 0.95 }}>
+            <h2 className="h-xl title-collabs" style={{ lineHeight: 0.95 }}>
               Ils ont tenu<span className="serif-i"> la canette.</span>
             </h2>
           </div>

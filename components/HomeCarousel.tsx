@@ -202,7 +202,6 @@ function DottedChevron({ dir }: { dir: 1 | -1 }) {
           <stop offset="1" stopColor="#000" stopOpacity="0.10" />
         </linearGradient>
       </defs>
-      <path d={dir === 1 ? "M36 29l6 7-6 7" : "M38 29l-6 7 6 7"} fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="5.4" strokeLinecap="round" strokeLinejoin="round" />
       <path d={dir === 1 ? "M36 29l6 7-6 7" : "M38 29l-6 7 6 7"} fill="none" stroke="#fff" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );

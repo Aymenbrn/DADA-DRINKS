@@ -9,16 +9,18 @@ type Props = {
   children?: React.ReactNode;
   /** Décor posé dans la section, derrière le texte (ex. bras 3D) */
   decor?: React.ReactNode;
+  /** Classe en plus sur le titre */
+  titleClassName?: string;
 };
 
 /** En-tête des pages intérieures : grand titre façon collage, fond noir. */
-export default function PageHero({ eyebrow, title, accent, lede, accentOnNewLine, children, decor }: Props) {
+export default function PageHero({ eyebrow, title, accent, lede, accentOnNewLine, children, decor, titleClassName }: Props) {
   return (
     <section className={`page-hero${decor ? " has-decor" : ""}`}>
       {decor}
       <div className="container page-hero-inner">
         <p className="eyebrow" style={{ color: "var(--muted-on-dark)" }}>{eyebrow}</p>
-        <h1 className="h-xl page-hero-title">
+        <h1 className={`h-xl page-hero-title${titleClassName ? ` ${titleClassName}` : ""}`}>
           {title}
           {accent && <span className="serif-i" style={accentOnNewLine ? { display: "block" } : undefined}> {accent}</span>}
         </h1>

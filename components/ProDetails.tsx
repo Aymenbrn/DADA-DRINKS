@@ -20,7 +20,7 @@ export function ProReasons() {
           <div className="container">
             <div className="section-head">
               <p className="eyebrow" style={{ color: "var(--muted-on-light)" }}>POURQUOI DADA</p>
-              <h2 className="h-xl section-title">Quatre bonnes raisons<span className="serif-i"> de dire oui.</span></h2>
+              <h2 className="h-xl section-title title-reasons">Quatre bonnes raisons<span className="serif-i"> de dire oui.</span></h2>
             </div>
             <ol className="reasons">
               {REASONS.map((r) => (

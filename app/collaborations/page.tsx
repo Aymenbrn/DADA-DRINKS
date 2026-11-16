@@ -21,6 +21,7 @@ export default function CollaborationsPage() {
       <PageHero
         eyebrow="COLLABS & CULTURE"
         title="Ils ont tenu"
+        titleClassName="title-collabs"
         accent="la canette."
         lede="Rap, MMA, basket, affichage : là où la culture se passe, la canette Dada n’est jamais loin."
       />

@@ -1231,3 +1231,11 @@ h1, h2, h3, .display, .h-xl, .page-hero-title, .section-title { font-weight: 800
 /* Tous les titres du site en Montserrat Extra Bold 800 (les parties en italique restent en Extra Light 200) */
 h1, h2, h3, h4, .h-xl, .page-hero-title, .section-title, .ribbon-name, .tl-when, .collab-big, .shop-name, .pro-body h3, .collab-body h2, .news-item h3, .pdp-title, .pro-pdp-title, .universe-title { font-weight: 800; }
 h1 .serif-i, h2 .serif-i, h3 .serif-i, h4 .serif-i, .h-xl .serif-i { font-weight: 200; }
+
+/* Titres sur une seule ligne : « Quatre bonnes raisons de dire oui. » et « Ils ont tenu la canette. » */
+.title-reasons, .title-collabs { white-space: nowrap; max-width: none; overflow-wrap: normal; text-wrap: nowrap; }
+.title-reasons { font-size: min(70px, 5.3vw); }
+.title-collabs, .page-hero-title.title-collabs { font-size: min(104px, 8vw); }
+
+/* Flèches de l'accueil : plus de halo, seul le D en verre liquide reste */
+.ribbon-arrow, .ribbon-arrow .dada-arrow { filter: none; box-shadow: none; }
