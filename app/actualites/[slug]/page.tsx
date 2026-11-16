@@ -21,7 +21,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ArticlePage({ params }: Props) {
   const { slug } = await params;
   const a = getArticle(slug);
-  if (!a || !a.body) notFound();
+  if (!a || !a.Body) notFound();
+  const Body = a.Body;
   const others = ARTICLES.filter((x) => x.slug !== a.slug).slice(0, 3);
   return (
     <main className="page-light">
@@ -35,7 +36,7 @@ export default async function ArticlePage({ params }: Props) {
           <img className="article-image" src={a.image} alt="" />
         )}
         <div className="prose">
-          {a.body.map((p, i) => <p key={i}>{p}</p>)}
+          <Body />
         </div>
         {a.source && (
           <p className="article-source">

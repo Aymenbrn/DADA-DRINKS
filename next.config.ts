@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import createMDX from "@next/mdx";
 
 const nextConfig: NextConfig = {
   eslint: { ignoreDuringBuilds: true },
@@ -13,4 +14,7 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// Actualités rédigées en MDX (content/actualites/*.mdx)
+const withMDX = createMDX({});
+
+export default withMDX(nextConfig);

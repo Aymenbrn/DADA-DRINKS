@@ -31,7 +31,7 @@ export default function ActualitesPage() {
           </article>
           <ul className="news-list">
             {rest.map((n) => {
-              const href = n.body ? `/actualites/${n.slug}` : n.external;
+              const href = n.Body ? `/actualites/${n.slug}` : n.external;
               const isExternal = !!href && href.startsWith("http");
               return (
                 <li key={n.slug} className={`news-item${n.video ? " has-video" : n.image ? " has-image" : ""}`}>
