@@ -35,7 +35,7 @@ export default function Footer() {
         <div
           aria-hidden="true"
           style={{
-            fontFamily: "var(--display)", fontSize: "clamp(110px, 21vw, 300px)", lineHeight: 0.8, letterSpacing: "0.01em",
+            fontFamily: "var(--display)", fontWeight: 900, fontSize: "clamp(60px, 14vw, 220px)", lineHeight: 0.85, letterSpacing: "-0.03em",
             color: "transparent", WebkitTextStroke: "2px rgba(244,242,238,0.35)", textAlign: "center", whiteSpace: "nowrap",
           }}
         >

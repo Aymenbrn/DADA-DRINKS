@@ -5,10 +5,11 @@
   --muted-on-light: #52525b;
   /* Couleur d'accent de la marque : à changer ici pour tout le site */
   --accent: #ff5a1f;
-  --display: var(--font-anton), Impact, sans-serif;
-  --serif: var(--font-serif), Georgia, serif;
-  --sans: var(--font-inter), system-ui, sans-serif;
-  --mono: var(--font-mono), ui-monospace, monospace;
+  /* Police unique : Montserrat */
+  --display: var(--font-montserrat), system-ui, sans-serif;
+  --serif: var(--font-montserrat), system-ui, sans-serif;
+  --sans: var(--font-montserrat), system-ui, sans-serif;
+  --mono: var(--font-montserrat), system-ui, sans-serif;
 }
 
 * { box-sizing: border-box; }
@@ -26,9 +27,9 @@ button { font-family: inherit; }
 
 .container { max-width: 1280px; margin: 0 auto; padding-inline: clamp(16px, 4vw, 48px); }
 .eyebrow { margin: 0; font-family: var(--mono); font-size: 13px; letter-spacing: 0.16em; }
-.serif-i { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spacing: -0.02em; }
+.serif-i { font-family: var(--serif); font-style: italic; font-weight: 200; letter-spacing: -0.02em; }
 .display { font-family: var(--display); }
-.h-xl { margin: 0; font-weight: 800; letter-spacing: -0.04em; line-height: 0.92; }
+.h-xl { margin: 0; font-weight: 900; letter-spacing: -0.04em; line-height: 0.92; }
 
 .btn {
   height: 56px; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
@@ -1174,3 +1175,9 @@ button.pill { cursor: pointer; border: 0; font-family: inherit; }
 .ribbon-arrow:hover .dada-arrow, .ribbon-arrow:hover::before { transform: scale(1.06); }
 .ribbon-arrow.is-prev:hover::before { transform: scale(-1.06, 1.06); }
 .ribbon-arrow::before { transition: transform 0.2s; }
+
+/* Typographie unifiée : Montserrat partout, titres en Black 900, italiques en Extra Light 200 */
+h1, h2, h3, .display, .h-xl, .page-hero-title, .section-title { font-weight: 900; }
+.serif-i, .can-name, .tl-body blockquote, .article-lede, .cart-drawer-title span, em, i { font-style: italic; font-weight: 200; }
+.h-xl .serif-i, h1 .serif-i, h2 .serif-i, h3 .serif-i { font-weight: 200; }
+.can-word, .fridge-logo, .tl-when, .collab-pfl-text strong, .collab-big, .footer-mega { font-weight: 900; }
