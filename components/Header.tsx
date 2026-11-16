@@ -31,7 +31,7 @@ export default function Header() {
   if (pathname.startsWith("/saveurs/")) return null;
 
   return (
-    <header className={`site-header${isHome ? " is-home" : ""}${isHome && !scrolled && !open ? " is-transparent" : ""}${scrolled && !open ? " is-glass" : ""}`}>
+    <header className={`site-header${isHome ? " is-home" : ""}${isHome && !scrolled && !open ? " is-transparent" : ""}${scrolled || open ? " is-glass" : ""}${open ? " is-menu-open" : ""}`}>
       <div className="container header">
         <Link href="/" className="logo" aria-label="Dada Drinks, accueil">
           <Image src="/brand/dada-logo.webp" alt="Dada" width={750} height={303} priority className="logo-img" />
