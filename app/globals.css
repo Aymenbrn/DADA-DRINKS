@@ -961,3 +961,15 @@ button.pill { cursor: pointer; border: 0; font-family: inherit; }
     .site-header .nav.is-open { background: rgba(14,14,16,0.95); }
   }
 }
+
+/* Mobile : le badge « Nouveauté » est plus grand et plus mis en avant */
+@media (max-width: 640px) {
+  .ribbon-new { margin-bottom: 14px; gap: 8px; }
+  .ribbon-new-tag { font-size: 30px; padding: 10px 26px 9px; letter-spacing: 0.06em; box-shadow: 0 8px 24px rgba(0,0,0,0.45); }
+  .ribbon-new-sub { font-size: 12.5px; letter-spacing: 0.2em; }
+}
+@keyframes ribbonPulseM {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--u-hi) 70%, transparent), 0 8px 24px rgba(0,0,0,0.45); }
+  70%, 100% { box-shadow: 0 0 0 22px color-mix(in srgb, var(--u-hi) 0%, transparent), 0 8px 24px rgba(0,0,0,0.45); }
+}
+@media (max-width: 640px) and (prefers-reduced-motion: no-preference) { .ribbon-new-tag { animation: ribbonPulseM 2.2s ease-out infinite; } }
