@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useCart } from "@/components/cart/CartProvider";
-import { CAT_LABELS, DEFAULT_PACK, FLAVORS, PACK_SIZES, flavorHref, formatEUR, getFlavor, packCents, pad } from "@/lib/flavors";
+import { CAT_LABELS, DEFAULT_PACK, FLAVORS, PACK_SIZES, flavorHref, canPrice, formatEUR, getFlavor, packCents, pad } from "@/lib/flavors";
 import { createShowcase } from "@/lib/can3d/showcase";
 
 /** Section « univers » de la fiche produit : la canette entourée des fruits de la saveur, en 3D. */
@@ -103,7 +103,7 @@ function UniverseScene({ slug }: { slug: string }) {
             </div>
             <p className="pdp-price">
               {formatEUR(packCents(pack))}
-              <small>le pack de {pack} canettes · 1,33 € la canette</small>
+              <small>le pack de {pack} canettes · {canPrice(pack)} la canette</small>
             </p>
             <div className="pdp-qty" role="group" aria-label="Nombre de packs">
               <button type="button" aria-label="Un pack de moins" onClick={() => setQty((q) => Math.max(1, q - 1))}>−</button>

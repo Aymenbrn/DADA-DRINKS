@@ -188,10 +188,15 @@ export const formatEUR = (cents: number) =>
   `${(cents / 100).toFixed(2).replace(".", ",").replace(/\B(?=(\d{3})+(?!\d))/g, "\u202f")} €`;
 export const PACK_PRICE = formatEUR(PACK_PRICE_CENTS);
 
-/** Formats proposés aux particuliers, au même prix à la canette que le pack de 24 (32 € / 24) */
+/** Formats proposés aux particuliers : plus le pack est grand, moins la canette est chère */
 export const PACK_SIZES = [6, 12, 24, 32] as const;
 export const DEFAULT_PACK = 24;
-export const packCents = (size: number) => Math.round((PACK_PRICE_CENTS * size) / 24);
+/** Prix à la canette selon le pack (centimes) */
+export const CAN_CENTS: Record<number, number> = { 6: 8000 / 60, 12: 130, 24: 120, 32: 100 };
+export const canCents = (size: number) => CAN_CENTS[size] ?? CAN_CENTS[DEFAULT_PACK];
+export const packCents = (size: number) => Math.round(canCents(size) * size);
+/** « 1,30 € » : prix à la canette affiché */
+export const canPrice = (size: number) => formatEUR(Math.round(canCents(size)));
 /** Prix d'appel : le plus petit pack */
 export const FROM_PRICE = formatEUR(packCents(PACK_SIZES[0]));
 export const PACK_RANGE = `${PACK_SIZES[0]} à ${PACK_SIZES[PACK_SIZES.length - 1]} canettes`;
