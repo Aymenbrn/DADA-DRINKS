@@ -17,24 +17,19 @@ export default function CartDrawer() {
   const [shop, setShop] = useState("/#saveurs");
   useEffect(() => { if (drawerOpen) setShop(shopHref(pathname)); }, [drawerOpen, pathname]);
 
-  // Échap pour fermer, focus dans le volet à l'ouverture, pas de défilement de la page derrière
+  // Échap pour fermer, focus dans le volet à l'ouverture.
+  // Le volet ne bloque pas la page : on peut continuer à défiler et à ajouter des articles pendant qu'il est ouvert.
   useEffect(() => {
     if (!drawerOpen) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && closeCart();
     window.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    panelRef.current?.focus();
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
-    };
+    panelRef.current?.focus({ preventScroll: true });
+    return () => window.removeEventListener("keydown", onKey);
   }, [drawerOpen, closeCart]);
 
   return (
     <div className={`cart-drawer${drawerOpen ? " is-open" : ""}`} aria-hidden={!drawerOpen}>
-      <div className="cart-drawer-backdrop" onClick={closeCart} />
-      <div ref={panelRef} className="cart-drawer-panel" role="dialog" aria-modal="true" aria-label="Panier" tabIndex={-1}>
+      <div ref={panelRef} className="cart-drawer-panel" role="dialog" aria-modal="false" aria-label="Panier" tabIndex={-1}>
         <header className="cart-drawer-head">
           <p className="cart-drawer-title">
             Panier<span>{count > 0 ? ` · ${count} article${count > 1 ? "s" : ""}` : ""}</span>
