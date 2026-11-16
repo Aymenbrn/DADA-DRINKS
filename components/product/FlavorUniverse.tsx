@@ -86,7 +86,6 @@ function UniverseScene({ slug }: { slug: string }) {
             <h1
               id="universe-title"
               className="h-xl universe-title"
-              style={f.name.length > 8 ? { fontSize: "clamp(40px, 4.4vw, 74px)" } : undefined}
             >
               Dada <span className="serif-i universe-name">{f.name}.</span>
             </h1>
