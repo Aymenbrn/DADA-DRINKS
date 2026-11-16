@@ -27,7 +27,7 @@ export default function NewsletterForm() {
   return (
     <form onSubmit={onSubmit} style={{ flex: "1 1 420px", display: "flex", flexDirection: "column", gap: 16 }}>
       <h2 style={{ margin: 0, fontSize: 36, lineHeight: 1.05, letterSpacing: "-0.03em", fontWeight: 800 }}>
-        Les nouveautés,<span className="serif-i"> avant tout le monde.</span>
+        Les nouveautés,<span className="serif-i" style={{ display: "block" }}>avant tout le monde.</span>
       </h2>
       <label htmlFor="dada-email" style={{ fontSize: 14, color: "var(--muted-on-dark)" }}>Votre adresse e-mail</label>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
