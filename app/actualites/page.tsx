@@ -56,11 +56,19 @@ export default function ActualitesPage() {
                       )}
                     </h3>
                     <p>{n.excerpt}</p>
-                    {n.source && (
-                      <a href={n.source.url} target="_blank" rel="noopener noreferrer" className="news-source">
-                        {sourceText(n.source)} ↗
-                      </a>
-                    )}
+                    {/* liens en bas de chaque fiche */}
+                    <div className="news-actions">
+                      {n.Body ? (
+                        <Link href={`/actualites/${n.slug}`} className="news-read">Lire l’article →</Link>
+                      ) : href && isExternal && (!n.source || n.source.url !== href) ? (
+                        <a href={href} target="_blank" rel="noopener noreferrer" className="news-read">Voir ↗</a>
+                      ) : null}
+                      {n.source && (
+                        <a href={n.source.url} target="_blank" rel="noopener noreferrer" className="news-source">
+                          {sourceText(n.source)} ↗
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </li>
               );
