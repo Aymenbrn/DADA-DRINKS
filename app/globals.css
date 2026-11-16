@@ -1224,3 +1224,9 @@ h1 .serif-i, h2 .serif-i, h3 .serif-i, .h-xl .serif-i, .serif-i { -webkit-text-s
 /* Collaborations : « Voir le clip » / « Lire l'article » alignés en bas de chaque fiche */
 .collab-grid > .collab-card { height: 100%; }
 .collab-body > .arrow-link { margin-top: auto; padding-top: 8px; align-self: flex-start; }
+/* les deux liens en bas d'une actualité sont centrés sur la même ligne */
+.news-actions { align-items: center; flex-wrap: nowrap; }
+.news-actions .news-source { align-self: center; display: inline-flex; align-items: center; height: 40px; line-height: 1; white-space: nowrap; }
+.news-feature-actions { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.news-feature-actions .news-source { align-self: center; }
+@media (max-width: 420px) { .news-actions { flex-wrap: wrap; } }
