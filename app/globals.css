@@ -973,3 +973,17 @@ button.pill { cursor: pointer; border: 0; font-family: inherit; }
   70%, 100% { box-shadow: 0 0 0 22px color-mix(in srgb, var(--u-hi) 0%, transparent), 0 8px 24px rgba(0,0,0,0.45); }
 }
 @media (max-width: 640px) and (prefers-reduced-motion: no-preference) { .ribbon-new-tag { animation: ribbonPulseM 2.2s ease-out infinite; } }
+
+/* Panier ouvert sur grand écran : volet compact et flottant, la page se décale pour rester entièrement accessible */
+#contenu, #contenu ~ footer { transition: margin-right 0.35s cubic-bezier(.2,.8,.2,1); }
+@media (min-width: 641px) {
+  .cart-drawer .cart-drawer-panel {
+    top: 84px; right: 14px; bottom: 14px; width: 340px; border-radius: 24px;
+    transform: translateX(calc(100% + 24px)); box-shadow: 0 24px 60px rgba(0,0,0,0.35), 0 0 0 1px rgba(0,0,0,0.06);
+  }
+  .cart-drawer.is-open .cart-drawer-panel { transform: none; }
+  .cart-drawer .cart-drawer-head { padding: 16px 18px; }
+  .cart-drawer .cart-drawer-lines { padding: 4px 18px; }
+  .cart-drawer .cart-drawer-foot { padding: 14px 18px 18px; }
+  html.cart-open #contenu, html.cart-open #contenu ~ footer { margin-right: 368px; }
+}
