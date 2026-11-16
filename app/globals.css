@@ -1007,7 +1007,7 @@ button.pill { cursor: pointer; border: 0; font-family: inherit; }
 /* vague de derrière : plus claire, en décalé et dans l'autre sens */
 .ribbon-buy::after {
   background: color-mix(in srgb, var(--u-can, var(--u-hi)) 55%, #fff);
-  opacity: 0.85; transition-delay: 0.08s;
+  opacity: 0.85; transition-delay: 0.08s; z-index: -2;
   animation: liquidWaveB 2.3s linear infinite;
 }
 .ribbon-buy:hover, .ribbon-buy:focus-visible { color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,0.5); }
