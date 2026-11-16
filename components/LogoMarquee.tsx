@@ -25,11 +25,6 @@ function knockOutWhite(src: string): Promise<string> {
           if (max - min < 28 && min > 225) {
             p[i + 3] = Math.round(p[i + 3] * Math.max(0, Math.min(1, (250 - min) / 25)));
           }
-          // texte noir / gris foncé : passé en blanc pour rester lisible sur fond noir
-          else if (max < 90 && max - min < 40) {
-            const k = 1 - max / 90;
-            p[i] = p[i + 1] = p[i + 2] = Math.round(max + (240 - max) * k);
-          }
         }
         g.putImageData(d, 0, 0);
         // recadrage au plus près du logo (les fichiers d'origine ont beaucoup de marge blanche)

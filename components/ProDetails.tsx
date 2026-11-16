@@ -39,9 +39,9 @@ export function ProReasons() {
 /** Ils nous ont fait confiance : les enseignes qui référencent Dada */
 export function ProTrust() {
   return (
-        <section className="section page-dark trust-section">
+        <section className="section page-light trust-section">
           <div className="container">
-            <p className="eyebrow" style={{ color: "var(--muted-on-dark)" }}>ILS NOUS FONT DÉJÀ CONFIANCE</p>
+            <p className="eyebrow" style={{ color: "var(--muted-on-light)" }}>ILS NOUS FONT DÉJÀ CONFIANCE</p>
             <h2 className="h-xl section-title">Déjà<span className="serif-i"> en rayon.</span></h2>
           </div>
           {/* Défilement automatique des logos officiels, sans fond (pause au survol) */}

@@ -290,7 +290,7 @@ button { font-family: inherit; }
 .retailers li { font-size: clamp(32px, 4vw, 48px); font-weight: 800; letter-spacing: -0.03em; padding: 10px 0; border-bottom: 2px solid var(--paper); }
 .retailers.is-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); column-gap: 32px; border-top: 0; margin-top: 16px; }
 .retailers.is-grid li { font-size: clamp(24px, 2.6vw, 34px); padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.25); }
-.page-dark .container > .salon { margin-top: 28px; }
+.page-dark .container > .salon, .trust-section .container > .salon { margin-top: 28px; }
 .salon { margin: 12px 0 0; font-size: 15px; color: var(--muted-on-dark); line-height: 1.5; }
 .salon span { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; color: var(--paper); margin-right: 8px; }
 
@@ -1138,7 +1138,9 @@ button.pill { cursor: pointer; border: 0; font-family: inherit; }
 .pro-add:hover, .pro-add:focus-visible { background: var(--accent, #e3262f); }
 
 /* « Ils nous font déjà confiance » : fond noir, logos sans fond et plus grands, pause au survol */
-.trust-section { background: #000; }
+.trust-section { background: #fff; color: var(--ink); }
+.trust-section .salon { color: #3f3f46; }
+.trust-section .salon span { color: var(--ink); }
 .logo-marquee .logo-track { gap: 0; align-items: center; animation-name: logoScrollExact; }
 .logo-marquee .logo-track li { margin-right: clamp(40px, 6vw, 84px); }
 @keyframes logoScrollExact { to { transform: translateX(-50%); } }
