@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Montserrat } from "next/font/google";
+import { Anton, Montserrat } from "next/font/google";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { CartProvider } from "@/components/cart/CartProvider";
@@ -15,6 +15,8 @@ const montserrat = Montserrat({
   variable: "--font-montserrat",
   display: "swap",
 });
+// Anton : uniquement pour le grand « DADA DRINKS » du pied de page
+const anton = Anton({ weight: "400", subsets: ["latin"], variable: "--font-anton", display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -35,7 +37,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr" className={montserrat.variable}>
+    <html lang="fr" className={`${montserrat.variable} ${anton.variable}`}>
       <body>
         <CartProvider>
           <a href="#contenu" className="skip-link">Aller au contenu</a>
