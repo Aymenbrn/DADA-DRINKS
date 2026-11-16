@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { createPortal } from "react-dom";
 import { CAT_LABELS, FLAVORS as ALL_FLAVORS, pad } from "@/lib/flavors";
 import { createCarousel } from "@/lib/can3d/carousel";
 import BeachDecor from "@/components/BeachDecor";
@@ -27,6 +28,9 @@ export default function HomeCarousel() {
   const [bg, setBg] = useState<{ key: number; c: string; hi: string }[]>([{ key: 0, c: FLAVORS[start].c, hi: FLAVORS[start].hi }]);
   const f = FLAVORS[index];
   const audience = useAudience()?.side ?? "particulier";
+  // l'interrupteur Particulier / Pro est affiché en haut à droite, à côté du panier (emplacement prévu dans l'en-tête)
+  const [audSlot, setAudSlot] = useState<HTMLElement | null>(null);
+  useEffect(() => setAudSlot(document.getElementById("header-aud-slot")), []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -121,6 +125,7 @@ export default function HomeCarousel() {
       </div>
 
       {/* Le goût, en grand, sous la canette */}
+      {audSlot && createPortal(<AudienceSwitch className="header-switch" />, audSlot)}
       <div className="ribbon-center" aria-live="polite">
         {isNew ? (
           <p className="ribbon-new">
@@ -159,7 +164,6 @@ export default function HomeCarousel() {
         </div>
         <p className="ribbon-hint">Glisser ou utiliser les flèches pour découvrir</p>
           <div className="ribbon-actions">
-            <AudienceSwitch className="ribbon-switch" />
             {audience === "pro" ? (
               <a href="#offre-pro" className="btn ribbon-buy">Équiper mon commerce</a>
             ) : (
