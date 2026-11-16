@@ -180,31 +180,22 @@ export default function HomeCarousel() {
 
 /** Chevron dessiné en points, comme sur la référence */
 function DottedChevron({ dir }: { dir: 1 | -1 }) {
-  // Forme du « D » du logo Dada : lettre blanche cernée de rouge, contour blanc extérieur,
-  // l'œil du D en rouge avec une flèche blanche au centre. Flèche précédente : D en miroir.
+  // Forme du « D » du logo Dada, entièrement en verre liquide, flèche blanche au centre.
+  // Flèche précédente : D en miroir.
   const D = "M13 8 H35 A28 28 0 0 1 35 64 H13 Z";
   const eye = "M26 21.5 H35 A14.5 14.5 0 0 1 35 50.5 H26 Z";
   return (
     <svg width="72" height="72" viewBox="0 0 72 72" aria-hidden="true" className="dada-arrow">
       <g transform={dir === -1 ? "translate(72 0) scale(-1 1)" : undefined}>
         <g transform="skewX(-6) translate(4 0)">
-          <path d={D} fill="none" stroke="#fff" strokeWidth="13" strokeLinejoin="round" />
-          <path d={D} fill="rgba(255,255,255,0.16)" stroke="url(#dadaCut)" strokeWidth="7" strokeLinejoin="round" />
-          <path d={D} fill="none" stroke="rgba(255,255,255,0.75)" strokeWidth="1.2" transform="translate(0 0)" className="dada-glass-rim" />
-          <path d={eye} fill="url(#dadaCut)" />
-          <path d={D} fill="url(#dadaGloss)" />
+          {/* D entièrement en verre liquide : teinte légère, reflets et liserés lumineux (le flou est fait en CSS) */}
+          <path d={D} fill="rgba(255,255,255,0.14)" stroke="rgba(255,255,255,0.14)" strokeWidth="7" strokeLinejoin="round" />
+          <path d={D} fill="url(#dadaGloss)" stroke="url(#dadaGloss)" strokeWidth="7" strokeLinejoin="round" />
+          <path d={D} fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="1.3" strokeLinejoin="round" transform="translate(0 0)" className="dada-glass-rim" />
+          <path d={eye} fill="rgba(255,255,255,0.10)" stroke="rgba(255,255,255,0.7)" strokeWidth="1.2" strokeLinejoin="round" />
         </g>
       </g>
       <defs>
-        {/* rouge Dada coupé d'un trait blanc, puis jaune du logo (comme le « Ↄ » de DADA) */}
-        <linearGradient id="dadaCut" gradientUnits="userSpaceOnUse" x1="14" y1="14" x2="54" y2="62">
-          <stop offset="0" stopColor="#E2072F" />
-          <stop offset="0.54" stopColor="#E2072F" />
-          <stop offset="0.54" stopColor="#FFFFFF" />
-          <stop offset="0.6" stopColor="#FFFFFF" />
-          <stop offset="0.6" stopColor="#FFD400" />
-          <stop offset="1" stopColor="#FFD400" />
-        </linearGradient>
         <linearGradient id="dadaGloss" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#fff" stopOpacity="0.5" />
           <stop offset="0.45" stopColor="#fff" stopOpacity="0.08" />
