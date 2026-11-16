@@ -115,6 +115,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           <div className="cart-toast" key={t.id}>
             <span>{t.text}</span>
             <button type="button" className="cart-toast-btn" onClick={() => { setToasts([]); setDrawerOpen(true); }}>Voir le panier</button>
+            <button type="button" className="cart-toast-close" aria-label="Fermer la notification" onClick={() => setToasts((prev) => prev.filter((x) => x.id !== t.id))}>
+              <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>
+            </button>
           </div>
         ))}
       </div>
