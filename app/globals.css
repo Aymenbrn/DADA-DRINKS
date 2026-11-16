@@ -1193,3 +1193,7 @@ h1, h2, h3, .display, .h-xl, .page-hero-title, .section-title { font-weight: 900
 /* Titres un peu plus épais que le Black 900 (léger contour de la même couleur) ; les parties en italique fin restent fines */
 h1, h2, h3, .h-xl, .tl-when, .ribbon-name { -webkit-text-stroke: 0.018em currentColor; paint-order: stroke fill; }
 h1 .serif-i, h2 .serif-i, h3 .serif-i, .h-xl .serif-i, .serif-i { -webkit-text-stroke: 0; }
+
+/* En-têtes de page : le titre s'adapte à la largeur de l'écran */
+.page-hero-title { font-size: clamp(40px, 9vw, 128px); overflow-wrap: break-word; hyphens: manual; }
+@media (max-width: 420px) { .page-hero-title { font-size: clamp(36px, 11vw, 52px); } }
