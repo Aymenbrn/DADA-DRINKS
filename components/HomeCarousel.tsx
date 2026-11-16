@@ -189,19 +189,29 @@ function DottedChevron({ dir }: { dir: 1 | -1 }) {
       <g transform={dir === -1 ? "translate(72 0) scale(-1 1)" : undefined}>
         <g transform="skewX(-6) translate(4 0)">
           <path d={D} fill="none" stroke="#fff" strokeWidth="13" strokeLinejoin="round" />
-          <path d={D} fill="rgba(255,255,255,0.16)" stroke="#E2072F" strokeWidth="7" strokeLinejoin="round" />
+          <path d={D} fill="rgba(255,255,255,0.16)" stroke="url(#dadaCut)" strokeWidth="7" strokeLinejoin="round" />
           <path d={D} fill="none" stroke="rgba(255,255,255,0.75)" strokeWidth="1.2" transform="translate(0 0)" className="dada-glass-rim" />
-          <path d={eye} fill="#E2072F" />
+          <path d={eye} fill="url(#dadaCut)" />
           <path d={D} fill="url(#dadaGloss)" />
         </g>
       </g>
       <defs>
+        {/* rouge Dada coupé d'un trait blanc, puis jaune du logo (comme le « Ↄ » de DADA) */}
+        <linearGradient id="dadaCut" gradientUnits="userSpaceOnUse" x1="14" y1="14" x2="54" y2="62">
+          <stop offset="0" stopColor="#E2072F" />
+          <stop offset="0.54" stopColor="#E2072F" />
+          <stop offset="0.54" stopColor="#FFFFFF" />
+          <stop offset="0.6" stopColor="#FFFFFF" />
+          <stop offset="0.6" stopColor="#FFD400" />
+          <stop offset="1" stopColor="#FFD400" />
+        </linearGradient>
         <linearGradient id="dadaGloss" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#fff" stopOpacity="0.5" />
           <stop offset="0.45" stopColor="#fff" stopOpacity="0.08" />
           <stop offset="1" stopColor="#000" stopOpacity="0.10" />
         </linearGradient>
       </defs>
+      <path d={dir === 1 ? "M36 29l6 7-6 7" : "M38 29l-6 7 6 7"} fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="5.4" strokeLinecap="round" strokeLinejoin="round" />
       <path d={dir === 1 ? "M36 29l6 7-6 7" : "M38 29l-6 7 6 7"} fill="none" stroke="#fff" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
