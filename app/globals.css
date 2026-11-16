@@ -1137,7 +1137,7 @@ button.pill { cursor: pointer; border: 0; font-family: inherit; }
 .pro-add:hover, .pro-add:focus-visible { background: var(--accent, #e3262f); }
 
 /* « Ils nous font déjà confiance » : fond noir, logos sans fond et plus grands, pause au survol */
-.trust-section { background: #fff; color: var(--ink); }
+.trust-section { color: var(--ink); } /* même fond que la section « L’offre pro » */
 .trust-section .salon { color: #3f3f46; }
 .trust-section .salon span { color: var(--ink); }
 .logo-marquee .logo-track { gap: 0; align-items: center; animation-name: logoScrollExact; }
