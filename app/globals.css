@@ -1185,3 +1185,7 @@ h1, h2, h3, .display, .h-xl, .page-hero-title, .section-title { font-weight: 900
 /* Notre histoire : les repères de la frise (« Le renouveau », « Aujourd'hui »…) tiennent dans la colonne de gauche */
 .tl-when, .tl-when.is-small { font-size: clamp(22px, 2.2vw, 28px); line-height: 1.08; letter-spacing: -0.02em; overflow-wrap: anywhere; hyphens: auto; min-width: 0; }
 @media (max-width: 700px) { .tl-when, .tl-when.is-small { font-size: 26px; } }
+
+/* Titres un peu plus épais que le Black 900 (léger contour de la même couleur) ; les parties en italique fin restent fines */
+h1, h2, h3, .h-xl, .tl-when, .ribbon-name { -webkit-text-stroke: 0.018em currentColor; paint-order: stroke fill; }
+h1 .serif-i, h2 .serif-i, h3 .serif-i, .h-xl .serif-i, .serif-i { -webkit-text-stroke: 0; }
