@@ -13,8 +13,8 @@ export default function HomeShop() {
     <div key={side} className="home-shop-swap">
       {side === "pro" ? (
         <>
-          <ProShop />
           <ProTrust />
+          <ProShop />
           <ProReasons />
           <ProQuote intro />
         </>

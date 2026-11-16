@@ -1,4 +1,5 @@
 import ContactForm from "@/components/ContactForm";
+import LogoMarquee from "@/components/LogoMarquee";
 import { ESTABLISHMENT_TYPES } from "@/lib/pro";
 import { RETAILER_LOGOS, WHATSAPP_DISPLAY, WHATSAPP_URL } from "@/lib/site";
 
@@ -38,22 +39,13 @@ export function ProReasons() {
 /** Ils nous ont fait confiance : les enseignes qui référencent Dada */
 export function ProTrust() {
   return (
-        <section className="section page-dark">
+        <section className="section page-dark trust-section">
           <div className="container">
             <p className="eyebrow" style={{ color: "var(--muted-on-dark)" }}>ILS NOUS FONT DÉJÀ CONFIANCE</p>
             <h2 className="h-xl section-title">Déjà<span className="serif-i"> en rayon.</span></h2>
           </div>
-          {/* Défilement automatique des logos officiels (deux copies pour une boucle sans fin) */}
-          <div className="logo-marquee" aria-label="Enseignes qui référencent Dada">
-            <ul className="logo-track">
-              {[...RETAILER_LOGOS, ...RETAILER_LOGOS].map((r, i) => (
-                <li key={`${r.name}-${i}`} aria-hidden={i >= RETAILER_LOGOS.length ? true : undefined}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={r.logo} alt={i < RETAILER_LOGOS.length ? r.name : ""} decoding="async" />
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* Défilement automatique des logos officiels, sans fond (pause au survol) */}
+          <LogoMarquee logos={RETAILER_LOGOS} />
           <div className="container">
             <p className="salon"><span>LES SALONS</span> Dada était présent à l’ANUGA 2023, le grand salon international de l’alimentation à Cologne.</p>
           </div>

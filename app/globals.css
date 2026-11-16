@@ -1136,3 +1136,14 @@ button.pill { cursor: pointer; border: 0; font-family: inherit; }
 .shop-add:hover, .shop-add:focus-visible { background: var(--add, var(--ink)); color: var(--add-ink, #fff); box-shadow: 0 6px 18px color-mix(in srgb, var(--add, #000) 45%, transparent); }
 .shop-add:active { transform: scale(0.92); background: var(--add, var(--ink)); }
 .pro-add:hover, .pro-add:focus-visible { background: var(--accent, #e3262f); }
+
+/* « Ils nous font déjà confiance » : fond noir, logos sans fond et plus grands, pause au survol */
+.trust-section { background: #000; }
+.logo-marquee .logo-track li { width: 220px; height: 120px; background: transparent; box-shadow: none; border-radius: 0; padding: 8px 12px; }
+.logo-marquee .logo-track img { transform: scale(1.7); transition: transform 0.3s, filter 0.3s; }
+.logo-marquee .logo-track li:hover img { transform: scale(1.85); }
+.logo-marquee:hover .logo-track, .logo-marquee:focus-within .logo-track { animation-play-state: paused !important; }
+.logo-marquee { min-height: 132px; }
+.logo-marquee .logo-track img { opacity: 0; animation: logoIn 0.5s ease forwards; }
+@keyframes logoIn { to { opacity: 1; } }
+@media (max-width: 640px) { .logo-marquee .logo-track li { width: 150px; height: 86px; } .logo-marquee { min-height: 96px; } }
