@@ -93,7 +93,7 @@ export default function HomeCarousel() {
   const rail = `linear-gradient(90deg, ${FLAVORS.map((x, i) => `${x.hi} ${((i / (FLAVORS.length - 1)) * 100).toFixed(1)}%`).join(", ")})`;
 
   return (
-    <section className="ribbon" aria-roledescription="carrousel" aria-label="La gamme Dada en 3D" style={{ "--u-hi": f.hi } as CSSProperties}>
+    <section className="ribbon" aria-roledescription="carrousel" aria-label="La gamme Dada en 3D" style={{ "--u-hi": f.hi, "--u-can": f.can ?? f.c } as CSSProperties}>
       {bg.map((l) => (
         <div key={l.key} className="ribbon-bg" style={{ "--u": l.c, "--uh": l.hi } as CSSProperties} aria-hidden="true" />
       ))}
