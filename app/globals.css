@@ -1199,3 +1199,17 @@ h1 .serif-i, h2 .serif-i, h3 .serif-i, .h-xl .serif-i, .serif-i { -webkit-text-s
 /* En-têtes de page : le titre s'adapte à la largeur de l'écran */
 .page-hero-title { font-size: clamp(40px, 9vw, 128px); overflow-wrap: break-word; hyphens: manual; }
 @media (max-width: 420px) { .page-hero-title { font-size: clamp(36px, 11vw, 52px); } }
+
+/* Page Collaborations, mobile : deux colonnes de collaborations */
+@media (max-width: 760px) {
+  .collab-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .collab-card { border-radius: 18px; }
+  .collab-visual { height: 120px; padding: 10px; }
+  .collab-big { font-size: clamp(18px, 5.6vw, 26px); overflow-wrap: anywhere; }
+  .collab-body { padding: 12px 12px 14px; gap: 6px; }
+  .collab-body h2 { font-size: 15px; line-height: 1.2; }
+  .collab-body p { font-size: 12.5px; line-height: 1.4; }
+  .collab-body .tag-inline { font-size: 9px; padding: 3px 6px; }
+  .collab-parts { font-size: 12px; padding-left: 14px; gap: 4px; }
+  .collab-body .arrow-link, .collab-body a.btn { font-size: 12.5px; }
+}
