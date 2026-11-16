@@ -1151,20 +1151,14 @@ button.pill { cursor: pointer; border: 0; font-family: inherit; }
 @keyframes logoIn { to { opacity: 1; } }
 @media (max-width: 640px) { .logo-marquee .logo-track li { height: 80px; } .logo-marquee .logo-track img { max-height: 50px; max-width: 150px; } .logo-marquee { min-height: 96px; } }
 
-/* Flèches de l'accueil : un « D » de Dada en verre liquide, flèche blanche au milieu
-   (suivante : D à l'endroit, bord droit arrondi ; précédente : D en miroir) */
+/* Flèches de l'accueil : forme du « Ↄ » du logo Dada, flèche blanche au centre */
 .ribbon-arrow {
-  width: 60px; height: 72px; opacity: 1; filter: none; color: #fff;
-  border-radius: 12px 999px 999px 12px;
-  background: linear-gradient(160deg, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0.10) 45%, rgba(255,255,255,0.18) 100%);
-  -webkit-backdrop-filter: blur(14px) saturate(180%); backdrop-filter: blur(14px) saturate(180%);
-  border: 1px solid rgba(255,255,255,0.45);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -2px 6px rgba(255,255,255,0.12), inset 6px 0 10px rgba(255,255,255,0.08), 0 10px 24px rgba(0,0,0,0.28);
-  transition: transform 0.25s, background 0.25s, box-shadow 0.25s;
+  width: 76px; height: 76px; opacity: 1; color: #fff; border-radius: 50%;
+  background: transparent; border: 0; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none;
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,0.35));
 }
-.ribbon-arrow.is-prev { border-radius: 999px 12px 12px 999px; }
-.ribbon-arrow.is-next svg { margin-left: -6px; }
-.ribbon-arrow.is-prev svg { margin-right: -6px; }
-.ribbon-arrow svg { filter: drop-shadow(0 1px 3px rgba(0,0,0,0.35)); }
-.ribbon-arrow:hover { background: linear-gradient(160deg, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.16) 45%, rgba(255,255,255,0.24) 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.7), inset 0 -2px 6px rgba(255,255,255,0.16), 0 14px 30px rgba(0,0,0,0.32); }
-@media (max-width: 860px) { .ribbon-arrow { width: 48px; height: 58px; } }
+.ribbon-arrow .dada-arrow { width: 100%; height: 100%; display: block; overflow: visible; }
+.dada-arrow-core { fill: rgba(255,255,255,0.14); stroke: rgba(255,255,255,0.5); stroke-width: 1; }
+.ribbon-arrow:hover .dada-arrow-core { fill: rgba(255,255,255,0.26); }
+.ribbon-arrow svg { margin: 0 !important; }
+@media (max-width: 860px) { .ribbon-arrow { width: 58px; height: 58px; } }

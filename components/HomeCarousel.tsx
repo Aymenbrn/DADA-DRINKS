@@ -180,10 +180,25 @@ export default function HomeCarousel() {
 
 /** Chevron dessiné en points, comme sur la référence */
 function DottedChevron({ dir }: { dir: 1 | -1 }) {
-  // flèche blanche au centre du « D » de Dada (le nom est gardé pour ne pas toucher aux appels)
+  // Forme du « Ↄ » du logo Dada (anneau ouvert rouge et jaune, liseré blanc), flèche blanche au centre.
+  // Flèche précédente : la forme est retournée en miroir.
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      {dir === 1 ? <path d="M9 5l7 7-7 7" /> : <path d="M15 5l-7 7 7 7" />}
+    <svg width="72" height="72" viewBox="0 0 72 72" aria-hidden="true" className="dada-arrow">
+      <g transform={dir === -1 ? "translate(72 0) scale(-1 1)" : undefined}>
+        <path d="M7.26 24.39 A31 31 0 1 1 8.63 50.55 L20.99 43.98 A17 17 0 1 0 20.24 29.63 Z" fill="none" stroke="#fff" strokeWidth="5" strokeLinejoin="round" />
+        <path d="M7.26 24.39 A31 31 0 0 1 66.32 42.45 L52.63 39.53 A17 17 0 0 0 20.24 29.63 Z" fill="#E2072F" />
+        <path d="M66.32 42.45 A31 31 0 0 1 8.63 50.55 L20.99 43.98 A17 17 0 0 0 52.63 39.53 Z" fill="#FFD400" />
+        <path d="M7.26 24.39 A31 31 0 1 1 8.63 50.55 L20.99 43.98 A17 17 0 1 0 20.24 29.63 Z" fill="url(#dadaGloss)" />
+        <circle cx="36" cy="36" r="15.5" className="dada-arrow-core" />
+      </g>
+      <defs>
+        <linearGradient id="dadaGloss" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#fff" stopOpacity="0.22" />
+          <stop offset="0.45" stopColor="#fff" stopOpacity="0.06" />
+          <stop offset="1" stopColor="#000" stopOpacity="0.12" />
+        </linearGradient>
+      </defs>
+      <path d={dir === 1 ? "M32 28.5l7.5 7.5-7.5 7.5" : "M40 28.5L32.5 36l7.5 7.5"} fill="none" stroke="#fff" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
