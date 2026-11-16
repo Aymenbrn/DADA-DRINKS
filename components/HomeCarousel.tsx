@@ -180,17 +180,10 @@ export default function HomeCarousel() {
 
 /** Chevron dessiné en points, comme sur la référence */
 function DottedChevron({ dir }: { dir: 1 | -1 }) {
-  const pts: [number, number][] = [];
-  for (let k = 0; k < 5; k++) {
-    const x = dir === 1 ? 8 + k * 4 : 32 - k * 4;
-    pts.push([x, 4 + k * 4]);
-    if (k < 4) pts.push([x, 36 - k * 4]);
-  }
+  // flèche blanche au centre du « D » de Dada (le nom est gardé pour ne pas toucher aux appels)
   return (
-    <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true">
-      {pts.map(([x, y], i) => (
-        <circle key={i} cx={x} cy={y} r={i === pts.length - 1 ? 2.3 : 1.7} fill="currentColor" />
-      ))}
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      {dir === 1 ? <path d="M9 5l7 7-7 7" /> : <path d="M15 5l-7 7 7 7" />}
     </svg>
   );
 }
