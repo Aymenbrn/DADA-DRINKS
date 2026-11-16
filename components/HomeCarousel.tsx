@@ -189,15 +189,16 @@ function DottedChevron({ dir }: { dir: 1 | -1 }) {
       <g transform={dir === -1 ? "translate(72 0) scale(-1 1)" : undefined}>
         <g transform="skewX(-6) translate(4 0)">
           <path d={D} fill="none" stroke="#fff" strokeWidth="13" strokeLinejoin="round" />
-          <path d={D} fill="#fff" stroke="#E2072F" strokeWidth="7" strokeLinejoin="round" />
+          <path d={D} fill="rgba(255,255,255,0.16)" stroke="#E2072F" strokeWidth="7" strokeLinejoin="round" />
+          <path d={D} fill="none" stroke="rgba(255,255,255,0.75)" strokeWidth="1.2" transform="translate(0 0)" className="dada-glass-rim" />
           <path d={eye} fill="#E2072F" />
           <path d={D} fill="url(#dadaGloss)" />
         </g>
       </g>
       <defs>
         <linearGradient id="dadaGloss" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#fff" stopOpacity="0.22" />
-          <stop offset="0.45" stopColor="#fff" stopOpacity="0.04" />
+          <stop offset="0" stopColor="#fff" stopOpacity="0.5" />
+          <stop offset="0.45" stopColor="#fff" stopOpacity="0.08" />
           <stop offset="1" stopColor="#000" stopOpacity="0.10" />
         </linearGradient>
       </defs>
