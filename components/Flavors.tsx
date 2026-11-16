@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import Can from "./Can";
 import CardCan3D from "./CardCan3D";
 import { useCart } from "@/components/cart/CartProvider";
@@ -72,6 +73,7 @@ export default function Flavors() {
                     onClick={() => add(f.slug)}
                     aria-label={`Ajouter un pack de 24 Dada ${f.name} au panier`}
                     className="shop-add"
+                    style={{ "--add": f.can ?? f.c, "--add-ink": isLight(f.can ?? f.c) ? "#0a0a0a" : "#fff" } as CSSProperties}
                   >
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
                   </button>
@@ -83,4 +85,11 @@ export default function Flavors() {
       </div>
     </section>
   );
+}
+
+/** Couleur claire (texte foncé par-dessus) ? */
+function isLight(hex: string) {
+  const n = parseInt(hex.replace("#", ""), 16);
+  const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b > 165;
 }

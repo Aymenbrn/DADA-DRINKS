@@ -14,9 +14,9 @@ export default function HomeShop() {
       {side === "pro" ? (
         <>
           <ProShop />
+          <ProTrust />
           <ProReasons />
           <ProQuote intro />
-          <ProTrust />
         </>
       ) : (
         <Flavors />

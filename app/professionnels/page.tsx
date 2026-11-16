@@ -32,6 +32,7 @@ export default function ProfessionnelsPage() {
         </div>
       </PageHero>
 
+      <ProTrust />
       <ProReasons />
 
       <section id="offre" className="section page-light" style={{ paddingTop: 0 }}>
@@ -65,8 +66,6 @@ export default function ProfessionnelsPage() {
           <p className="fine-print">Tarifs repris du site actuel, hors frais de livraison. Conditions détaillées sur devis.</p>
         </div>
       </section>
-
-      <ProTrust />
 
       <ProQuote />
     </main>

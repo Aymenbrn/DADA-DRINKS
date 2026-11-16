@@ -1,6 +1,6 @@
 import ContactForm from "@/components/ContactForm";
 import { ESTABLISHMENT_TYPES } from "@/lib/pro";
-import { RETAILERS, WHATSAPP_DISPLAY, WHATSAPP_URL } from "@/lib/site";
+import { RETAILER_LOGOS, WHATSAPP_DISPLAY, WHATSAPP_URL } from "@/lib/site";
 
 // Contenu de l'espace professionnel, partagé par la page /professionnels et l'accueil (mode « Pro »)
 
@@ -40,11 +40,21 @@ export function ProTrust() {
   return (
         <section className="section page-dark">
           <div className="container">
-            <p className="eyebrow" style={{ color: "var(--muted-on-dark)" }}>ILS NOUS ONT FAIT CONFIANCE</p>
+            <p className="eyebrow" style={{ color: "var(--muted-on-dark)" }}>ILS NOUS FONT DÉJÀ CONFIANCE</p>
             <h2 className="h-xl section-title">Déjà<span className="serif-i"> en rayon.</span></h2>
-            <ul className="retailers is-grid">
-              {RETAILERS.map((r) => <li key={r}>{r}</li>)}
+          </div>
+          {/* Défilement automatique des logos officiels (deux copies pour une boucle sans fin) */}
+          <div className="logo-marquee" aria-label="Enseignes qui référencent Dada">
+            <ul className="logo-track">
+              {[...RETAILER_LOGOS, ...RETAILER_LOGOS].map((r, i) => (
+                <li key={`${r.name}-${i}`} aria-hidden={i >= RETAILER_LOGOS.length ? true : undefined}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={r.logo} alt={i < RETAILER_LOGOS.length ? r.name : ""} decoding="async" />
+                </li>
+              ))}
             </ul>
+          </div>
+          <div className="container">
             <p className="salon"><span>LES SALONS</span> Dada était présent à l’ANUGA 2023, le grand salon international de l’alimentation à Cologne.</p>
           </div>
         </section>
