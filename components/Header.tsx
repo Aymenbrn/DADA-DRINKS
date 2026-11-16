@@ -33,7 +33,7 @@ export default function Header() {
   if (pathname.startsWith("/saveurs/")) return null;
 
   return (
-    <header className={`site-header${glass ? " is-glass" : " is-transparent"}${isHome ? " is-home" : ""}${open ? " is-menu-open" : ""}`}>
+    <header className={`site-header${glass ? " is-glass" : " is-transparent"}${isHome ? " is-home" : ""}${open ? " is-menu-open" : ""}${pathname.startsWith("/professionnels/") ? " has-back" : ""}`}>
       <div className="container header">
         <div className="topbar-left">
           <Link href="/" className="logo" aria-label="Dada Drinks, accueil">

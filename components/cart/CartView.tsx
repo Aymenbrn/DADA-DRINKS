@@ -6,12 +6,12 @@ import RibbonCan from "@/components/RibbonCan";
 import { useCart } from "@/components/cart/CartProvider";
 import { formatEUR } from "@/lib/flavors";
 import { describeLine } from "@/lib/cartItems";
+import { deliveryCents } from "@/lib/shipping";
 import { shopHref } from "@/lib/audience";
 import { usePathname } from "next/navigation";
 
 export default function CartView() {
   const { lines, count, totalCents, ready, setQty, remove } = useCart();
-  const [checkout, setCheckout] = useState(false);
   const pathname = usePathname();
   const [shop, setShop] = useState("/#saveurs");
   useEffect(() => setShop(shopHref(pathname)), [pathname]);
@@ -69,19 +69,10 @@ export default function CartView() {
           <aside className="cart-summary" aria-label="Récapitulatif">
             <dl>
               <div><dt>Sous-total</dt><dd>{formatEUR(totalCents)}</dd></div>
-              <div><dt>Livraison</dt><dd>Calculée à l’étape suivante</dd></div>
+              <div><dt>Livraison</dt><dd>{deliveryCents(totalCents) === 0 ? "Offerte" : formatEUR(deliveryCents(totalCents))}</dd></div>
             </dl>
-            <p className="cart-total"><span>Total</span><strong>{formatEUR(totalCents)}</strong></p>
-            <button type="button" className="btn btn-dark cart-cta" onClick={() => setCheckout(true)}>
-              Passer commande
-            </button>
-            {checkout && (
-              <p className="cart-notice" role="status">
-                Le paiement en ligne sera branché à la mise en production (Stripe ou Shopify). En attendant, écrivez-nous sur{" "}
-                <a href="https://wa.me/33782206131" target="_blank" rel="noopener noreferrer">WhatsApp</a> ou via la{" "}
-                <Link href="/contact">page contact</Link> pour finaliser votre commande.
-              </p>
-            )}
+            <p className="cart-total"><span>Total</span><strong>{formatEUR(totalCents + deliveryCents(totalCents))}</strong></p>
+            <Link href="/commande" className="btn btn-dark cart-cta">Passer commande</Link>
             <Link href="/#saveurs" className="cart-continue">← Continuer mes achats</Link>
           </aside>
         </div>

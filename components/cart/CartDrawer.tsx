@@ -6,6 +6,7 @@ import RibbonCan from "@/components/RibbonCan";
 import { useCart } from "@/components/cart/CartProvider";
 import { formatEUR } from "@/lib/flavors";
 import { describeLine } from "@/lib/cartItems";
+import { deliveryCents, FREE_DELIVERY_FROM_CENTS } from "@/lib/shipping";
 import { shopHref } from "@/lib/audience";
 import { usePathname } from "next/navigation";
 
@@ -80,8 +81,18 @@ export default function CartDrawer() {
               })}
             </ul>
             <footer className="cart-drawer-foot">
-              <p className="cart-drawer-total"><span>Total</span><strong>{formatEUR(totalCents)}</strong></p>
-              <Link href="/panier" className="btn btn-dark cart-drawer-cta" onClick={closeCart}>Passer commande</Link>
+              <dl className="cart-drawer-sums">
+                <div><dt>Sous-total</dt><dd>{formatEUR(totalCents)}</dd></div>
+                <div>
+                  <dt>Livraison</dt>
+                  <dd>{deliveryCents(totalCents) === 0 ? "Offerte" : formatEUR(deliveryCents(totalCents))}</dd>
+                </div>
+              </dl>
+              <p className="cart-drawer-total"><span>Total</span><strong>{formatEUR(totalCents + deliveryCents(totalCents))}</strong></p>
+              {deliveryCents(totalCents) > 0 && (
+                <p className="cart-drawer-free">Livraison offerte dès {formatEUR(FREE_DELIVERY_FROM_CENTS)} d’achat</p>
+              )}
+              <Link href="/commande" className="btn btn-dark cart-drawer-cta" onClick={closeCart}>Passer commande</Link>
               <button type="button" className="cart-drawer-continue" onClick={closeCart}>Continuer mes achats</button>
             </footer>
           </>
