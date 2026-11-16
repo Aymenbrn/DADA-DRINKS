@@ -48,15 +48,18 @@ function UniverseScene({ slug }: { slug: string }) {
   return (
     <section className="universe" style={style} aria-labelledby="universe-title">
       <div className="pdp-topbar">
-        <Link href="/" className="pdp-logo" aria-label="Dada Drinks, accueil">
-          <Image src="/brand/dada-logo.webp" alt="Dada" width={750} height={303} className="logo-img" />
-        </Link>
-        <div className="pdp-topbar-links">
+        <div className="topbar-left">
+          <Link href="/" className="pdp-logo" aria-label="Dada Drinks, accueil">
+            <Image src="/brand/dada-logo.webp" alt="Dada" width={750} height={303} className="logo-img" />
+          </Link>
           <Link href="/#saveurs" className="pdp-back">← Retour à la boutique</Link>
+        </div>
+        <div className="pdp-topbar-links">
           <button type="button" className="pill pill-light" onClick={openCart} aria-haspopup="dialog" aria-label={`Ouvrir le panier, ${count} pack${count > 1 ? "s" : ""}`}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M6 7h12l-1 13H7L6 7z" />
-              <path d="M9 7a3 3 0 0 1 6 0" />
+              <path d="M2.5 3.5h2.6l2.4 11.2a1.6 1.6 0 0 0 1.6 1.3h8.3a1.6 1.6 0 0 0 1.6-1.2l1.7-7.3H6.2" />
+              <circle cx="9.5" cy="20" r="1.4" />
+              <circle cx="17.5" cy="20" r="1.4" />
             </svg>
             Panier · {count}
           </button>

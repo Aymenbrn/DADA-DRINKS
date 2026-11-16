@@ -927,7 +927,7 @@ button.pill { cursor: pointer; border: 0; font-family: inherit; }
 .site-header.site-header.is-glass { background: transparent; box-shadow: none; }
 .site-header::before {
   content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  background: linear-gradient(180deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.09) 100%), rgba(14,14,16,0.62);
+  background: linear-gradient(180deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.09) 100%), rgba(14,14,16,0.8);
   -webkit-backdrop-filter: blur(30px) saturate(200%) brightness(1.08);
   backdrop-filter: blur(30px) saturate(200%) brightness(1.08);
   border-bottom: 1px solid rgba(255,255,255,0.22);
@@ -1054,3 +1054,8 @@ button.pill { cursor: pointer; border: 0; font-family: inherit; }
   .pro-add { width: 36px; height: 36px; }
   .pro-add svg { width: 16px; height: 16px; }
 }
+
+/* Raccourcis de retour (« Retour à la boutique », « Toute l'offre pro ») à gauche, à côté du logo */
+.topbar-left { display: flex; align-items: center; gap: clamp(14px, 2vw, 24px); min-width: 0; }
+.topbar-left .header-back, .topbar-left .pdp-back { padding-left: clamp(14px, 2vw, 24px); border-left: 1px solid rgba(255,255,255,0.25); line-height: 1.2; }
+@media (max-width: 640px) { .topbar-left .pdp-back { font-size: 13px; padding-left: 12px; } }

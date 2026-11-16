@@ -35,9 +35,14 @@ export default function Header() {
   return (
     <header className={`site-header${glass ? " is-glass" : " is-transparent"}${isHome ? " is-home" : ""}${open ? " is-menu-open" : ""}`}>
       <div className="container header">
-        <Link href="/" className="logo" aria-label="Dada Drinks, accueil">
-          <Image src="/brand/dada-logo.webp" alt="Dada" width={750} height={303} priority className="logo-img" />
-        </Link>
+        <div className="topbar-left">
+          <Link href="/" className="logo" aria-label="Dada Drinks, accueil">
+            <Image src="/brand/dada-logo.webp" alt="Dada" width={750} height={303} priority className="logo-img" />
+          </Link>
+          {pathname.startsWith("/professionnels/") && (
+            <Link href="/#offre-pro" className="header-back">← Toute l’offre pro</Link>
+          )}
+        </div>
 
         <nav id="main-nav" className={`nav${open ? " is-open" : ""}`} aria-label="Navigation principale">
           {NAV.map((n) => (
@@ -48,9 +53,6 @@ export default function Header() {
         </nav>
 
         <div className="header-actions">
-          {pathname.startsWith("/professionnels/") && (
-            <Link href="/#offre-pro" className="header-back">← Toute l’offre pro</Link>
-          )}
           {/* Accueil : l'interrupteur Particulier / Pro vient se placer ici (voir HomeCarousel) */}
           {isHome && <div id="header-aud-slot" className="header-aud-slot" />}
           <button type="button" className="pill pill-light" onClick={drawerOpen ? closeCart : openCart} aria-haspopup="dialog" aria-expanded={drawerOpen} aria-label={`Ouvrir le panier, ${count} pack${count > 1 ? "s" : ""}`}>
