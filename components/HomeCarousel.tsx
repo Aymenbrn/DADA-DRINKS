@@ -189,8 +189,8 @@ function DottedChevron({ dir }: { dir: 1 | -1 }) {
       <g transform={dir === -1 ? "translate(72 0) scale(-1 1)" : undefined}>
         <g transform="skewX(-6) translate(4 0)">
           {/* D entièrement en verre liquide : teinte légère, reflets et liserés lumineux (le flou est fait en CSS) */}
-          <path d={D} fill="rgba(255,255,255,0.14)" stroke="rgba(255,255,255,0.14)" strokeWidth="7" strokeLinejoin="round" />
-          <path d={D} fill="url(#dadaGloss)" stroke="url(#dadaGloss)" strokeWidth="7" strokeLinejoin="round" />
+          <path d={D} fill="rgba(255,255,255,0.14)" />
+          <path d={D} fill="url(#dadaGloss)" />
           <path d={D} fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="1.3" strokeLinejoin="round" transform="translate(0 0)" className="dada-glass-rim" />
           <path d={eye} fill="rgba(255,255,255,0.10)" stroke="rgba(255,255,255,0.7)" strokeWidth="1.2" strokeLinejoin="round" />
         </g>
