@@ -211,7 +211,7 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
     glass0.add(lab);
     // Couvercle aluminium serti
     const lid = [[0, LTOP], [0.86, LTOP], [0.93, LTOP - 0.015], [1.0, LTOP - 0.05], [1.01, LTOP - 0.12], [0.98, LTOP - 0.16], [0.96, LTOP - 0.2]].map(([x, y]) => new THREE.Vector2(x, y));
-    const lidMat = track(fadeable(new THREE.MeshStandardMaterial({ color: 0xd8dade, metalness: 1, roughness: 0.22, envMapIntensity: 0.9 })));
+    const lidMat = track(fadeable(new THREE.MeshStandardMaterial({ color: 0xd8dade, metalness: 1, roughness: 0.22, envMapIntensity: 0.9, side: THREE.DoubleSide })));
     glass0.add(new THREE.Mesh(track(new THREE.LatheGeometry(lid, 64)), lidMat));
     const ring = new THREE.Mesh(track(new THREE.TorusGeometry(0.8, 0.025, 8, 64)), lidMat);
     ring.rotation.x = Math.PI / 2; ring.position.y = LTOP + 0.01;
