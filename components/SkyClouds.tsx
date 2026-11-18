@@ -2,8 +2,82 @@
 
 import { useEffect, useRef } from "react";
 
-/** Ciel bleu de jour avec quelques nuages cotonneux qui dérivent lentement (chapitre 1 de l'histoire). */
-type Cloud = { x: number; y: number; s: number; v: number; puffs: { dx: number; dy: number; r: number }[] };
+/**
+ * Ciel bleu avec des nuages réalistes (cumulus) qui dérivent lentement.
+ * Chaque nuage est « peint » une fois à partir d'un bruit fractal (texture cotonneuse, bords effilochés),
+ * éclairé par le haut (sommet blanc lumineux, base gris-bleu), puis déplacé en parallaxe sur deux plans.
+ */
+type Cloud = { img: HTMLCanvasElement; x: number; y: number; w: number; h: number; v: number; a: number };
+
+// Bruit de valeur 2D + fBm
+function makeNoise(seed: number) {
+  const P = new Uint8Array(512);
+  let s = seed;
+  const rnd = () => ((s = (s * 16807) % 2147483647) / 2147483647);
+  const perm = Array.from({ length: 256 }, (_, i) => i);
+  for (let i = 255; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [perm[i], perm[j]] = [perm[j], perm[i]]; }
+  for (let i = 0; i < 512; i++) P[i] = perm[i & 255];
+  const val = new Float32Array(256).map(() => rnd());
+  const fade = (t: number) => t * t * (3 - 2 * t);
+  const n2 = (x: number, y: number) => {
+    const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi;
+    const a = val[P[(xi & 255) + P[yi & 255]]], b = val[P[((xi + 1) & 255) + P[yi & 255]]];
+    const c = val[P[(xi & 255) + P[(yi + 1) & 255]]], d = val[P[((xi + 1) & 255) + P[(yi + 1) & 255]]];
+    const u = fade(xf), v = fade(yf);
+    return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
+  };
+  return (x: number, y: number) => {
+    let f = 0, amp = 0.5, fr = 1;
+    for (let o = 0; o < 6; o++) { f += amp * n2(x * fr, y * fr); fr *= 2.03; amp *= 0.5; }
+    return f;
+  };
+}
+
+function paintCloud(seed: number, W: number, H: number) {
+  const c = document.createElement("canvas");
+  c.width = W; c.height = H;
+  const g = c.getContext("2d")!;
+  const img = g.createImageData(W, H);
+  const fbm = makeNoise(seed);
+  const fbm2 = makeNoise(seed + 71);
+  // forme : plusieurs bosses (cumulus) posées sur une base plate
+  let s = seed * 13 + 7;
+  const rnd = () => ((s = (s * 16807) % 2147483647) / 2147483647);
+  const nb = 6 + Math.floor(rnd() * 4);
+  // bosses en pixels : plus grosses au centre (tour de cumulus), base commune plate
+  const bumps = Array.from({ length: nb }, (_, i) => {
+    const t = i / (nb - 1), mid = Math.sin(t * Math.PI);
+    const r = W * (0.09 + mid * 0.1 + rnd() * 0.04);
+    return { x: W * (0.14 + t * 0.72 + (rnd() - 0.5) * 0.05), y: H * 0.74 - r * (0.55 + rnd() * 0.35), r };
+  });
+  const baseY = H * 0.78;
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const u = x / W, v = y / H;
+      // déformation du domaine : contours cotonneux et irréguliers
+      const wx = x + (fbm2(u * 4, v * 4) - 0.5) * W * 0.08, wy = y + (fbm2(u * 4 + 9, v * 4 + 3) - 0.5) * H * 0.18;
+      let d = 0;
+      for (const bp of bumps) {
+        const dx = (wx - bp.x) / bp.r, dy = (wy - bp.y) / bp.r;
+        d = Math.max(d, 1 - Math.sqrt(dx * dx + dy * dy));
+      }
+      const flat = Math.max(0, Math.min(1, (baseY - wy) / (H * 0.08) + 0.5));
+      const n = fbm(u * 7, v * 5);
+      let dens = (d * 1.6 + (n - 0.5) * 1.1 * (1 - d * 0.4)) * flat;
+      const a = Math.max(0, Math.min(1, (dens - 0.12) / 0.28));
+      if (a <= 0) continue;
+      // éclairage : soleil en haut à gauche ; base et creux gris-bleu
+      const n2v = fbm2(u * 12 + 3, v * 9);
+      const top = 1 - Math.max(0, Math.min(1, (wy - (baseY - H * 0.62)) / (H * 0.62)));
+      const light = Math.max(0, Math.min(1, 0.25 + top * 0.75 + (0.5 - u) * 0.12 + (n2v - 0.5) * 0.45 + Math.min(d, 0.4) * 0.3));
+      const R = 140 + light * 115, G = 156 + light * 99, B = 186 + light * 69;
+      const i = (y * W + x) * 4;
+      img.data[i] = R; img.data[i + 1] = G; img.data[i + 2] = B; img.data[i + 3] = a * 255;
+    }
+  }
+  g.putImageData(img, 0, 0);
+  return c;
+}
 
 export default function SkyClouds({ className }: { className?: string }) {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -13,46 +87,26 @@ export default function SkyClouds({ className }: { className?: string }) {
     const g = cv?.getContext("2d");
     if (!cv || !g) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let seed = 5;
-    const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
     let W = 0, H = 0, dpr = 1;
     let clouds: Cloud[] = [];
+    // Nuages peints une seule fois (taille fixe, réutilisés)
+    const sprites = [11, 23, 37, 41, 53, 67].map((sd, k) => paintCloud(sd, k % 2 ? 420 : 360, k % 2 ? 260 : 235));
 
     const build = () => {
       const r = cv.getBoundingClientRect();
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       W = Math.max(1, Math.round(r.width)); H = Math.max(1, Math.round(r.height));
       cv.width = W * dpr; cv.height = H * dpr;
-      seed = 5;
-      const n = Math.max(4, Math.round(W / 260));
+      let s = 5;
+      const rnd = () => ((s = (s * 16807) % 2147483647) / 2147483647);
+      const n = Math.max(4, Math.round(W / 300));
       clouds = Array.from({ length: n }, (_, i) => {
-        const s = 0.6 + rnd() * 0.9;
-        const puffs = Array.from({ length: 7 + Math.floor(rnd() * 5) }, (_, k) => ({
-          dx: (k - 4) * 34 + (rnd() - 0.5) * 24,
-          dy: -Math.sin((k / 9) * Math.PI) * 30 + (rnd() - 0.5) * 12,
-          r: 34 + rnd() * 30,
-        }));
-        return { x: (i / n) * W + rnd() * 160, y: H * (0.08 + rnd() * 0.42), s, v: 4 + rnd() * 6, puffs };
+        const far = i % 3 === 0; // plan lointain : plus petit, plus pâle, plus lent
+        const sc = (far ? 0.55 : 0.9 + rnd() * 0.6) * Math.min(1.3, Math.max(0.6, W / 1200));
+        const img = sprites[i % sprites.length];
+        return { img, w: img.width * sc, h: img.height * sc, x: (i / n) * (W + 400) - 200 + rnd() * 120, y: H * (far ? 0.12 + rnd() * 0.15 : 0.08 + rnd() * 0.5), v: far ? 3 : 6 + rnd() * 5, a: far ? 0.7 : 0.95 };
       });
-    };
-
-    const drawCloud = (c: Cloud, x: number) => {
-      g.save();
-      g.translate(x, c.y);
-      g.scale(c.s, c.s);
-      // ombre douce sous le nuage
-      for (const p of c.puffs) {
-        const gr = g.createRadialGradient(p.dx, p.dy + 14, 0, p.dx, p.dy + 14, p.r * 1.2);
-        gr.addColorStop(0, "rgba(120,150,190,0.35)"); gr.addColorStop(1, "rgba(120,150,190,0)");
-        g.fillStyle = gr; g.beginPath(); g.arc(p.dx, p.dy + 14, p.r * 1.2, 0, 6.283); g.fill();
-      }
-      // corps lumineux du nuage
-      for (const p of c.puffs) {
-        const gr = g.createRadialGradient(p.dx - p.r * 0.3, p.dy - p.r * 0.35, 0, p.dx, p.dy, p.r);
-        gr.addColorStop(0, "rgba(255,255,255,0.98)"); gr.addColorStop(0.7, "rgba(246,250,255,0.9)"); gr.addColorStop(1, "rgba(235,243,252,0)");
-        g.fillStyle = gr; g.beginPath(); g.arc(p.dx, p.dy, p.r, 0, 6.283); g.fill();
-      }
-      g.restore();
+      clouds.sort((a, b) => a.v - b.v); // les lointains derrière
     };
 
     let raf = 0, visible = true;
@@ -61,8 +115,17 @@ export default function SkyClouds({ className }: { className?: string }) {
       const t = reduce ? 0 : (now - t0) / 1000;
       g.setTransform(dpr, 0, 0, dpr, 0, 0);
       g.clearRect(0, 0, W, H);
-      const span = W + 520;
-      for (const c of clouds) drawCloud(c, ((c.x + t * c.v + 260) % span + span) % span - 260);
+      // légère brume vers le bas (perspective atmosphérique)
+      const haze = g.createLinearGradient(0, H * 0.55, 0, H);
+      haze.addColorStop(0, "rgba(220,236,250,0)"); haze.addColorStop(1, "rgba(220,236,250,0.25)");
+      g.fillStyle = haze; g.fillRect(0, 0, W, H);
+      for (const c of clouds) {
+        const span = W + c.w + 200;
+        const x = ((c.x + t * c.v) % span + span) % span - c.w - 100;
+        g.globalAlpha = c.a;
+        g.drawImage(c.img, x, c.y, c.w, c.h);
+      }
+      g.globalAlpha = 1;
     };
     const loop = (now: number) => { if (visible) draw(now); raf = requestAnimationFrame(loop); };
     build();
