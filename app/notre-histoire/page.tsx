@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import StoryScroll from "@/components/StoryScroll";
-import StarSky from "@/components/StarSky";
+import SkyClouds from "@/components/SkyClouds";
 
 export const metadata: Metadata = {
   title: "Notre histoire",
@@ -19,7 +19,7 @@ export default function HistoirePage() {
         title="De la banlieue"
         accent="à l’entrepreneuriat."
         lede="Dada Drinks, c’est l’histoire de Mohamed, parti de Nanterre avec une idée de boisson qui ne ressemblait à aucune autre."
-        decor={<StarSky />}
+        decor={<SkyClouds className="hero-clouds" />}
       />
 
       </div>
