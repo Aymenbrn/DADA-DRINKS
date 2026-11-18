@@ -84,30 +84,6 @@ export default function SiteLoader() {
   return (
     <div ref={rootRef} className="site-loader" role="status" aria-live="polite" aria-label="Chargement du site Dada Drinks">
       <div className="site-loader-glow" aria-hidden="true" />
-      {/* Silhouette de canette derrière le logo */}
-      <svg className="site-loader-can" viewBox="0 0 200 400" aria-hidden="true">
-        <defs>
-          <linearGradient id="ldCanBody" x1="0" x2="1" y1="0" y2="0">
-            <stop offset="0" stopColor="#fff" stopOpacity="0.02" />
-            <stop offset="0.18" stopColor="#fff" stopOpacity="0.10" />
-            <stop offset="0.32" stopColor="#fff" stopOpacity="0.03" />
-            <stop offset="0.78" stopColor="#fff" stopOpacity="0.02" />
-            <stop offset="0.9" stopColor="#fff" stopOpacity="0.07" />
-            <stop offset="1" stopColor="#fff" stopOpacity="0.01" />
-          </linearGradient>
-        </defs>
-        {/* Corps : épaule et pied resserrés comme une canette slim */}
-        <path
-          d="M52 30 Q52 22 60 21 L140 21 Q148 22 148 30 L148 34 Q166 44 166 66 L166 340 Q166 360 150 368 L148 372 Q146 380 138 380 L62 380 Q54 380 52 372 L50 368 Q34 360 34 340 L34 66 Q34 44 52 34 Z"
-          fill="url(#ldCanBody)" stroke="rgba(255,255,255,0.34)" strokeWidth="1.8" strokeLinejoin="round"
-        />
-        {/* Couvercle et anneau d'ouverture */}
-        <ellipse cx="100" cy="22" rx="48" ry="5" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.4" />
-        <path d="M86 18 Q100 10 114 18" fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="2" strokeLinecap="round" />
-        {/* Lignes d'épaule et de pied */}
-        <path d="M34 66 Q100 76 166 66" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1.2" />
-        <path d="M34 340 Q100 350 166 340" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1.2" />
-      </svg>
       <div className="site-loader-logo" aria-hidden="true">
         {/* Logo « vide » : la canette avant le remplissage */}
         <img className="site-loader-empty" src="/brand/dada-logo.webp" alt="" width={750} height={303} />
