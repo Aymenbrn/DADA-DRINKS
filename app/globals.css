@@ -1572,3 +1572,27 @@ html:has(.site-loader:not(.is-done)), html:has(.site-loader:not(.is-done)) body 
   .sx-ch-4 .sx-title, .sx-ch-6 .sx-title, .sx-ch-4 .sx-text, .sx-ch-6 .sx-text { text-shadow: 0 2px 16px rgba(0,0,0,0.75); }
   .sx-ch-4 .sx-imgs figure.is-plain { width: min(calc(var(--w, 220px) * 0.8), 100%); }
 }
+
+/* Histoire : le voile flou derrière les textes se fond en dégradé sur tous ses bords (plus aucune coupure nette) */
+@media (min-width: 901px) {
+  .sx-ch, .sx-ch-4, .sx-ch-6 { background: none; -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; border-radius: 0; isolation: isolate; }
+  .sx-ch::before {
+    content: ""; position: absolute; z-index: -1; pointer-events: none;
+    inset: -70px -120px -70px -60px;
+    background: rgba(6, 6, 8, 0.62);
+    -webkit-backdrop-filter: blur(16px) saturate(130%); backdrop-filter: blur(16px) saturate(130%);
+    -webkit-mask-image: radial-gradient(ellipse 50% 50% at 42% 50%, #000 52%, rgba(0,0,0,0.55) 72%, transparent 100%);
+    mask-image: radial-gradient(ellipse 50% 50% at 42% 50%, #000 52%, rgba(0,0,0,0.55) 72%, transparent 100%);
+  }
+  .sx-ch-4::before, .sx-ch-6::before { background: rgba(6, 6, 8, 0.55); }
+}
+@media (max-width: 900px) {
+  .sx-ch { background: none; -webkit-backdrop-filter: none; backdrop-filter: none; isolation: isolate; }
+  .sx-ch::before {
+    content: ""; position: absolute; z-index: -1; pointer-events: none; inset: -40px 0 0 0;
+    background: rgba(6, 6, 8, 0.82);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 30%, #000 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, #000 30%, #000 100%);
+  }
+}
