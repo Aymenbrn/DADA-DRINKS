@@ -179,6 +179,7 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
   }
   hero.add(glass);
 
+  const bodyGeo = track(new THREE.CylinderGeometry(R, R, H, 96, 1, true));
   // 3) Le renouveau : le design actuel (Cola Cherry, la nouveauté)
   const labelMat = track(fadeable(new THREE.MeshPhysicalMaterial({ color: 0x892d73, metalness: 0.45, roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.12, envMapIntensity: 0.6 })));
   const labelled = new THREE.Mesh(bodyGeo, labelMat);
