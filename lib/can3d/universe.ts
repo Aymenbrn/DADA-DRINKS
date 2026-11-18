@@ -1473,11 +1473,11 @@ const teaLeafF = () => facing(leaf(0x3c5a2a, 0.7, 0.26));
 
 /** Grappe de bulles (colas) : sphères transparentes qui ne gardent que leurs reflets */
 // Bulle d'air : centre transparent, liseré lumineux sur le bord et un petit reflet
-const bubbleMat = () =>
+const bubbleMat = (boost = 1) =>
   new THREE.ShaderMaterial({
     transparent: true,
     depthWrite: false,
-    uniforms: { uTint: { value: new THREE.Color(0xffffff) } },
+    uniforms: { uTint: { value: new THREE.Color(0xffffff) }, uBoost: { value: boost } },
     vertexShader: `varying vec3 vN; varying vec3 vV;
       void main() {
         vec4 p = vec4(position, 1.0);
@@ -1491,14 +1491,14 @@ const bubbleMat = () =>
         vV = normalize(-mv.xyz);
         gl_Position = projectionMatrix * mv;
       }`,
-    fragmentShader: `uniform vec3 uTint; varying vec3 vN; varying vec3 vV;
+    fragmentShader: `uniform vec3 uTint; uniform float uBoost; varying vec3 vN; varying vec3 vV;
       void main() {
         vec3 n = normalize(vN);
         // bulle de gaz : bord fin et lumineux, reflet net en haut, lueur transmise en bas, cœur transparent
         float rim = pow(1.0 - abs(dot(n, normalize(vV))), 3.4);
         float spec = pow(max(dot(n, normalize(vec3(-0.45, 0.6, 0.65))), 0.0), 140.0);
         float glow = pow(max(dot(n, normalize(vec3(0.25, -0.75, 0.6))), 0.0), 18.0) * 0.32;
-        float a = clamp(rim * 1.0 + spec * 1.2 + glow + 0.03, 0.0, 1.0);
+        float a = clamp((rim * 1.0 + spec * 1.2 + glow + 0.03) * uBoost, 0.0, 1.0);
         gl_FragColor = vec4(uTint * (0.8 + spec * 0.6), a);
       }`,
   });
@@ -1600,7 +1600,7 @@ const easeInOut = (x: number) => {
 };
 
 /** Champ de bulles fines qui montent en continu (accueil) : il ne change pas avec la saveur */
-export function buildBubbleField(w: number, h: number, n = 70, o: { z0?: number; zSpan?: number; size?: number; perLane?: number } = {}) {
+export function buildBubbleField(w: number, h: number, n = 70, o: { z0?: number; zSpan?: number; size?: number; perLane?: number; boost?: number } = {}) {
   const z0 = o.z0 ?? -1, zSpan = o.zSpan ?? 6, size = o.size ?? 1, per = Math.max(1, o.perLane ?? 1);
   // Bulles de gaz : chacune monte dans son propre couloir vertical, à sa vitesse ;
   // les couloirs sont espacés, donc deux bulles ne se touchent jamais.
@@ -1632,7 +1632,7 @@ export function buildBubbleField(w: number, h: number, n = 70, o: { z0?: number;
       wob: 0.02 + rnd() * 0.03,
     };
   });
-  const mesh = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 20, 14), bubbleMat(), n);
+  const mesh = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 20, 14), bubbleMat(o.boost ?? 1), n);
   mesh.frustumCulled = false;
   const d = new THREE.Object3D();
   return {
