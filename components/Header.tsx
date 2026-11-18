@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useCart } from "@/components/cart/CartProvider";
 import { NAV } from "@/lib/site";
+import { FLAVORS } from "@/lib/flavors";
 
 export default function Header() {
   const pathname = usePathname();
@@ -27,6 +28,10 @@ export default function Header() {
   }, []);
   const glass = !isHome || scrolled || open;
 
+  // Test : liquide translucide d'une saveur tirée au hasard parmi les 13, avec des bulles, dans le verre du header
+  const [liquid, setLiquid] = useState<string | null>(null);
+  useEffect(() => { setLiquid(FLAVORS[Math.floor(Math.random() * FLAVORS.length)].c); }, []);
+
   const isCurrent = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   // Les fiches produit s'ouvrent seules (fiche + pied de page) : elles ont leur propre petite barre
@@ -34,6 +39,14 @@ export default function Header() {
 
   return (
     <header className={`site-header${glass ? " is-glass" : " is-transparent"}${isHome ? " is-home" : ""}${open ? " is-menu-open" : ""}${pathname.startsWith("/professionnels/") ? " has-back" : ""}`}>
+      {liquid && (
+        <div className="header-liquid" style={{ "--hl": liquid } as React.CSSProperties} aria-hidden="true">
+          <span className="header-liquid-fill" />
+          {Array.from({ length: 16 }, (_, i) => (
+            <i key={i} style={{ left: `${(i * 61) % 100}%`, width: 3 + (i % 4) * 2, height: 3 + (i % 4) * 2, animationDelay: `${(i * 0.53) % 4}s`, animationDuration: `${2.6 + (i % 5) * 0.7}s` }} />
+          ))}
+        </div>
+      )}
       <div className="container header">
         <div className="topbar-left">
           <Link href="/" className="logo" aria-label="Dada Drinks, accueil">
