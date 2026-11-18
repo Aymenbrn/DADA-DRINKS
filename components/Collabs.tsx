@@ -66,18 +66,18 @@ export default function Collabs() {
           </div>
           <a href="/collaborations" style={{ height: 48, display: "inline-flex", alignItems: "center", fontSize: 17, fontWeight: 600 }}>Toutes nos collaborations →</a>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 20, marginTop: 56 }}>
+        <div className="home-collab-grid">
           {COLLABS.map((c) => (
-            <article key={c.title} className="card">
+            <article key={c.title} className="card home-collab-card">
               <div className="collab-media">
                 {c.video ? <NewsVideo id={c.video.id} poster={c.video.poster} title={c.title} /> : <PflVisual />}
                 <span className="tag" style={{ top: 18, left: 18, zIndex: 3, background: "var(--paper)", color: "var(--ink)", transform: `rotate(${c.rot}deg)` }}>
                   {c.tag}
                 </span>
               </div>
-              <div style={{ padding: "22px 24px 26px", display: "flex", flexDirection: "column", gap: 6 }}>
-                <h3 style={{ margin: 0, fontSize: 24, fontWeight: 700, letterSpacing: "-0.02em" }}>{c.title}</h3>
-                <p style={{ margin: 0, fontSize: 16, color: "var(--muted-on-light)" }}>{c.text}</p>
+              <div className="home-collab-body">
+                <h3>{c.title}</h3>
+                <p>{c.text}</p>
               </div>
             </article>
           ))}
