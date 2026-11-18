@@ -1502,3 +1502,5 @@ html.is-loading, html.is-loading body { overflow: hidden; }
 .star-sky { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
 .story-top .page-hero { position: relative; overflow: hidden; }
 .story-top .page-hero::after { content: ""; position: absolute; inset: auto 0 0 0; height: 120px; background: linear-gradient(to bottom, transparent, #0c1428); pointer-events: none; }
+/* Le même ciel étoilé derrière le chapitre 1 (il s'efface ensuite) */
+.sx-stars { z-index: -1; opacity: var(--sx-stars, 1); transition: opacity 0.3s linear; }
