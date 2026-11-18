@@ -187,14 +187,14 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
     const ground = new THREE.Mesh(track(new THREE.CircleGeometry(14, 64)), track(fadeable(new THREE.MeshStandardMaterial({ color: 0x1a2238, roughness: 0.9 }))));
     ground.rotation.x = -Math.PI / 2; ground.position.y = GROUND;
     g.add(ground);
-    for (let i = 0; i < 18; i++) {
-      const a = -Math.PI * 0.95 + (i / 17) * Math.PI * 1.9;
-      const rad = 4.4 + ((i * 37) % 30) / 10;
-      const h = 2.6 + ((i * 53) % 50) / 10;
-      const r = 0.55 + ((i * 17) % 4) / 10;
+    for (let i = 0; i < 20; i++) {
+      const a = -1.45 + (i / 19) * 2.9; // demi-cercle derrière la canette
+      const rad = 5.2 + ((i * 37) % 40) / 10;
+      const h = 2.2 + ((i * 53) % 40) / 10;
+      const r = 0.5 + ((i * 17) % 4) / 10;
       const mat = track(fadeable(new THREE.MeshStandardMaterial({ map: track(towerTex(i)), roughness: 0.75 })));
       const t = new THREE.Mesh(track(new THREE.CylinderGeometry(r, r, h, 28)), mat);
-      t.position.set(Math.sin(a) * rad, GROUND + h / 2, -Math.cos(a) * rad * 0.8 - 1.5);
+      t.position.set(Math.sin(a) * rad * 1.15, GROUND + h / 2, -Math.cos(a) * rad - 1);
       g.add(t);
     }
     // étoiles
@@ -257,7 +257,7 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
       [45, -100, 18, 32], [-15, -60, 26, 16], [65, -42, 8, 14], [0, 115, 6, 14],
     ];
     const pts: number[] = [];
-    const n = 2600;
+    const n = 7000;
     for (let i = 0; i < n; i++) {
       const y = 1 - (i / (n - 1)) * 2, r = Math.sqrt(1 - y * y), th = i * 2.39996;
       const lat = THREE.MathUtils.radToDeg(Math.asin(y)), lon = THREE.MathUtils.radToDeg(Math.atan2(r * Math.sin(th), r * Math.cos(th)));
@@ -268,7 +268,7 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
     }
     const dotGeo = track(new THREE.BufferGeometry());
     dotGeo.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
-    globe.add(new THREE.Points(dotGeo, track(fadeable(new THREE.PointsMaterial({ color: 0x7fe0a8, size: 0.07 })))));
+    globe.add(new THREE.Points(dotGeo, track(fadeable(new THREE.PointsMaterial({ color: 0x7fe0a8, size: 0.055 })))));
     // Vol
     const paris = ll(48.8, 2.3, GR * 1.01), kl = ll(3.1, 101.7, GR * 1.01);
     const mid = paris.clone().add(kl).multiplyScalar(0.5).normalize().multiplyScalar(GR * 1.75);
@@ -307,14 +307,14 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
   }
 
   // — 5 · 2011 : les marches
-  const STEPS = 5, STEP_W = 1.7;
+  const STEPS = 5, STEP_W = 1.45;
   const stepTop = (i: number) => GROUND + 0.55 * (i + 1);
   const stepX = (i: number) => (i - (STEPS - 1) / 2) * STEP_W;
   {
     const g = chapters[5];
     for (let i = 0; i < STEPS; i++) {
       const h = 0.55 * (i + 1);
-      const m = new THREE.Mesh(track(new THREE.BoxGeometry(STEP_W * 0.96, h, 2.4)), track(fadeable(new THREE.MeshStandardMaterial({ color: new THREE.Color().setHSL(0.13, 0.9, 0.3 + i * 0.07), roughness: 0.5 }))));
+      const m = new THREE.Mesh(track(new THREE.BoxGeometry(STEP_W * 0.94, h, 1.8)), track(fadeable(new THREE.MeshStandardMaterial({ color: new THREE.Color().setHSL(0.135, 1, 0.12 + i * 0.07), roughness: 0.45, metalness: 0.1 }))));
       m.position.set(stepX(i), GROUND + h / 2, 0);
       g.add(m);
     }
@@ -372,6 +372,7 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
       let fi = 0;
       for (let k = from; k <= to; k++) {
         const x = k * 1.32;
+        if (y < GROUND + 1 && k === 0) continue; // la place de la canette héroïne
         if (giants.includes(k)) mkCan(giantMats[(k + 30) % 3], x, y, z, sc * 1.12, 1.08);
         else {
           const f = FLAVORS[fi++ % FLAVORS.length];
@@ -421,19 +422,19 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
         return { pos: [x, y, 0], rot: [0, spin, Math.sin(Math.PI * f) * -0.25], scale: [0.48, 0.48, 0.48] };
       }
       case 6: return { pos: [0, 0.1, 0], rot: [0.05, (u + 0.5) * Math.PI * 4 + spin * 0.4, -0.06], scale: [1.05, 1.05, 1.05] };
-      default: return { pos: [0, GROUND + 0.03 + (HALF + 0.3) * 0.58, 0.95], rot: [0, spin * 0.5, 0], scale: [0.58, 0.58, 0.58] };
+      default: return { pos: [0, GROUND + 0.03 + (HALF + 0.3) * 0.58, 0.1], rot: [0, spin * 0.5, 0], scale: [0.58, 0.58, 0.58] };
     }
   };
   const camKF = (i: number, u: number): CamState => {
     switch (i) {
-      case 0: return { pos: [0 + u * 1.2, 1.4, 13.5], look: [0, 0.6, -1] };
-      case 1: return { pos: [0, 4.8, 11], look: [0, -0.6, 0] };
-      case 2: return { pos: [0 + u * 1.4, 1.2, 12.5], look: [0, 0.4, 0] };
-      case 3: return { pos: [0, 0.4, 13 - u * 1.4], look: [0, 0, 0] };
-      case 4: return { pos: [3.5, 1.2, 10.5], look: [0, -1.2, 0] };
-      case 5: return { pos: [lerp(-2.5, 2.5, clamp01(u + 0.5)), 1.4, 12.5], look: [lerp(-2.4, 2.4, clamp01(u + 0.5)), -0.6, 0] };
-      case 6: return { pos: [0, 0.3, 11.5 - u * 1.2], look: [0, 0.1, 0] };
-      default: return { pos: [0, 0.4, 13.5 + u * 2], look: [0, 0.1, 0] };
+      case 0: return { pos: [0 + u * 1.2, 2.2, 18], look: [0, 0.6, -1.5] };
+      case 1: return { pos: [0, 7, 14.5], look: [0, -0.8, 0] };
+      case 2: return { pos: [0 + u * 1.4, 1.2, 17], look: [0, 0.3, 0] };
+      case 3: return { pos: [0, 0.4, 16.5 - u * 1.4], look: [0, 0, 0] };
+      case 4: return { pos: [4.2, 1.6, 14], look: [0, -1.2, 0] };
+      case 5: return { pos: [lerp(-1.5, 1.5, clamp01(u + 0.5)), 1.6, 15.5], look: [lerp(-1.2, 1.2, clamp01(u + 0.5)), -0.4, 0] };
+      case 6: return { pos: [0, 0.3, 15.5 - u * 1.2], look: [0, 0.1, 0] };
+      default: return { pos: [0, 0.6, 22 + u * 2], look: [0, 0.4, 0] };
     }
   };
 

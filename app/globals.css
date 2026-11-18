@@ -1454,3 +1454,10 @@ html.is-loading, html.is-loading body { overflow: hidden; }
   .sx-hint { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { .sx-ch, .sx-big span { transition: none; } .sx-hint { animation: none; } }
+/* Lisibilité du texte : voile sombre côté texte (grand écran) */
+@media (min-width: 901px) {
+  .sx-stage::after { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; background: linear-gradient(90deg, color-mix(in srgb, var(--sx-bg) 92%, transparent) 0%, color-mix(in srgb, var(--sx-bg) 70%, transparent) 30%, transparent 52%); }
+  .sx-copy, .sx-rail { z-index: 1; }
+}
+.sx-rail { align-items: flex-end; }
+.sx-rail button { justify-content: flex-start; }
