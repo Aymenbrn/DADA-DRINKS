@@ -4,7 +4,7 @@
   --muted-on-dark: #a1a1aa;
   --muted-on-light: #52525b;
   /* Couleur d'accent de la marque : à changer ici pour tout le site */
-  --accent: #ff5a1f;
+  --accent: #ffdd00;
   /* Police unique : Montserrat */
   --display: var(--font-montserrat), system-ui, sans-serif;
   --serif: var(--font-montserrat), system-ui, sans-serif;
@@ -278,7 +278,7 @@ button { font-family: inherit; }
 .is-moyen .fridge { width: 110px; height: 185px; }
 .is-big .fridge { width: 160px; height: 195px; }
 .fridge-logo { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); font-family: var(--display); font-size: 18px; color: #fff; background: #e3192f; padding: 2px 8px; border-radius: 4px; }
-.fridge-shelves { position: absolute; inset: 46px 14px 16px; background: repeating-linear-gradient(180deg, rgba(255,90,31,0.75) 0 18px, transparent 18px 30px); border-radius: 4px; opacity: 0.85; }
+.fridge-shelves { position: absolute; inset: 46px 14px 16px; background: repeating-linear-gradient(180deg, rgba(255,221,0,0.75) 0 18px, transparent 18px 30px); border-radius: 4px; opacity: 0.85; }
 .pallet { display: flex; flex-direction: column; gap: 4px; }
 .pallet span { display: block; width: 150px; height: 38px; border-radius: 4px; background: repeating-linear-gradient(90deg, #d7192d 0 24px, #ff9f1c 24px 48px, #2bcb6e 48px 72px, #3b1e12 72px 96px); }
 .pallet span:last-child { height: 14px; background: #b88a55; }
@@ -1371,3 +1371,5 @@ html.is-loading, html.is-loading body { overflow: hidden; }
 
 /* Bandeau « une idée de collaboration ? » : jaune du logo Dada */
 .band-yellow { background: #ffdd00; color: var(--ink); }
+/* Le jaune Dada n'est pas lisible en texte sur fond clair : survol en soulignement épais */
+.news-source:hover { color: var(--ink); text-decoration-thickness: 3px; }
