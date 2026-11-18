@@ -47,10 +47,11 @@ function paintCloud(seed: number, W: number, H: number) {
   // bosses en pixels : plus grosses au centre (tour de cumulus), base commune plate
   const bumps = Array.from({ length: nb }, (_, i) => {
     const t = i / (nb - 1), mid = Math.sin(t * Math.PI);
-    const r = W * (0.09 + mid * 0.1 + rnd() * 0.04);
-    return { x: W * (0.14 + t * 0.72 + (rnd() - 0.5) * 0.05), y: H * 0.74 - r * (0.55 + rnd() * 0.35), r };
+    const r = Math.min(W * (0.07 + mid * 0.08 + rnd() * 0.03), H * 0.36);
+    const x = Math.max(r + W * 0.08, Math.min(W - r - W * 0.08, W * (0.22 + t * 0.56 + (rnd() - 0.5) * 0.04)));
+    return { x, y: Math.max(r + H * 0.1, H * 0.72 - r * (0.5 + rnd() * 0.3)), r };
   });
-  const baseY = H * 0.78;
+  const baseY = H * 0.8;
   for (let y = 0; y < H; y++) {
     for (let x = 0; x < W; x++) {
       const u = x / W, v = y / H;
@@ -63,8 +64,13 @@ function paintCloud(seed: number, W: number, H: number) {
       }
       const flat = Math.max(0, Math.min(1, (baseY - wy) / (H * 0.08) + 0.5));
       const n = fbm(u * 7, v * 5);
-      let dens = (d * 1.6 + (n - 0.5) * 1.1 * (1 - d * 0.4)) * flat;
-      const a = Math.max(0, Math.min(1, (dens - 0.12) / 0.28));
+      // le relief du bruit ne joue que près du corps du nuage : pas de lambeaux isolés
+      const near = Math.max(0, Math.min(1, (d + 0.08) / 0.2));
+      let dens = (Math.max(0, d) * 1.6 + (n - 0.5) * 1.0 * near * (1 - d * 0.4)) * flat;
+      // bord du dessin : aucun nuage ne touche le cadre (jamais coupé)
+      const edge = Math.min(u, 1 - u, v * 1.4, 1 - v);
+      const em = Math.max(0, Math.min(1, (edge - 0.015) / 0.06));
+      const a = Math.max(0, Math.min(1, (dens - 0.14) / 0.16)) * em;
       if (a <= 0) continue;
       // éclairage : soleil en haut à gauche ; base et creux gris-bleu
       const n2v = fbm2(u * 12 + 3, v * 9);
@@ -106,6 +112,8 @@ export default function SkyClouds({ className }: { className?: string }) {
         const img = sprites[i % sprites.length];
         return { img, w: img.width * sc, h: img.height * sc, x: (i / n) * (W + 400) - 200 + rnd() * 120, y: H * (far ? 0.12 + rnd() * 0.15 : 0.08 + rnd() * 0.5), v: far ? 3 : 6 + rnd() * 5, a: far ? 0.7 : 0.95 };
       });
+      // jamais coupés par le bas ou le haut de la zone : chaque nuage tient en entier en hauteur
+      clouds.forEach((c) => { c.y = Math.max(-c.h * 0.08, Math.min(c.y, H - c.h * 0.92)); });
       clouds.sort((a, b) => a.v - b.v); // les lointains derrière
     };
 
