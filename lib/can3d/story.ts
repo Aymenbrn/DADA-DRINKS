@@ -402,12 +402,67 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
     globe.add(new THREE.Mesh(track(new THREE.TubeGeometry(flight, 64, 0.022, 8)), track(fadeable(new THREE.MeshBasicMaterial({ color: 0xffdd00 })))));
     const pin = (v: THREE.Vector3) => { const m = new THREE.Mesh(track(new THREE.SphereGeometry(0.07, 12, 8)), track(fadeable(new THREE.MeshBasicMaterial({ color: 0xffdd00 })))); m.position.copy(v); globe.add(m); };
     pin(paris); pin(kl);
-    // Petit avion
-    const pm = track(fadeable(new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.4 })));
-    const fus = new THREE.Mesh(track(new THREE.CapsuleGeometry(0.06, 0.32, 4, 8)), pm);
-    fus.rotation.x = Math.PI / 2;
-    const wings = new THREE.Mesh(track(new THREE.BoxGeometry(0.46, 0.015, 0.1)), pm);
-    plane.add(fus, wings);
+    // Avion de ligne détaillé (nez vers +z) : fuselage, ailes en flèche, dérive aux couleurs Dada, réacteurs, hublots
+    {
+      const white = track(fadeable(new THREE.MeshStandardMaterial({ color: 0xf4f5f7, roughness: 0.35, metalness: 0.15 })));
+      const grey = track(fadeable(new THREE.MeshStandardMaterial({ color: 0x9aa0a8, roughness: 0.4, metalness: 0.5 })));
+      const red = track(fadeable(new THREE.MeshStandardMaterial({ color: 0xe6003c, roughness: 0.4 })));
+      const dark = track(fadeable(new THREE.MeshStandardMaterial({ color: 0x1b2230, roughness: 0.3 })));
+      const yellow = track(fadeable(new THREE.MeshStandardMaterial({ color: 0xffdd00, roughness: 0.4 })));
+      // Fuselage : profil de révolution (nez arrondi, queue relevée et effilée)
+      const prof = [[0, 0.3], [0.012, 0.296], [0.026, 0.284], [0.038, 0.262], [0.045, 0.235], [0.047, 0.2], [0.047, -0.12], [0.044, -0.17], [0.036, -0.21], [0.024, -0.245], [0.01, -0.27], [0, -0.275]].map(([x, y]) => new THREE.Vector2(x, y));
+      const fus = new THREE.Mesh(track(new THREE.LatheGeometry(prof, 32)), white);
+      fus.rotation.x = Math.PI / 2;
+      plane.add(fus);
+      // Hublots du cockpit et bande de hublots
+      const cockpit = new THREE.Mesh(track(new THREE.SphereGeometry(0.03, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2.4)), dark);
+      cockpit.position.set(0, 0.018, 0.255); cockpit.rotation.x = 0.9; cockpit.scale.set(1, 0.6, 1);
+      plane.add(cockpit);
+      for (const side of [-1, 1]) {
+        const band = new THREE.Mesh(track(new THREE.BoxGeometry(0.002, 0.008, 0.3)), dark);
+        band.position.set(side * 0.047, 0.012, 0.03);
+        plane.add(band);
+        const stripe = new THREE.Mesh(track(new THREE.BoxGeometry(0.002, 0.006, 0.36)), yellow);
+        stripe.position.set(side * 0.047, -0.012, 0.0);
+        plane.add(stripe);
+      }
+      // Ailes en flèche
+      const wingShape = new THREE.Shape();
+      wingShape.moveTo(0, 0.07); wingShape.lineTo(0.27, -0.06); wingShape.lineTo(0.27, -0.085); wingShape.lineTo(0, -0.03); wingShape.lineTo(0, 0.07);
+      const wingGeo = track(new THREE.ExtrudeGeometry(wingShape, { depth: 0.008, bevelEnabled: true, bevelSize: 0.003, bevelThickness: 0.003, bevelSegments: 1 }));
+      for (const side of [-1, 1]) {
+        const w = new THREE.Mesh(wingGeo, white);
+        w.rotation.x = -Math.PI / 2;
+        w.scale.x = side;
+        w.position.set(0, -0.022, 0.02);
+        w.rotation.z = side * 0.05; // léger dièdre
+        plane.add(w);
+        // Réacteur sous l'aile
+        const eng = new THREE.Mesh(track(new THREE.CylinderGeometry(0.019, 0.016, 0.075, 18)), grey);
+        eng.rotation.x = Math.PI / 2;
+        eng.position.set(side * 0.1, -0.045, 0.06);
+        plane.add(eng);
+        const intake = new THREE.Mesh(track(new THREE.CylinderGeometry(0.014, 0.014, 0.002, 18)), dark);
+        intake.rotation.x = Math.PI / 2;
+        intake.position.set(side * 0.1, -0.045, 0.098);
+        plane.add(intake);
+        // Stabilisateur horizontal
+        const st = new THREE.Shape();
+        st.moveTo(0, 0.03); st.lineTo(0.1, -0.03); st.lineTo(0.1, -0.045); st.lineTo(0, -0.02); st.lineTo(0, 0.03);
+        const stab = new THREE.Mesh(track(new THREE.ExtrudeGeometry(st, { depth: 0.005, bevelEnabled: false })), white);
+        stab.rotation.x = -Math.PI / 2; stab.scale.x = side;
+        stab.position.set(0, 0.01, -0.22);
+        plane.add(stab);
+      }
+      // Dérive (rouge Dada)
+      const fin = new THREE.Shape();
+      fin.moveTo(0, 0); fin.lineTo(-0.11, 0); fin.lineTo(-0.1, 0.11); fin.lineTo(-0.06, 0.11); fin.lineTo(0, 0);
+      const finMesh = new THREE.Mesh(track(new THREE.ExtrudeGeometry(fin, { depth: 0.006, bevelEnabled: false })), red);
+      finMesh.rotation.y = -Math.PI / 2;
+      finMesh.position.set(-0.003, 0.03, -0.16);
+      plane.add(finMesh);
+      plane.scale.setScalar(1.25);
+    }
     globe.add(plane);
     globe.rotation.y = -THREE.MathUtils.degToRad(52); // l'Europe et l'Asie face à nous
     globe.rotation.x = 0.3;
@@ -577,7 +632,7 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
         return { pos: [x, y, 0], rot: [0, spin, Math.sin(Math.PI * f) * -0.25], scale: [0.48, 0.48, 0.48] };
       }
       case 6: return { pos: [0, 0.1, 0], rot: [0.05, (u + 0.5) * Math.PI * 4 + spin * 0.4, -0.06], scale: [1.05, 1.05, 1.05] };
-      default: return { pos: [0, GROUND + 0.03 + (HALF + 0.3) * 0.58, 0.1], rot: [0, spin * 0.5, 0], scale: [0.58, 0.58, 0.58] };
+      default: return { pos: [0, GROUND + 0.03 + (HALF + 0.3) * 0.58, 0.1], rot: [0, 0, 0], scale: [0.58, 0.58, 0.58] }; // en rayon : immobile
     }
   };
   const camKF = (i: number, u: number): CamState => {
@@ -694,7 +749,10 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
       const fu = clamp01((p - 2 + 0.45) / 0.9);
       const pt = flight.getPoint(fu), tg = flight.getTangent(fu);
       plane.position.copy(pt);
-      plane.lookAt(pt.clone().add(tg));
+      plane.position.addScaledVector(pt.clone().normalize(), 0.06);
+      globe.updateMatrixWorld();
+      plane.up.copy(globe.localToWorld(pt.clone()).sub(globe.getWorldPosition(new THREE.Vector3())).normalize());
+      plane.lookAt(globe.localToWorld(pt.clone().add(tg)));
       if (!reduceMotion) { globe.rotation.y = -THREE.MathUtils.degToRad(52) + Math.sin(t * 0.2) * 0.08; if (clouds) clouds.rotation.y = -Math.PI / 2 + t * 0.012; }
     }
     if (chapters[4].visible) {

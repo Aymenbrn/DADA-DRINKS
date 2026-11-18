@@ -1519,3 +1519,7 @@ html.is-loading, html.is-loading body { overflow: hidden; }
 /* Pas de voile sombre sur le ciel bleu du chapitre 1 (il réapparaît ensuite) : aucune démarcation avec l'en-tête */
 .sx-stage::after { opacity: calc(1 - var(--sx-sky, 0)); }
 .sx-glow { opacity: calc(1 - var(--sx-sky, 0)); }
+/* Histoire : texte encore plus à gauche (collé au bord, quelle que soit la largeur de l'écran) */
+@media (min-width: 901px) {
+  .sx-ch, .sx-ch.sx-ch { left: clamp(8px, 0.8vw, 16px); }
+}
