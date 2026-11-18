@@ -108,13 +108,22 @@ export default function SiteLoader() {
         window.setTimeout(finish, 200);
         return;
       }
-      raf = requestAnimationFrame(tick);
+      schedule();
     };
-    raf = requestAnimationFrame(tick);
+    // requestAnimationFrame est suspendu quand l'onglet est caché : on bascule alors sur un minuteur
+    const schedule = () => {
+      if (document.hidden) raf = window.setTimeout(() => tick(performance.now()), 100) as unknown as number;
+      else raf = requestAnimationFrame(tick);
+    };
+    schedule();
+    // Filet de sécurité : le site s'affiche quoi qu'il arrive
+    const safety = window.setTimeout(finish, MAX_WAIT_MS + 1500);
 
     return () => {
       alive = false;
       cancelAnimationFrame(raf);
+      window.clearTimeout(raf);
+      window.clearTimeout(safety);
       window.clearTimeout(warm);
       window.removeEventListener("load", onLoad);
       document.documentElement.classList.remove("is-loading");
