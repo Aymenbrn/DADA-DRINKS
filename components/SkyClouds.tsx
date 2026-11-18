@@ -108,7 +108,7 @@ export default function SkyClouds({ className }: { className?: string }) {
       const n = Math.max(4, Math.round(W / 300));
       clouds = Array.from({ length: n }, (_, i) => {
         const far = i % 3 === 0; // plan lointain : plus petit, plus pâle, plus lent
-        const sc = (far ? 0.55 : 0.9 + rnd() * 0.6) * Math.min(1.3, Math.max(0.6, W / 1200));
+        const sc = (far ? 0.8 : 1.25 + rnd() * 0.7) * Math.min(1.4, Math.max(0.75, W / 1100));
         const img = sprites[i % sprites.length];
         return { img, w: img.width * sc, h: img.height * sc, x: (i / n) * (W + 400) - 200 + rnd() * 120, y: H * (far ? 0.12 + rnd() * 0.15 : 0.08 + rnd() * 0.5), v: far ? 3 : 6 + rnd() * 5, a: far ? 0.7 : 0.95 };
       });
