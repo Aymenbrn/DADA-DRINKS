@@ -118,12 +118,15 @@ export default function StoryScroll() {
 
   useEffect(() => {
     onScroll();
-    let ticking = 0;
-    const onScrollRaf = () => { if (!ticking) ticking = requestAnimationFrame(() => { ticking = 0; onScroll(); }); };
+    let ticking = 0, fallback = 0;
+    // un seul calcul par image ; minuteur de secours si l'affichage est suspendu
+    const run = () => { cancelAnimationFrame(ticking); window.clearTimeout(fallback); ticking = 0; fallback = 0; onScroll(); };
+    const onScrollRaf = () => { if (!ticking) { ticking = requestAnimationFrame(run); fallback = window.setTimeout(run, 120); } };
     window.addEventListener("scroll", onScrollRaf, { passive: true });
     window.addEventListener("resize", onScrollRaf);
     return () => {
       cancelAnimationFrame(ticking);
+      window.clearTimeout(fallback);
       window.removeEventListener("scroll", onScrollRaf);
       window.removeEventListener("resize", onScrollRaf);
     };
