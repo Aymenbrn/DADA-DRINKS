@@ -3,10 +3,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { useCart } from "@/components/cart/CartProvider";
 import { CAT_LABELS, DEFAULT_PACK, FLAVORS, PACK_SIZES, flavorHref, canPrice, formatEUR, getFlavor, packCents, pad } from "@/lib/flavors";
 import { createShowcase } from "@/lib/can3d/showcase";
+
+/** Position de défilement de la barre des saveurs, gardée d'une fiche à l'autre */
+let flavorsScrollMemo: number | null = null;
+const useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 /** Section « univers » de la fiche produit : la canette entourée des fruits de la saveur, en 3D. */
 export default function FlavorUniverse() {
@@ -20,6 +24,19 @@ export default function FlavorUniverse() {
 function UniverseScene({ slug }: { slug: string }) {
   const f = getFlavor(slug)!;
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const flavorsRef = useRef<HTMLElement>(null);
+
+  // La barre des saveurs reste là où on l'a laissée quand on change de parfum
+  useIsoLayoutEffect(() => {
+    const nav = flavorsRef.current;
+    if (!nav) return;
+    if (flavorsScrollMemo !== null) {
+      nav.scrollLeft = flavorsScrollMemo;
+    } else {
+      const cur = nav.querySelector<HTMLElement>('[aria-current="page"]');
+      if (cur) nav.scrollLeft = cur.offsetLeft - (nav.clientWidth - cur.offsetWidth) / 2;
+    }
+  });
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
   const { add, count, openCart } = useCart();
@@ -65,7 +82,7 @@ function UniverseScene({ slug }: { slug: string }) {
           </button>
         </div>
       </div>
-      <nav className="pdp-flavors" aria-label="Choisir une saveur">
+      <nav ref={flavorsRef} className="pdp-flavors" aria-label="Choisir une saveur" onScroll={(e) => { flavorsScrollMemo = e.currentTarget.scrollLeft; }}>
         <ul>
           {FLAVORS.map((x) => (
             <li key={x.slug}>
