@@ -601,7 +601,7 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
         const a = u * 2.2 + 0.4;
         return { pos: [Math.cos(a) * 3.3, 1.2, Math.sin(a) * 1.4 + 1.6], rot: [0.3, spin, 0.35], scale: [0.36, 0.36, 0.36] };
       }
-      case 3: return { pos: [0, -0.05, 0], rot: [0.08, reduceMotion ? 0 : Math.sin(t * 0.4) * 0.18, -0.05], scale: [0.95, 0.95, 0.95] };
+      case 3: return { pos: [0, -0.05, 0], rot: [0.08, -0.32 + (reduceMotion ? 0 : Math.sin(t * 0.4) * 0.08), -0.04], scale: [0.95, 0.95, 0.95] };
       case 4: return { pos: [0.2, GROUND + 0.95, 0], rot: [0, 0.4, Math.PI / 2 - 0.08], scale: [1.18, 0.66, 1.18] };
       case 5: {
         const s = clamp01(u + 0.5) * (STEPS - 1); // de la première à la dernière marche
@@ -682,7 +682,7 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
     halves.forEach((h, k) => {
       const sd = k === 0 ? 1 : -1;
       h.position.x = sd * open * 0.8;
-      h.rotation.y = sd * open * 0.2;
+      h.rotation.y = sd * open * 0.34;
     });
     // Bulles qui montent le long de la coupe, à l'intérieur
     if (glass.visible) {
