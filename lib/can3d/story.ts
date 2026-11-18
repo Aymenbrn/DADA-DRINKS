@@ -260,7 +260,7 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
       const hair = new THREE.Mesh(hairGeo, mat(L.hair, 0.9)); hair.position.y = 0.57; hair.rotation.x = -0.35; torso.add(hair);
       const shL = limb(torso, -0.17, 0.36, 0.045, 0.2, 0.038, 0.19, mat(L.top), mat(L.skin), { geo: handGeo, mat: mat(L.skin), off: [0, -0.24, 0] });
       const shR = limb(torso, 0.17, 0.36, 0.045, 0.2, 0.038, 0.19, mat(L.top), mat(L.skin), { geo: handGeo, mat: mat(L.skin), off: [0, -0.24, 0] });
-      kid.scale.setScalar(0.95 + (i % 3) * 0.06);
+      kid.scale.setScalar(1.15 + (i % 3) * 0.07);
       kid.position.set(x, 0, z);
       g.add(kid);
       kids.push({ g: kid, hipL, hipR, shL, shR, torso, ph: i * 1.7, base: new THREE.Vector3(x, 0, z), h: hipY });
@@ -685,15 +685,15 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
     if (chapters[0].visible) {
       // La photo remplit tout le cadre, le terrain en bas ; léger travelling (image fixe qui respire)
       const halfV = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
-      const visH = 2 * NAN_D * halfV, visW = visH * camera.aspect * 1.4;
-      const ph = Math.max(visH * 1.12, visW / 1.777);
+      const visH = 2 * NAN_D * halfV, visW = visH * camera.aspect * 1.18;
+      const ph = Math.max(visH * 1.06, visW / 1.777);
       const camY = camera.position.y;
-      const bottom = camY - visH / 2 - (small ? 0.2 : 0.04) * visH;
+      const bottom = camY - visH / 2 - (small ? 0.16 : 0.01) * visH;
       const drift = reduceMotion ? 0 : Math.sin(t * 0.08);
       photo.scale.set(ph * 1.777 * (1.03 + drift * 0.015), ph * (1.03 + drift * 0.015), 1);
       photo.position.set(camera.position.x * 0.6 + drift * 0.25, bottom + ph / 2, camera.position.z - NAN_D);
       // Ligne du terrain dans la photo (≈ 5 % au-dessus du bas) ramenée à la profondeur des enfants
-      const grassY = bottom + ph * 0.05;
+      const grassY = bottom + ph * 0.068;
       const slope = (grassY - camY) / NAN_D;
       const tt = reduceMotion ? 0 : t;
       const groundAt = (z: number) => camY + slope * (camera.position.z - z);
