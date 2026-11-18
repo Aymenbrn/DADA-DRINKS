@@ -1461,3 +1461,12 @@ html.is-loading, html.is-loading body { overflow: hidden; }
 }
 .sx-rail { align-items: flex-end; }
 .sx-rail button { justify-content: flex-start; }
+
+/* Chargements : plein écran, y compris sur mobile (barres du navigateur comprises) */
+.site-loader, .page-loading { position: fixed; inset: 0; width: 100vw; height: 100vh; height: 100dvh; min-height: 0; z-index: 9999; padding: 0; }
+.page-loading { z-index: 9998; }
+@media (max-width: 640px) {
+  .site-loader-logo { width: 88vw; }
+  .page-loading .dada-fill { width: 88vw !important; max-width: none; }
+  .site-loader-text { font-size: 11px; }
+}
