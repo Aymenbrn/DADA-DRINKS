@@ -154,7 +154,7 @@ export default function StoryScroll() {
 
         <div className="sx-copy container">
           {CHAPTERS.map((c, i) => (
-            <article key={c.when} className={`sx-ch${i === active ? " is-on" : ""}${i < active ? " is-past" : ""}`} aria-hidden={i !== active}>
+            <article key={c.when} className={`sx-ch sx-ch-${i + 1}${i === active ? " is-on" : ""}${i < active ? " is-past" : ""}`} aria-hidden={i !== active}>
               <p className="sx-n">
                 <span>{String(i + 1).padStart(2, "0")}</span> / {String(N).padStart(2, "0")} — {c.when}
               </p>

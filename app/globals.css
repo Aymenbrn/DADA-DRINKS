@@ -1557,3 +1557,18 @@ html:has(.site-loader:not(.is-done)), html:has(.site-loader:not(.is-done)) body 
   .shop-foot small, .shop-foot .shop-sub { white-space: normal; }
   .shop-add { flex: none; width: 32px; height: 32px; }
 }
+
+/* Histoire, parties 4 (2007) et 6 (2011) : le fond flou ne couvre plus tout l'écran —
+   il est posé plus bas, en dégradé (transparent en haut, plus sombre vers le bas) */
+@media (min-width: 901px) {
+  .sx-ch-4, .sx-ch-6 {
+    top: auto; bottom: 4vh; transform: translateY(40px);
+    background: linear-gradient(to bottom, rgba(6,6,8,0) 0%, rgba(6,6,8,0.38) 22%, rgba(6,6,8,0.62) 60%, rgba(6,6,8,0.7) 100%);
+    -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; border-radius: 22px;
+    padding-top: 48px;
+  }
+  .sx-ch-4.is-on, .sx-ch-6.is-on { transform: none; }
+  .sx-ch-4.is-past, .sx-ch-6.is-past { transform: translateY(-30px); }
+  .sx-ch-4 .sx-title, .sx-ch-6 .sx-title, .sx-ch-4 .sx-text, .sx-ch-6 .sx-text { text-shadow: 0 2px 16px rgba(0,0,0,0.75); }
+  .sx-ch-4 .sx-imgs figure.is-plain { width: min(calc(var(--w, 220px) * 0.8), 100%); }
+}
