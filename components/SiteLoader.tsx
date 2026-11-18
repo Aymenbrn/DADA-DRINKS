@@ -110,10 +110,9 @@ export default function SiteLoader() {
       }
       schedule();
     };
-    // requestAnimationFrame est suspendu quand l'onglet est caché : on bascule alors sur un minuteur
+    // Minuteur plutôt que requestAnimationFrame : le chargement avance même si l'affichage est suspendu
     const schedule = () => {
-      if (document.hidden) raf = window.setTimeout(() => tick(performance.now()), 100) as unknown as number;
-      else raf = requestAnimationFrame(tick);
+      raf = window.setTimeout(() => tick(performance.now()), 16) as unknown as number;
     };
     schedule();
     // Filet de sécurité : le site s'affiche quoi qu'il arrive
