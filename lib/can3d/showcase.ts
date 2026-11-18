@@ -31,7 +31,7 @@ export function createShowcase(canvas: HTMLCanvasElement, opts: ShowcaseOptions)
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, window.innerWidth < 900 ? 1.5 : 2)); // mobile : moins de pixels à calculer
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.0;
@@ -127,7 +127,7 @@ export function createShowcase(canvas: HTMLCanvasElement, opts: ShowcaseOptions)
   const bubbleField = universe
     ? (() => {
         const hh = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * (camera.position.z + 7);
-        const b = buildBubbleField(hh * 1.9, hh + 0.4, (opts.cardMode ? 26 : 48) * (fizzy ? 2 : 1), { z0: 0, zSpan: 4, size: (opts.cardMode ? 1.5 : 1.6) * (fizzy ? 1.7 : 1) });
+        const b = buildBubbleField(hh * 1.9, hh + 0.4, (opts.cardMode ? 26 : 48) * (fizzy ? 2 : 1) * (window.innerWidth < 900 ? 0.6 : 1), { z0: 0, zSpan: 4, size: (opts.cardMode ? 1.5 : 1.6) * (fizzy ? 1.7 : 1) });
         b.mesh.position.set(0, 0, -5);
         scene.add(b.mesh);
         return b;

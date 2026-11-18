@@ -49,7 +49,10 @@ export default function SiteLoader() {
     window.addEventListener("load", onLoad, { once: true });
 
     // Étiquettes 3D de toute la gamme : téléchargées et préparées maintenant, réutilisées par toutes les scènes
-    import("@/lib/can3d/labels")
+    // Mobile : les étiquettes ne sont chargées que par les scènes qui en ont besoin (économie de mémoire)
+    const smallScreen = window.innerWidth < 900;
+    if (smallScreen) labelsDone = labelsTotal;
+    else import("@/lib/can3d/labels")
       .then(({ getLabelImage }) => {
         for (const f of FLAVORS) {
           getLabelImage(f).catch(() => undefined).finally(() => { labelsDone += 1; });
@@ -63,13 +66,17 @@ export default function SiteLoader() {
     };
 
     // Préchargement de fond, sans retarder l'ouverture : pages principales, fiches produits, modules 3D pro
+    // Sur mobile ou connexion lente : on ne précharge que l'essentiel (moins de données, moins de mémoire)
+    const conn = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
+    const light = window.innerWidth < 900 || !!conn?.saveData || /2g|3g/.test(conn?.effectiveType ?? "");
     const warm = window.setTimeout(() => {
       ROUTES.forEach((r) => router.prefetch(r));
+      if (light) return;
       FLAVORS.forEach((f) => router.prefetch(flavorHref(f.slug)));
       import("@/lib/can3d/showcase").catch(() => undefined);
       import("@/lib/can3d/pallet").catch(() => undefined);
       import("@/lib/can3d/fridge").catch(() => undefined);
-    }, 300);
+    }, 1200);
 
     const progress = () =>
       (fontsOk ? 0.1 : 0) +

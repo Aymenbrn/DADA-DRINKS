@@ -25,14 +25,20 @@ function loadImg(src: string) {
  * Étiquette dépliée : le fichier ne contient qu'une face (fichier deux fois plus léger) ;
  * on la duplique pour couvrir tout le tour de la canette (face avant centrée à u = 0,25).
  */
+// Téléphones et petites tablettes : étiquettes en demi-définition (4 fois moins de mémoire, invisible à cette taille).
+// C'est ce qui faisait planter le site sur mobile : 13 étiquettes pleine taille ≈ 400 Mo de mémoire.
+const LABEL_SCALE = typeof window !== "undefined" && (window.innerWidth < 900 || (navigator as Navigator & { deviceMemory?: number }).deviceMemory! <= 4) ? 0.5 : 0.75;
+
 function loadFull(src: string) {
   return loadImg(src).then((im) => {
+    const w = Math.round(im.width * LABEL_SCALE), h = Math.round(im.height * LABEL_SCALE);
     const c = document.createElement("canvas");
-    c.width = im.width * 2;
-    c.height = im.height;
+    c.width = w * 2;
+    c.height = h;
     const g = c.getContext("2d")!;
-    g.drawImage(im, 0, 0);
-    g.drawImage(im, im.width, 0);
+    g.imageSmoothingQuality = "high";
+    g.drawImage(im, 0, 0, w, h);
+    g.drawImage(im, w, 0, w, h);
     return c;
   });
 }

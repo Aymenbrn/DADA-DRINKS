@@ -19,6 +19,9 @@ export default function CardCan3D({ flavor, fogColor, fallback }: { flavor: Flav
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
+    // Mobile : pas de scène 3D par carte (des dizaines de contextes WebGL faisaient planter le téléphone) ;
+    // le visuel 2D de la canette reste affiché, la 3D est réservée à la fiche produit.
+    if (window.innerWidth < 900 || window.matchMedia("(pointer: coarse)").matches) return;
     let timer = 0;
     const io = new IntersectionObserver(
       ([e]) => {

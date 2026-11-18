@@ -16,6 +16,8 @@ export default function Pro3D({ kind, fallback }: { kind: FridgeVariant | "palle
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
+    // Mobile : dans les grilles de produits, image fixe au lieu d'une scène 3D par carte (allège le téléphone)
+    if (window.innerWidth < 900 && !el.closest(".pro-pdp")) return;
     let timer = 0;
     const io = new IntersectionObserver(
       ([e]) => {
