@@ -37,7 +37,7 @@ const CHAPTERS: Chapter[] = [
     when: "2007", title: "Naissance de Dada", bg: "#120c03", glow: "#ffb02e",
     text: "L’idée devient une canette, et pas n’importe laquelle : transparente. Il dessine le packaging, le logo, imprime les flyers. Les supermarchés hésitent ; les restaurants et les épiceries de quartier se lancent.",
     imgs: [
-      { src: STORY_IMG.logo2007, alt: "Premier logo Dada Drinks (2007)", plain: true, w: 170 },
+      { src: STORY_IMG.logo2007, alt: "Premier logo Dada Drinks (2007)", plain: true, w: 240 },
       { src: "/story/canettes-2007.webp", alt: "Les premières canettes transparentes", plain: true, w: 420 },
     ],
   },

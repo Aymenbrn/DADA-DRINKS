@@ -139,12 +139,14 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
     const liquidMat = track(fadeable(new THREE.MeshPhysicalMaterial({ color: 0x5a0a16, roughness: 0.12, clearcoat: 1, opacity: 0.88, emissive: 0x220006, emissiveIntensity: 0.4 })));
     const cutTex = track(canvasTex(256, 512, (c) => {
       const lg = c.createLinearGradient(0, 0, 256, 0);
-      lg.addColorStop(0, "#3d0610"); lg.addColorStop(0.5, "#7a1222"); lg.addColorStop(1, "#3d0610");
+      lg.addColorStop(0, "#5a0c18"); lg.addColorStop(0.5, "#a3192e"); lg.addColorStop(1, "#5a0c18");
       c.fillStyle = lg; c.fillRect(0, 0, 256, 512);
       const vg = c.createLinearGradient(0, 0, 0, 512); vg.addColorStop(0, "rgba(255,120,140,0.25)"); vg.addColorStop(0.2, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(0,0,0,0.3)");
       c.fillStyle = vg; c.fillRect(0, 0, 256, 512);
-      for (let i = 0; i < 260; i++) { // bulles figées dans la coupe
-        const x = (i * 97) % 256, y = (i * 211) % 512, r = 1.5 + ((i * 13) % 7);
+      let bs = 3;
+      const br = () => ((bs = (bs * 16807) % 2147483647) / 2147483647);
+      for (let i = 0; i < 300; i++) { // bulles figées dans la coupe, plus nombreuses vers le haut
+        const x = br() * 256, y = Math.pow(br(), 0.8) * 512, r = 1 + br() * br() * 9;
         const g = c.createRadialGradient(x - r * 0.3, y - r * 0.3, 0, x, y, r);
         g.addColorStop(0, "rgba(255,255,255,0.95)"); g.addColorStop(0.6, "rgba(255,220,225,0.45)"); g.addColorStop(1, "rgba(255,255,255,0.05)");
         c.fillStyle = g; c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fill();
@@ -355,7 +357,7 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
     const crustTex = canvasTex(512, 64, (c) => {
       const lg = c.createLinearGradient(0, 0, 0, 64); lg.addColorStop(0, "#c98b47"); lg.addColorStop(0.5, "#e2ae68"); lg.addColorStop(1, "#b97a3a");
       c.fillStyle = lg; c.fillRect(0, 0, 512, 64);
-      for (let i = 0; i < 70; i++) { c.fillStyle = `rgba(${50 + rnd() * 40},${25 + rnd() * 20},10,${0.35 + rnd() * 0.5})`; blob(c, rnd() * 512, rnd() * 64, 2 + rnd() * 9, 0.6, 9); c.fill(); }
+      for (let i = 0; i < 40; i++) { c.fillStyle = `rgba(${70 + rnd() * 40},${35 + rnd() * 20},12,${0.15 + rnd() * 0.3})`; blob(c, rnd() * 512, 10 + rnd() * 30, 3 + rnd() * 10, 0.6, 9); c.fill(); }
       for (let i = 0; i < 200; i++) { c.fillStyle = "rgba(255,240,210,0.35)"; c.fillRect(rnd() * 512, rnd() * 64, 1.5, 1.5); }
     });
     crustTex.wrapS = THREE.RepeatWrapping; crustTex.repeat.set(6, 1);
@@ -425,7 +427,7 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
     clouds.rotation.y = -Math.PI / 2;
     globe.add(clouds);
     // Atmosphère : halo bleuté sur le bord
-    const atmo = new THREE.Mesh(track(new THREE.SphereGeometry(GR * 1.09, 64, 48)), track(fadeable(new THREE.MeshBasicMaterial({ color: 0x5aa8ff, opacity: 0.16, side: THREE.BackSide, blending: THREE.AdditiveBlending, depthWrite: false }))));
+    const atmo = new THREE.Mesh(track(new THREE.SphereGeometry(GR * 1.09, 64, 48)), track(fadeable(new THREE.MeshBasicMaterial({ color: 0x5aa8ff, opacity: 0.07, side: THREE.BackSide, blending: THREE.AdditiveBlending, depthWrite: false }))));
     globe.add(atmo);
     // Vol
     const paris = ll(48.8, 2.3, GR * 1.02), kl = ll(3.1, 101.7, GR * 1.02);
@@ -597,7 +599,7 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
       case 1: return { pos: [0, GROUND + 0.6 + 2.6 * 0.66 + 0.5 + Math.sin(t * 1.6) * 0.1, 0], rot: [0, spin * 2, 0.08], scale: [0.66, 0.66, 0.66] };
       case 2: {
         const a = u * 2.2 + 0.4;
-        return { pos: [Math.cos(a) * 3.9, 1.0, Math.sin(a) * 1.8 + 0.6], rot: [0.3, spin, 0.35], scale: [0.38, 0.38, 0.38] };
+        return { pos: [Math.cos(a) * 3.3, 1.2, Math.sin(a) * 1.4 + 1.6], rot: [0.3, spin, 0.35], scale: [0.36, 0.36, 0.36] };
       }
       case 3: return { pos: [0, -0.05, 0], rot: [0.08, reduceMotion ? 0 : Math.sin(t * 0.4) * 0.18, -0.05], scale: [0.95, 0.95, 0.95] };
       case 4: return { pos: [0.2, GROUND + 0.95, 0], rot: [0, 0.4, Math.PI / 2 - 0.08], scale: [1.18, 0.66, 1.18] };
@@ -679,8 +681,8 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
     const open = band(p, 2.55, 2.85, 3.3, 3.6);
     halves.forEach((h, k) => {
       const sd = k === 0 ? 1 : -1;
-      h.position.x = sd * open * 0.75;
-      h.rotation.y = sd * open * 0.42;
+      h.position.x = sd * open * 0.8;
+      h.rotation.y = sd * open * 0.2;
     });
     // Bulles qui montent le long de la coupe, à l'intérieur
     if (glass.visible) {

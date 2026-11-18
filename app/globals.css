@@ -1493,3 +1493,4 @@ html.is-loading, html.is-loading body { overflow: hidden; }
 @media (max-width: 900px) {
   .sx-imgs figure.is-plain { width: min(calc(var(--w, 220px) * 0.62), 100%); }
 }
+@media (min-width: 901px) { .sx-ch { width: min(470px, 37vw); } }
