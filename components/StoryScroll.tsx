@@ -13,7 +13,7 @@ type Chapter = {
   title: string;
   text: string;
   quote?: string;
-  imgs?: { src: string; alt: string; bg?: string }[];
+  imgs?: { src: string; alt: string; bg?: string; plain?: boolean; w?: number }[];
   bg: string; // couleur dominante du fond
   glow: string; // halo
 };
@@ -37,8 +37,8 @@ const CHAPTERS: Chapter[] = [
     when: "2007", title: "Naissance de Dada", bg: "#120c03", glow: "#ffb02e",
     text: "L’idée devient une canette, et pas n’importe laquelle : transparente. Il dessine le packaging, le logo, imprime les flyers. Les supermarchés hésitent ; les restaurants et les épiceries de quartier se lancent.",
     imgs: [
-      { src: STORY_IMG.logo2007, alt: "Premier logo Dada Drinks (2007)", bg: "#f4f2ee" },
-      { src: STORY_IMG.cans2007, alt: "Les premières canettes transparentes", bg: "#ffffff" },
+      { src: STORY_IMG.logo2007, alt: "Premier logo Dada Drinks (2007)", plain: true, w: 170 },
+      { src: "/story/canettes-2007.webp", alt: "Les premières canettes transparentes", plain: true, w: 420 },
     ],
   },
   {
@@ -53,7 +53,7 @@ const CHAPTERS: Chapter[] = [
   {
     when: "Renouveau", title: "Dada repart", bg: "#1e0516", glow: "#e58ad0",
     text: "Nouveau logo, nouveau design, réseaux sociaux, artistes et influenceurs : la canette change de peau et la croissance revient.",
-    imgs: [{ src: STORY_IMG.logoNow, alt: "Le nouveau logo Dada Drinks", bg: "#0a0a0a" }],
+    imgs: [{ src: STORY_IMG.logoNow, alt: "Le nouveau logo Dada Drinks", plain: true, w: 300 }],
   },
   {
     when: "Aujourd’hui", title: "À côté des géants", bg: "#14110c", glow: "#ffdd00",
@@ -162,7 +162,7 @@ export default function StoryScroll() {
               {c.imgs && (
                 <div className="sx-imgs">
                   {c.imgs.map((m, k) => (
-                    <figure key={m.src} style={{ background: m.bg, "--r": `${k % 2 ? 4 : -3}deg` } as CSSProperties}>
+                    <figure key={m.src} className={m.plain ? "is-plain" : undefined} style={{ background: m.plain ? undefined : m.bg, "--r": `${k % 2 ? 4 : -3}deg`, "--w": m.w ? `${m.w}px` : undefined } as CSSProperties}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={m.src} alt={m.alt} loading="lazy" decoding="async" />
                     </figure>

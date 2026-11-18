@@ -120,35 +120,63 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
   metal.add(tab);
   hero.add(metal);
 
-  // 2) 2007 : la canette transparente, boisson ambrée et bulles
-  const glass = new THREE.Group();
-  const glassMat = track(fadeable(new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.04, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.05, opacity: 0.22, envMapIntensity: 1.4, side: THREE.DoubleSide })));
-  const bodyGeo = track(new THREE.CylinderGeometry(R, R, H, 96, 1, true));
-  glass.add(new THREE.Mesh(bodyGeo, glassMat));
-  const liquidMat = track(fadeable(new THREE.MeshPhysicalMaterial({ color: 0xff9a1f, roughness: 0.15, opacity: 0.72, emissive: 0x6a2a00, emissiveIntensity: 0.35 })));
-  const liquid = new THREE.Mesh(track(new THREE.CylinderGeometry(R * 0.93, R * 0.93, H * 0.8, 64)), liquidMat);
-  liquid.position.y = -H * 0.08;
-  glass.add(liquid);
-  // Bandeau « Dada » des débuts, posé sur le verre
-  const oldBand = new THREE.Mesh(
-    track(new THREE.CylinderGeometry(R * 1.005, R * 1.005, 1.1, 96, 1, true, -Math.PI * 0.42, Math.PI * 0.84)),
-    track(fadeable(new THREE.MeshBasicMaterial({
-      map: track(canvasTex(512, 128, (g) => {
-        g.fillStyle = "rgba(255,255,255,0.0)"; g.fillRect(0, 0, 512, 128);
-        g.fillStyle = "#ffffff"; g.font = "italic 900 92px Montserrat, Arial, sans-serif"; g.textAlign = "center"; g.textBaseline = "middle";
-        g.fillText("dada", 256, 66);
-      })), side: THREE.DoubleSide,
-    }))),
-  );
-  oldBand.position.y = 0.3;
-  glass.add(oldBand);
-  // Bulles dans la boisson
-  const bubbleGeo = track(new THREE.SphereGeometry(0.05, 8, 6));
-  const bubbleMat = track(fadeable(new THREE.MeshBasicMaterial({ color: 0xfff3d6, opacity: 0.85 })));
-  const BUB = 46;
+  // 2) 2007 → 2011 : la première canette Dada, d'après la photo (plastique transparent, étiquette Cerise).
+  //    En 2007 elle s'ouvre en deux comme une coupe : on voit la boisson et ses bulles à l'intérieur.
+  const OR = 1.25, OH = 4.7, OHALF = OH / 2;
+  const glass = new THREE.Group(); // la canette entière (deux moitiés)
+  const halves: THREE.Group[] = [];
+  const BUB = 70;
+  const bubbleGeo = track(new THREE.SphereGeometry(0.045, 10, 8));
+  const bubbleMat = track(fadeable(new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.05, clearcoat: 1, opacity: 0.9, envMapIntensity: 1.5 })));
   const bubbles = new THREE.InstancedMesh(bubbleGeo, bubbleMat, BUB);
-  const bubSeed = Array.from({ length: BUB }, (_, i) => ({ a: (i * 2.39996) % (Math.PI * 2), r: 0.15 + ((i * 37) % 70) / 100, s: 0.4 + ((i * 13) % 10) / 12, o: (i * 0.137) % 1, z: 0.6 + ((i * 7) % 6) / 6 }));
-  glass.add(bubbles);
+  const bubSeed = Array.from({ length: BUB }, (_, i) => ({ side: i % 2 ? 1 : -1, z: (((i * 37) % 100) / 100 - 0.5) * 2 * OR * 0.8, x: 0.02 + ((i * 13) % 10) / 70, s: 0.35 + ((i * 17) % 10) / 14, o: (i * 0.137) % 1, k: 0.5 + ((i * 7) % 8) / 8 }));
+  {
+    const decalTex = track(new THREE.TextureLoader().load("/story/old-can-cerise.webp"));
+    decalTex.colorSpace = THREE.SRGBColorSpace;
+    decalTex.anisotropy = 8;
+    const plasticMat = track(fadeable(new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.05, clearcoat: 1, clearcoatRoughness: 0.04, opacity: 0.2, envMapIntensity: 1.6, side: THREE.DoubleSide })));
+    const decalMat = track(fadeable(new THREE.MeshPhysicalMaterial({ map: decalTex, roughness: 0.22, clearcoat: 1, clearcoatRoughness: 0.06, alphaTest: 0.04, envMapIntensity: 0.9 })));
+    const liquidMat = track(fadeable(new THREE.MeshPhysicalMaterial({ color: 0x5a0a16, roughness: 0.12, clearcoat: 1, opacity: 0.88, emissive: 0x220006, emissiveIntensity: 0.4 })));
+    const cutTex = track(canvasTex(256, 512, (c) => {
+      const lg = c.createLinearGradient(0, 0, 256, 0);
+      lg.addColorStop(0, "#3d0610"); lg.addColorStop(0.5, "#7a1222"); lg.addColorStop(1, "#3d0610");
+      c.fillStyle = lg; c.fillRect(0, 0, 256, 512);
+      const vg = c.createLinearGradient(0, 0, 0, 512); vg.addColorStop(0, "rgba(255,120,140,0.25)"); vg.addColorStop(0.2, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(0,0,0,0.3)");
+      c.fillStyle = vg; c.fillRect(0, 0, 256, 512);
+      for (let i = 0; i < 260; i++) { // bulles figées dans la coupe
+        const x = (i * 97) % 256, y = (i * 211) % 512, r = 1.5 + ((i * 13) % 7);
+        const g = c.createRadialGradient(x - r * 0.3, y - r * 0.3, 0, x, y, r);
+        g.addColorStop(0, "rgba(255,255,255,0.95)"); g.addColorStop(0.6, "rgba(255,220,225,0.45)"); g.addColorStop(1, "rgba(255,255,255,0.05)");
+        c.fillStyle = g; c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fill();
+      }
+    }));
+    const cutMat = track(fadeable(new THREE.MeshPhysicalMaterial({ map: cutTex, roughness: 0.1, clearcoat: 1, opacity: 0.96, side: THREE.DoubleSide })));
+    const lidMat = track(fadeable(new THREE.MeshStandardMaterial({ color: 0xd9dbdf, metalness: 1, roughness: 0.25, envMapIntensity: 0.8 })));
+    const lidProfile = [[0, OHALF + 0.02], [1.02, OHALF + 0.02], [1.1, OHALF - 0.02], [1.12, OHALF - 0.2], [1.17, OHALF - 0.3]].map(([x, y]) => new THREE.Vector2(x, y));
+    const liqH = OH * 0.8, liqY = -OHALF + 0.32 + liqH / 2;
+    for (const side of [1, -1]) {
+      const half = new THREE.Group();
+      const t0 = side === 1 ? 0 : Math.PI; // moitié droite (x > 0) ou gauche (x < 0)
+      half.add(new THREE.Mesh(track(new THREE.CylinderGeometry(OR, OR * 0.9, OH * 0.98, 48, 1, true, t0, Math.PI)), plasticMat));
+      // Étiquette : la photo de la canette, posée sur la face avant (projection fidèle : u = position horizontale)
+      const dGeo = track(new THREE.CylinderGeometry(OR + 0.006, OR + 0.006, OH, 48, 24, true, side === 1 ? 0 : -Math.PI / 2, Math.PI / 2));
+      const uv = dGeo.attributes.uv as THREE.BufferAttribute, dp = dGeo.attributes.position as THREE.BufferAttribute;
+      for (let i = 0; i < uv.count; i++) uv.setX(i, (dp.getX(i) / OR + 1) / 2);
+      half.add(new THREE.Mesh(dGeo, decalMat));
+      // Boisson et coupe
+      const liq = new THREE.Mesh(track(new THREE.CylinderGeometry(OR * 0.93, OR * 0.93, liqH, 48, 1, false, t0, Math.PI)), liquidMat);
+      liq.position.y = liqY;
+      half.add(liq);
+      const cut = new THREE.Mesh(track(new THREE.PlaneGeometry(OR * 0.93 * 2, liqH)), cutMat);
+      cut.rotation.y = side === 1 ? -Math.PI / 2 : Math.PI / 2;
+      cut.position.set(0.004 * side, liqY, 0);
+      half.add(cut);
+      half.add(new THREE.Mesh(track(new THREE.LatheGeometry(lidProfile, 48, t0, Math.PI)), lidMat));
+      glass.add(half);
+      halves.push(half);
+    }
+    glass.add(bubbles);
+  }
   hero.add(glass);
 
   // 3) Le renouveau : le design actuel (Cola Cherry, la nouveauté)
@@ -268,42 +296,103 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
     });
   }
 
-  // — 1 · La pizzeria : la canette tourne au-dessus d'une pizza
+  // — 1 · La pizzeria : une vraie pizza napolitaine (pâte, sauce, mozzarella fondue, pepperoni, basilic)
   const pizza = new THREE.Group();
   {
     const g = chapters[1];
-    const std = (c: number, r = 0.7) => track(fadeable(new THREE.MeshStandardMaterial({ color: c, roughness: r })));
-    const base = new THREE.Mesh(track(new THREE.CylinderGeometry(3.2, 3.2, 0.22, 64)), std(0xe3b26e));
-    const crust = new THREE.Mesh(track(new THREE.TorusGeometry(3.1, 0.32, 16, 64)), std(0xc98a45));
-    crust.rotation.x = Math.PI / 2; crust.position.y = 0.12;
-    const sauce = new THREE.Mesh(track(new THREE.CylinderGeometry(2.85, 2.85, 0.26, 64)), std(0xc0392b, 0.5));
-    pizza.add(base, crust, sauce);
-    const cheese = std(0xffe08a, 0.6), pep = std(0x9e2a22, 0.5), basil = std(0x2f8f3a, 0.6);
-    for (let i = 0; i < 26; i++) {
-      const a = i * 2.39996, r = 0.4 + (i % 9) * 0.27;
-      const m = new THREE.Mesh(track(new THREE.SphereGeometry(0.42, 16, 8)), cheese);
-      m.scale.set(1, 0.18, 1); m.position.set(Math.cos(a) * r, 0.16, Math.sin(a) * r);
-      pizza.add(m);
+    // Pseudo-aléatoire stable
+    let seed = 7;
+    const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    const blob = (c: CanvasRenderingContext2D, x: number, y: number, r: number, jag = 0.35, pts = 14) => {
+      c.beginPath();
+      for (let i = 0; i <= pts; i++) {
+        const a = (i / pts) * Math.PI * 2, rr = r * (1 - jag / 2 + rnd() * jag);
+        const px = x + Math.cos(a) * rr, py = y + Math.sin(a) * rr;
+        if (i === 0) c.moveTo(px, py); else c.lineTo(px, py);
+      }
+      c.closePath();
+    };
+    const S = 1024, C = S / 2;
+    const top = canvasTex(S, S, (c) => {
+      // pâte
+      c.fillStyle = "#e7c088"; c.fillRect(0, 0, S, S);
+      // sauce tomate, bord irrégulier, nuances
+      const sg = c.createRadialGradient(C, C, 40, C, C, 470);
+      sg.addColorStop(0, "#b8281c"); sg.addColorStop(0.8, "#a52016"); sg.addColorStop(1, "#8a1a12");
+      c.fillStyle = sg; blob(c, C, C, 462, 0.06, 90); c.fill();
+      for (let i = 0; i < 900; i++) { c.fillStyle = `rgba(${90 + rnd() * 60},${10 + rnd() * 20},10,${0.15 + rnd() * 0.2})`; const a = rnd() * 6.283, r = rnd() * 440; c.fillRect(C + Math.cos(a) * r, C + Math.sin(a) * r, 2 + rnd() * 4, 2 + rnd() * 4); }
+      // mozzarella fondue : grandes plaques irrégulières, centre clair, bords dorés
+      for (let i = 0; i < 34; i++) {
+        const a = rnd() * 6.283, r = Math.sqrt(rnd()) * 380, x = C + Math.cos(a) * r, y = C + Math.sin(a) * r, rr = 38 + rnd() * 52;
+        const cg = c.createRadialGradient(x, y, rr * 0.1, x, y, rr);
+        cg.addColorStop(0, "#fff8e6"); cg.addColorStop(0.65, "#f7e7b8"); cg.addColorStop(1, "rgba(226,180,96,0.9)");
+        c.fillStyle = cg; blob(c, x, y, rr, 0.45, 18); c.fill();
+        for (let k = 0; k < 3; k++) { c.fillStyle = `rgba(190,120,50,${0.25 + rnd() * 0.25})`; blob(c, x + (rnd() - 0.5) * rr, y + (rnd() - 0.5) * rr, 4 + rnd() * 9, 0.5, 8); c.fill(); }
+      }
+      // pepperoni : rouge profond, bord sombre et légèrement grillé, gouttes de gras
+      for (let i = 0; i < 15; i++) {
+        const a = i * 2.39996 + rnd() * 0.4, r = 70 + Math.sqrt((i + 0.5) / 15) * 330, x = C + Math.cos(a) * r, y = C + Math.sin(a) * r, rr = 34 + rnd() * 10;
+        c.fillStyle = "#5e120c"; c.beginPath(); c.arc(x, y, rr + 3, 0, 6.283); c.fill();
+        const pg = c.createRadialGradient(x - rr * 0.3, y - rr * 0.3, 2, x, y, rr);
+        pg.addColorStop(0, "#c4402e"); pg.addColorStop(1, "#8e2117");
+        c.fillStyle = pg; c.beginPath(); c.arc(x, y, rr, 0, 6.283); c.fill();
+        for (let k = 0; k < 7; k++) { c.fillStyle = `rgba(240,170,140,${0.35 + rnd() * 0.3})`; c.beginPath(); c.arc(x + (rnd() - 0.5) * rr * 1.4, y + (rnd() - 0.5) * rr * 1.4, 1.5 + rnd() * 3, 0, 6.283); c.fill(); }
+      }
+      // basilic frais
+      for (let i = 0; i < 8; i++) {
+        const a = rnd() * 6.283, r = 60 + rnd() * 320, x = C + Math.cos(a) * r, y = C + Math.sin(a) * r, ang = rnd() * 6.283;
+        c.save(); c.translate(x, y); c.rotate(ang);
+        const lg = c.createLinearGradient(-30, 0, 30, 0); lg.addColorStop(0, "#1f6b2a"); lg.addColorStop(1, "#3e9b45");
+        c.fillStyle = lg; c.beginPath(); c.moveTo(-34, 0); c.quadraticCurveTo(0, -20, 34, 0); c.quadraticCurveTo(0, 20, -34, 0); c.fill();
+        c.strokeStyle = "rgba(200,240,190,0.5)"; c.lineWidth = 1.5; c.beginPath(); c.moveTo(-30, 0); c.lineTo(30, 0); c.stroke();
+        c.restore();
+      }
+      // filet d'huile d'olive, reflets
+      for (let i = 0; i < 160; i++) { c.fillStyle = `rgba(255,235,150,${0.12 + rnd() * 0.15})`; const a = rnd() * 6.283, r = rnd() * 430; c.beginPath(); c.arc(C + Math.cos(a) * r, C + Math.sin(a) * r, 1 + rnd() * 3, 0, 6.283); c.fill(); }
+    });
+    top.anisotropy = 8;
+    const crustTex = canvasTex(512, 64, (c) => {
+      const lg = c.createLinearGradient(0, 0, 0, 64); lg.addColorStop(0, "#c98b47"); lg.addColorStop(0.5, "#e2ae68"); lg.addColorStop(1, "#b97a3a");
+      c.fillStyle = lg; c.fillRect(0, 0, 512, 64);
+      for (let i = 0; i < 70; i++) { c.fillStyle = `rgba(${50 + rnd() * 40},${25 + rnd() * 20},10,${0.35 + rnd() * 0.5})`; blob(c, rnd() * 512, rnd() * 64, 2 + rnd() * 9, 0.6, 9); c.fill(); }
+      for (let i = 0; i < 200; i++) { c.fillStyle = "rgba(255,240,210,0.35)"; c.fillRect(rnd() * 512, rnd() * 64, 1.5, 1.5); }
+    });
+    crustTex.wrapS = THREE.RepeatWrapping; crustTex.repeat.set(6, 1);
+    // Pâte
+    const base = new THREE.Mesh(track(new THREE.CylinderGeometry(3.25, 3.15, 0.16, 96)), track(fadeable(new THREE.MeshStandardMaterial({ color: 0xdcae72, roughness: 0.9 }))));
+    // Garniture (texture peinte, relief léger)
+    const topMat = track(fadeable(new THREE.MeshStandardMaterial({ map: track(top), bumpMap: top, bumpScale: 2.2, roughness: 0.55 })));
+    const topping = new THREE.Mesh(track(new THREE.CircleGeometry(3.02, 96)), topMat);
+    topping.rotation.x = -Math.PI / 2; topping.position.y = 0.085;
+    // Corniche gonflée et irrégulière
+    const crustGeo = track(new THREE.TorusGeometry(3.05, 0.3, 20, 120));
+    const pos = crustGeo.attributes.position as THREE.BufferAttribute;
+    for (let i = 0; i < pos.count; i++) {
+      const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
+      const ang = Math.atan2(y, x);
+      const k = 1 + 0.12 * Math.sin(ang * 7) + 0.07 * Math.sin(ang * 17 + 1.3) + 0.05 * Math.sin(ang * 31);
+      const cx = Math.cos(ang) * 3.05, cy = Math.sin(ang) * 3.05;
+      pos.setXYZ(i, cx + (x - cx) * k, cy + (y - cy) * k, z * k * (z > 0 ? 1.15 : 0.8));
     }
-    for (let i = 0; i < 12; i++) {
-      const a = i * 2.1 + 0.6, r = 0.6 + (i % 5) * 0.45;
-      const m = new THREE.Mesh(track(new THREE.CylinderGeometry(0.34, 0.34, 0.06, 24)), pep);
-      m.position.set(Math.cos(a) * r, 0.2, Math.sin(a) * r);
-      pizza.add(m);
-    }
-    for (let i = 0; i < 7; i++) {
-      const a = i * 0.9 + 0.3, r = 1.1 + (i % 3) * 0.6;
-      const m = new THREE.Mesh(track(new THREE.SphereGeometry(0.22, 10, 6)), basil);
-      m.scale.set(1.4, 0.15, 0.7); m.position.set(Math.cos(a) * r, 0.22, Math.sin(a) * r); m.rotation.y = a;
-      pizza.add(m);
-    }
+    crustGeo.computeVertexNormals();
+    const crust = new THREE.Mesh(crustGeo, track(fadeable(new THREE.MeshStandardMaterial({ map: track(crustTex), roughness: 0.85 }))));
+    crust.rotation.x = Math.PI / 2; crust.position.y = 0.1;
+    // Planche en bois
+    const boardTex = canvasTex(512, 512, (c) => {
+      c.fillStyle = "#6b4426"; c.fillRect(0, 0, 512, 512);
+      for (let y = 0; y < 512; y += 2) { c.fillStyle = `rgba(${40 + rnd() * 50},${22 + rnd() * 25},${10 + rnd() * 10},0.35)`; c.fillRect(0, y + Math.sin(y * 0.05) * 3, 512, 1 + rnd() * 2); }
+    });
+    const board = new THREE.Mesh(track(new THREE.CylinderGeometry(3.9, 3.9, 0.22, 96)), track(fadeable(new THREE.MeshStandardMaterial({ map: track(boardTex), roughness: 0.8 }))));
+    board.position.y = -0.2;
+    pizza.add(board, base, topping, crust);
     pizza.position.y = GROUND + 0.4;
     g.add(pizza);
   }
 
-  // — 2 · Le voyage : globe en points, vol Paris → Kuala Lumpur
+  // — 2 · Le voyage : la Terre (textures NASA via three.js), vol Paris → Kuala Lumpur
   const globe = new THREE.Group();
   const plane = new THREE.Group();
+  let clouds: THREE.Mesh | null = null;
   let flight: THREE.QuadraticBezierCurve3;
   {
     const g = chapters[2];
@@ -312,32 +401,37 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
       const la = THREE.MathUtils.degToRad(lat), lo = THREE.MathUtils.degToRad(lon);
       return new THREE.Vector3(r * Math.cos(la) * Math.sin(lo), r * Math.sin(la), r * Math.cos(la) * Math.cos(lo));
     };
-    // Océan
-    globe.add(new THREE.Mesh(track(new THREE.SphereGeometry(GR * 0.985, 48, 32)), track(fadeable(new THREE.MeshStandardMaterial({ color: 0x0b2a4a, roughness: 0.6, metalness: 0.1 })))));
-    // Continents très simplifiés (ellipses lat/lon), dessinés en points
-    const lands: [number, number, number, number][] = [
-      [50, 10, 14, 26], [8, 20, 28, 20], [55, 90, 18, 55], [25, 78, 10, 14], [15, 103, 10, 10], [-25, 134, 12, 18],
-      [45, -100, 18, 32], [-15, -60, 26, 16], [65, -42, 8, 14], [0, 115, 6, 14],
-    ];
-    const pts: number[] = [];
-    const n = 7000;
-    for (let i = 0; i < n; i++) {
-      const y = 1 - (i / (n - 1)) * 2, r = Math.sqrt(1 - y * y), th = i * 2.39996;
-      const lat = THREE.MathUtils.radToDeg(Math.asin(y)), lon = THREE.MathUtils.radToDeg(Math.atan2(r * Math.sin(th), r * Math.cos(th)));
-      const land = lands.some(([la, lo, dla, dlo]) => ((lat - la) / dla) ** 2 + ((((lon - lo + 540) % 360) - 180) / dlo) ** 2 < 1);
-      if (!land) continue;
-      const v = ll(lat, lon, GR * 1.005);
-      pts.push(v.x, v.y, v.z);
-    }
-    const dotGeo = track(new THREE.BufferGeometry());
-    dotGeo.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
-    globe.add(new THREE.Points(dotGeo, track(fadeable(new THREE.PointsMaterial({ color: 0x7fe0a8, size: 0.055 })))));
+    const loader = new THREE.TextureLoader();
+    const load = (url: string, srgb = false) => {
+      const t = track(loader.load(url));
+      if (srgb) t.colorSpace = THREE.SRGBColorSpace;
+      t.anisotropy = 8;
+      return t;
+    };
+    const earthMat = track(fadeable(new THREE.MeshPhongMaterial({
+      map: load("/story/earth/day.webp", true),
+      specularMap: load("/story/earth/specular.webp"),
+      normalMap: load("/story/earth/normal.webp"),
+      normalScale: new THREE.Vector2(0.85, -0.85),
+      specular: new THREE.Color(0x3a4a5a),
+      shininess: 18,
+    })));
+    const earth = new THREE.Mesh(track(new THREE.SphereGeometry(GR, 96, 64)), earthMat);
+    earth.rotation.y = -Math.PI / 2; // aligne la texture sur nos coordonnées (longitude 0 face à nous)
+    globe.add(earth);
+    const cloudMat = track(fadeable(new THREE.MeshLambertMaterial({ map: load("/story/earth/clouds.webp", true), opacity: 0.85, depthWrite: false })));
+    clouds = new THREE.Mesh(track(new THREE.SphereGeometry(GR * 1.012, 96, 64)), cloudMat);
+    clouds.rotation.y = -Math.PI / 2;
+    globe.add(clouds);
+    // Atmosphère : halo bleuté sur le bord
+    const atmo = new THREE.Mesh(track(new THREE.SphereGeometry(GR * 1.09, 64, 48)), track(fadeable(new THREE.MeshBasicMaterial({ color: 0x5aa8ff, opacity: 0.16, side: THREE.BackSide, blending: THREE.AdditiveBlending, depthWrite: false }))));
+    globe.add(atmo);
     // Vol
-    const paris = ll(48.8, 2.3, GR * 1.01), kl = ll(3.1, 101.7, GR * 1.01);
-    const mid = paris.clone().add(kl).multiplyScalar(0.5).normalize().multiplyScalar(GR * 1.75);
+    const paris = ll(48.8, 2.3, GR * 1.02), kl = ll(3.1, 101.7, GR * 1.02);
+    const mid = paris.clone().add(kl).multiplyScalar(0.5).normalize().multiplyScalar(GR * 1.65);
     flight = new THREE.QuadraticBezierCurve3(paris, mid, kl);
-    globe.add(new THREE.Mesh(track(new THREE.TubeGeometry(flight, 64, 0.025, 8)), track(fadeable(new THREE.MeshBasicMaterial({ color: 0xffdd00 })))));
-    const pin = (v: THREE.Vector3) => { const m = new THREE.Mesh(track(new THREE.SphereGeometry(0.09, 12, 8)), track(fadeable(new THREE.MeshBasicMaterial({ color: 0xffffff })))); m.position.copy(v); globe.add(m); };
+    globe.add(new THREE.Mesh(track(new THREE.TubeGeometry(flight, 64, 0.022, 8)), track(fadeable(new THREE.MeshBasicMaterial({ color: 0xffdd00 })))));
+    const pin = (v: THREE.Vector3) => { const m = new THREE.Mesh(track(new THREE.SphereGeometry(0.07, 12, 8)), track(fadeable(new THREE.MeshBasicMaterial({ color: 0xffdd00 })))); m.position.copy(v); globe.add(m); };
     pin(paris); pin(kl);
     // Petit avion
     const pm = track(fadeable(new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.4 })));
@@ -347,7 +441,7 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
     plane.add(fus, wings);
     globe.add(plane);
     globe.rotation.y = -THREE.MathUtils.degToRad(52); // l'Europe et l'Asie face à nous
-    globe.rotation.x = 0.25;
+    globe.rotation.x = 0.3;
     g.add(globe);
   }
 
@@ -355,15 +449,44 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
   const papers: THREE.Mesh[] = [];
   {
     const g = chapters[4];
-    const paperMat = track(fadeable(new THREE.MeshStandardMaterial({
-      map: track(canvasTex(128, 160, (c) => {
-        c.fillStyle = "#f4f2ee"; c.fillRect(0, 0, 128, 160);
-        c.fillStyle = "#b9b4aa"; for (let y = 22; y < 140; y += 12) c.fillRect(14, y, 100 - ((y * 7) % 30), 4);
-        c.fillStyle = "#e6003c"; c.font = "900 22px Montserrat, Arial"; c.fillText("CONTRAT", 14, 18);
-      })), side: THREE.DoubleSide, roughness: 0.9,
-    })));
-    const pg = track(new THREE.PlaneGeometry(0.62, 0.8));
-    for (let i = 0; i < 26; i++) { const m = new THREE.Mesh(pg, paperMat); papers.push(m); g.add(m); }
+    // Contrats réalistes : en-tête, articles, paraphes, signature, tampon ; feuilles légèrement cintrées
+    const paperTex = (variant: number) => canvasTex(512, 680, (c) => {
+      let sd = 11 + variant * 97;
+      const rr = () => ((sd = (sd * 16807) % 2147483647) / 2147483647);
+      c.fillStyle = "#fbfaf6"; c.fillRect(0, 0, 512, 680);
+      const sh = c.createLinearGradient(0, 0, 512, 680); sh.addColorStop(0, "rgba(0,0,0,0)"); sh.addColorStop(1, "rgba(120,100,70,0.08)");
+      c.fillStyle = sh; c.fillRect(0, 0, 512, 680);
+      c.fillStyle = "#1b1b1b"; c.font = "700 26px Georgia, 'Times New Roman', serif"; c.textAlign = "center";
+      c.fillText(["CONTRAT DE DISTRIBUTION", "BON DE COMMANDE", "CONTRAT COMMERCIAL"][variant % 3], 256, 64);
+      c.font = "15px Georgia, serif"; c.fillStyle = "#555"; c.fillText("Entre les soussignés", 256, 92);
+      c.textAlign = "left";
+      let y = 130;
+      for (let art = 1; art <= 5 && y < 560; art++) {
+        c.fillStyle = "#222"; c.font = "700 14px Georgia, serif"; c.fillText(`Article ${art}`, 44, y); y += 20;
+        const lines = 3 + Math.floor(rr() * 3);
+        for (let l = 0; l < lines; l++) { c.fillStyle = "rgba(40,40,40,0.55)"; c.fillRect(44, y - 9, (l === lines - 1 ? 0.45 + rr() * 0.3 : 0.92 + rr() * 0.06) * 424, 5); y += 15; }
+        y += 10;
+      }
+      // signatures
+      c.strokeStyle = "#1d2f6b"; c.lineWidth = 2.2; c.beginPath(); c.moveTo(60, 620);
+      for (let i = 0; i < 9; i++) c.quadraticCurveTo(70 + i * 18, 590 + rr() * 50, 80 + i * 18, 615);
+      c.stroke();
+      c.fillStyle = "#888"; c.font = "12px Georgia, serif"; c.fillText("Lu et approuvé", 60, 650); c.fillText("Le distributeur", 330, 650);
+      // tampon rouge « ANNULÉ » de travers
+      c.save(); c.translate(350, 470); c.rotate(-0.35);
+      c.strokeStyle = "rgba(200,20,40,0.75)"; c.lineWidth = 5; c.strokeRect(-110, -34, 220, 68);
+      c.fillStyle = "rgba(200,20,40,0.75)"; c.font = "900 44px Montserrat, Arial, sans-serif"; c.textAlign = "center"; c.textBaseline = "middle"; c.fillText("ANNULÉ", 0, 3);
+      c.restore();
+    });
+    const paperMats = [0, 1, 2].map((v) => track(fadeable(new THREE.MeshStandardMaterial({ map: track(paperTex(v)), side: THREE.DoubleSide, roughness: 0.92 }))));
+    const paperGeos = [0.18, -0.12, 0.28].map((bend) => {
+      const pg = track(new THREE.PlaneGeometry(0.72, 0.96, 12, 12));
+      const pp = pg.attributes.position as THREE.BufferAttribute;
+      for (let i = 0; i < pp.count; i++) { const x = pp.getX(i), y = pp.getY(i); pp.setZ(i, bend * (x * x) * 1.6 + 0.06 * Math.sin(y * 4 + x * 2)); }
+      pg.computeVertexNormals();
+      return pg;
+    });
+    for (let i = 0; i < 26; i++) { const m = new THREE.Mesh(paperGeos[i % 3], paperMats[(i * 7) % 3]); papers.push(m); g.add(m); }
     const floor = new THREE.Mesh(track(new THREE.CircleGeometry(9, 48)), track(fadeable(new THREE.MeshStandardMaterial({ color: 0x220407, roughness: 1 }))));
     floor.rotation.x = -Math.PI / 2; floor.position.y = GROUND;
     g.add(floor);
@@ -475,7 +598,7 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
         const a = u * 2.2 + 0.4;
         return { pos: [Math.cos(a) * 3.9, 1.0, Math.sin(a) * 1.8 + 0.6], rot: [0.3, spin, 0.35], scale: [0.38, 0.38, 0.38] };
       }
-      case 3: return { pos: [0, -0.05, 0], rot: [0.05, spin * 0.6 + u * 1.5, -0.08], scale: [1, 1, 1] };
+      case 3: return { pos: [0, -0.05, 0], rot: [0.08, reduceMotion ? 0 : Math.sin(t * 0.4) * 0.18, -0.05], scale: [0.95, 0.95, 0.95] };
       case 4: return { pos: [0.2, GROUND + 0.95, 0], rot: [0, 0.4, Math.PI / 2 - 0.08], scale: [1.18, 0.66, 1.18] };
       case 5: {
         const s = clamp01(u + 0.5) * (STEPS - 1); // de la première à la dernière marche
@@ -544,20 +667,28 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
     hero.rotation.set(...lerp3(a.rot, b.rot, f));
     hero.scale.set(...lerp3(a.scale, b.scale, f));
     // Ce que la canette « est » : idée → verre 2007 → design actuel
-    const kWire = smooth((p - 0.45) / 0.4) * (1 - smooth((p - 2.45) / 0.45));
+    const kWire = smooth((p - 1.45) / 0.4) * (1 - smooth((p - 2.45) / 0.45));
     const kLabel = smooth((p - 5.55) / 0.4);
     const kGlass = smooth((p - 2.45) / 0.45) * (1 - kLabel);
     setGroupFade(wire, kWire);
     setGroupFade(glass, kGlass);
     setGroupFade(labelled, kLabel);
-    setGroupFade(metal, Math.max(kGlass, kLabel));
-    // Bulles qui montent dans la canette transparente
+    setGroupFade(metal, kLabel);
+    // 2007 : la canette s'ouvre en deux (les moitiés s'écartent et pivotent), puis se referme
+    const open = band(p, 2.55, 2.85, 3.3, 3.6);
+    halves.forEach((h, k) => {
+      const sd = k === 0 ? 1 : -1;
+      h.position.x = sd * open * 0.75;
+      h.rotation.y = sd * open * 0.42;
+    });
+    // Bulles qui montent le long de la coupe, à l'intérieur
     if (glass.visible) {
       for (let k = 0; k < BUB; k++) {
-        const s = bubSeed[k];
-        const y = ((s.o + t * s.s * 0.25) % 1) * H * 0.78 - H * 0.47;
-        tmpP.set(Math.cos(s.a + t * 0.3) * s.r, y, Math.sin(s.a + t * 0.3) * s.r);
-        tmpS.setScalar(s.z);
+        const b = bubSeed[k];
+        const hh = halves[b.side === 1 ? 0 : 1];
+        const y = -OHALF + 0.4 + ((b.o + t * b.s * 0.22) % 1) * OH * 0.76;
+        tmpP.set(b.side * b.x, y, b.z).applyEuler(hh.rotation).add(hh.position);
+        tmpS.setScalar(b.k * (0.6 + open * 0.8));
         tmpM.compose(tmpP, tmpQ.identity(), tmpS);
         bubbles.setMatrixAt(k, tmpM);
       }
@@ -608,14 +739,14 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
       const pt = flight.getPoint(fu), tg = flight.getTangent(fu);
       plane.position.copy(pt);
       plane.lookAt(pt.clone().add(tg));
-      if (!reduceMotion) globe.rotation.y = -THREE.MathUtils.degToRad(52) + Math.sin(t * 0.2) * 0.08;
+      if (!reduceMotion) { globe.rotation.y = -THREE.MathUtils.degToRad(52) + Math.sin(t * 0.2) * 0.08; if (clouds) clouds.rotation.y = -Math.PI / 2 + t * 0.012; }
     }
     if (chapters[4].visible) {
       papers.forEach((m, k) => {
         const ph = k * 0.77, r = 2.2 + (k % 6) * 0.55;
         const ang = ph + t * (0.5 + (k % 4) * 0.12);
         m.position.set(Math.cos(ang) * r, GROUND + 0.6 + ((k * 0.37 + t * 0.35) % 1) * 5.5, Math.sin(ang) * r * 0.6);
-        m.rotation.set(t * 1.3 + k, t * 0.9 + k * 0.5, t * 0.7);
+        m.rotation.set(Math.sin(t * 0.7 + k) * 1.2 + k, t * 0.45 + k * 0.5, Math.sin(t * 0.5 + k * 2) * 0.6);
       });
       shake = band(p, 3.6, 3.85, 4.15, 4.4) * (reduceMotion ? 0 : 0.09);
     } else shake = 0;

@@ -1480,3 +1480,16 @@ html.is-loading, html.is-loading body { overflow: hidden; }
 @media (max-width: 900px) {
   .sx-ch { background: linear-gradient(to top, rgba(6,6,8,0.9) 62%, rgba(6,6,8,0.55) 85%, transparent); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
 }
+
+/* Histoire : grand mot de fond en Anton ; texte calé plus à gauche ; images sans fond, en grand */
+.sx-big span { font-family: var(--font-anton), Impact, sans-serif; font-weight: 400; letter-spacing: 0.005em; text-transform: uppercase; }
+@media (min-width: 901px) {
+  .sx-ch { left: clamp(12px, 1.6vw, 28px); width: min(440px, 36vw); }
+  @media (min-width: 1376px) { .sx-ch { left: calc((100vw - 1280px) / 2 + 12px); } }
+}
+.sx-imgs { flex-wrap: wrap; align-items: flex-end; }
+.sx-imgs figure.is-plain { width: min(var(--w, 220px), 100%); height: auto; padding: 0; background: none; box-shadow: none; border-radius: 0; transform: none; overflow: visible; }
+.sx-imgs figure.is-plain.is-plain img { width: 100%; height: auto; object-fit: contain; filter: drop-shadow(0 14px 24px rgba(0,0,0,0.5)); }
+@media (max-width: 900px) {
+  .sx-imgs figure.is-plain { width: min(calc(var(--w, 220px) * 0.62), 100%); }
+}
