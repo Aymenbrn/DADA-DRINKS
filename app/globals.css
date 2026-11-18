@@ -1494,3 +1494,5 @@ html.is-loading, html.is-loading body { overflow: hidden; }
   .sx-imgs figure.is-plain { width: min(calc(var(--w, 220px) * 0.62), 100%); }
 }
 @media (min-width: 901px) { .sx-ch { width: min(470px, 37vw); } }
+/* Citation courte : tout sur une seule ligne, guillemets compris */
+.sx-quote.is-short { white-space: nowrap; font-size: clamp(14px, 1.45vw, 20px); }

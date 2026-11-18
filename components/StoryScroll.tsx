@@ -158,7 +158,7 @@ export default function StoryScroll() {
               </p>
               <h2 className="sx-title">{c.title}</h2>
               <p className="sx-text">{c.text}</p>
-              {c.quote && <blockquote className="sx-quote">« {c.quote} »<cite>Mohamed, fondateur</cite></blockquote>}
+              {c.quote && <blockquote className={`sx-quote${c.quote.length < 40 ? " is-short" : ""}`}>{`«\u00a0${c.quote}\u00a0»`}<cite>Mohamed, fondateur</cite></blockquote>}
               {c.imgs && (
                 <div className="sx-imgs">
                   {c.imgs.map((m, k) => (

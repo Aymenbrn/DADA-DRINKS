@@ -201,102 +201,75 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
   // ═══════════ Décors des chapitres ═══════════
   const chapters: THREE.Group[] = Array.from({ length: STORY_CHAPTERS }, () => { const g = new THREE.Group(); scene.add(g); return g; });
 
-  // — 0 · Nanterre : les tours nuages (Tours Aillaud), ciel étoilé
-  {
-    const g = chapters[0];
-    const cloudColors = ["#7fb6e6", "#a8d4f2", "#5d9bd1", "#9fd3a8", "#6fbf8f", "#f2b6c6", "#e8eef5"];
-    const towerTex = (seed: number) => canvasTex(256, 512, (c) => {
-      c.fillStyle = "#cfe3f3"; c.fillRect(0, 0, 256, 512);
-      for (let i = 0; i < 46; i++) { // taches façon nuages
-        const x = ((seed * 97 + i * 53) % 256), y = ((seed * 31 + i * 89) % 512), r = 18 + ((i * 7 + seed) % 34);
-        c.fillStyle = cloudColors[(i + seed) % cloudColors.length];
-        c.beginPath(); c.ellipse(x, y, r * 1.3, r, 0, 0, Math.PI * 2); c.fill();
-      }
-      c.fillStyle = "rgba(20,30,50,0.55)"; // petites fenêtres
-      for (let y = 10; y < 512; y += 22) for (let x = 6; x < 256; x += 18) if ((x * y + seed) % 5 !== 0) c.fillRect(x, y, 6, 9);
-    });
-    const ground = new THREE.Mesh(track(new THREE.CircleGeometry(14, 64)), track(fadeable(new THREE.MeshStandardMaterial({ color: 0x1a2238, roughness: 0.9 }))));
-    ground.rotation.x = -Math.PI / 2; ground.position.y = GROUND;
-    g.add(ground);
-    for (let i = 0; i < 20; i++) {
-      const a = -1.45 + (i / 19) * 2.9; // demi-cercle derrière la canette
-      const rad = 5.2 + ((i * 37) % 40) / 10;
-      const h = 2.2 + ((i * 53) % 40) / 10;
-      const r = 0.5 + ((i * 17) % 4) / 10;
-      const mat = track(fadeable(new THREE.MeshStandardMaterial({ map: track(towerTex(i)), roughness: 0.75 })));
-      const t = new THREE.Mesh(track(new THREE.CylinderGeometry(r, r, h, 28)), mat);
-      t.position.set(Math.sin(a) * rad * 1.15, GROUND + h / 2, -Math.cos(a) * rad - 1);
-      g.add(t);
-    }
-    // étoiles
-    const starGeo = track(new THREE.BufferGeometry());
-    const sp: number[] = [];
-    for (let i = 0; i < 260; i++) sp.push(((i * 73) % 100) / 100 * 60 - 30, ((i * 41) % 100) / 100 * 22 + 2, -18 - ((i * 29) % 10));
-    starGeo.setAttribute("position", new THREE.Float32BufferAttribute(sp, 3));
-    g.add(new THREE.Points(starGeo, track(fadeable(new THREE.PointsMaterial({ color: 0xffffff, size: 0.08, opacity: 0.8 })))));
-  }
+  // — 0 · Nanterre : la vraie photo des tours Aillaud et de leur terrain, des enfants qui jouent au foot devant.
+  //   L'image reste fixe mais vit : léger travelling, et les enfants courent, se passent le ballon.
+  const NAN_D = 26; // distance caméra → photo
+  const photoMat = track(fadeable(new THREE.MeshBasicMaterial({ toneMapped: false, color: 0xf2efe9 })));
+  const nanTex = track(new THREE.TextureLoader().load("/story/nanterre.webp"));
+  nanTex.colorSpace = THREE.SRGBColorSpace;
+  photoMat.map = nanTex;
+  const photo = new THREE.Mesh(track(new THREE.PlaneGeometry(1, 1)), photoMat);
+  chapters[0].add(photo);
 
-  // Les enfants qui jouent au ballon au pied des tours (chapitre 1, à la place de la canette)
-  type Kid = { g: THREE.Group; legL: THREE.Object3D; legR: THREE.Object3D; armL: THREE.Object3D; armR: THREE.Object3D; ph: number; base: THREE.Vector3 };
+  type Limb = { root: THREE.Group; lower: THREE.Group };
+  type Kid = { g: THREE.Group; hipL: Limb; hipR: Limb; shL: Limb; shR: Limb; torso: THREE.Group; ph: number; base: THREE.Vector3; h: number };
   const kids: Kid[] = [];
-  const ball = new THREE.Mesh(track(new THREE.SphereGeometry(0.17, 20, 14)), track(fadeable(new THREE.MeshStandardMaterial({
-    map: track(canvasTex(128, 64, (c) => {
-      c.fillStyle = "#ffffff"; c.fillRect(0, 0, 128, 64);
-      c.fillStyle = "#111111"; for (let i = 0; i < 6; i++) { c.beginPath(); c.arc(10 + i * 22, 16 + (i % 2) * 32, 7, 0, Math.PI * 2); c.fill(); }
-    })), roughness: 0.5,
-  }))));
+  const ballMat = track(fadeable(new THREE.MeshStandardMaterial({
+    map: track(canvasTex(256, 128, (c) => {
+      c.fillStyle = "#f4f4f2"; c.fillRect(0, 0, 256, 128);
+      c.fillStyle = "#1b1b1b";
+      for (let i = 0; i < 8; i++) { const x = 16 + i * 32, y = 32 + (i % 2) * 64; c.beginPath(); for (let k = 0; k < 5; k++) { const a = k / 5 * Math.PI * 2 - Math.PI / 2; c.lineTo(x + Math.cos(a) * 11, y + Math.sin(a) * 11); } c.fill(); }
+    })), roughness: 0.45,
+  })));
+  const ball = new THREE.Mesh(track(new THREE.SphereGeometry(0.11, 24, 16)), ballMat);
+  const kidShadows: THREE.Mesh[] = [];
   {
     const g = chapters[0];
-    const skin = [0x8d5524, 0xc68642, 0xe0ac69, 0x5c3a21];
-    const shirts = [0xe6003c, 0xffdd00, 0x3d6fd6, 0x1fb38a];
-    const pants = [0x1e2a44, 0x2b2b2b, 0x3b2a1a, 0x23304f];
-    const limbGeo = track(new THREE.CapsuleGeometry(0.075, 0.42, 4, 8));
-    const armGeo = track(new THREE.CapsuleGeometry(0.06, 0.34, 4, 8));
-    const bodyGeo2 = track(new THREE.CapsuleGeometry(0.2, 0.36, 4, 12));
-    const headGeo = track(new THREE.SphereGeometry(0.2, 20, 14));
-    const hairGeo = track(new THREE.SphereGeometry(0.21, 20, 10, 0, Math.PI * 2, 0, Math.PI * 0.55));
-    const spots: [number, number, number][] = [[-1.4, 0.9, 0.3], [1.3, 0.6, -0.4], [0.1, 2.0, 3.1], [-0.2, 0.2, 0]];
-    spots.forEach(([x, z, ry], i) => {
-      const std = (c: number) => track(fadeable(new THREE.MeshStandardMaterial({ color: c, roughness: 0.7 })));
+    // Tenues réalistes, couleurs sourdes (maillots de club, survêtements)
+    const looks = [
+      { skin: 0x8a5a3c, top: 0x1f2a4d, bottom: 0x161616, socks: 0xeeeeee, shoes: 0x111111, hair: 0x14100d },
+      { skin: 0xd9a77e, top: 0xb3202c, bottom: 0x23232a, socks: 0x222222, shoes: 0xf2f2f2, hair: 0x3a2617 },
+      { skin: 0x5c3b28, top: 0xe9e6df, bottom: 0x1d2440, socks: 0x1d2440, shoes: 0x202020, hair: 0x0e0b09 },
+      { skin: 0xb98563, top: 0x2d6b3c, bottom: 0x3a3a3f, socks: 0xdddddd, shoes: 0x2a2a2a, hair: 0x1c130c },
+    ];
+    const mat = (c: number, r = 0.85) => track(fadeable(new THREE.MeshStandardMaterial({ color: c, roughness: r })));
+    const cap = (r: number, l: number) => track(new THREE.CapsuleGeometry(r, l, 6, 12));
+    const limb = (parent: THREE.Object3D, x: number, y: number, upR: number, upL: number, loR: number, loL: number, upMat: THREE.Material, loMat: THREE.Material, end?: { geo: THREE.BufferGeometry; mat: THREE.Material; off: [number, number, number] }) => {
+      const root = new THREE.Group(); root.position.set(x, y, 0); parent.add(root);
+      const up = new THREE.Mesh(cap(upR, upL), upMat); up.position.y = -upL / 2 - upR * 0.4; root.add(up);
+      const lower = new THREE.Group(); lower.position.y = -upL - upR * 0.6; root.add(lower);
+      const lo = new THREE.Mesh(cap(loR, loL), loMat); lo.position.y = -loL / 2 - loR * 0.4; lower.add(lo);
+      if (end) { const e = new THREE.Mesh(end.geo, end.mat); e.position.set(...end.off); lower.add(e); }
+      return { root, lower };
+    };
+    const shoeGeo = track(new THREE.BoxGeometry(0.1, 0.07, 0.22));
+    const handGeo = track(new THREE.SphereGeometry(0.045, 12, 10));
+    const headGeo = track(new THREE.SphereGeometry(0.11, 24, 18));
+    const hairGeo = track(new THREE.SphereGeometry(0.116, 24, 12, 0, Math.PI * 2, 0, Math.PI * 0.5));
+    const spots: [number, number][] = [[-2.4, -9.2], [2.1, -9.6], [-0.2, -8.2], [0.6, -10.2]];
+    spots.forEach(([x, z], i) => {
+      const L = looks[i];
       const kid = new THREE.Group();
-      const hip = 0.62;
-      const mkLimb = (geo: THREE.BufferGeometry, mat: THREE.Material, px: number, py: number, len: number) => {
-        const pivot = new THREE.Group();
-        pivot.position.set(px, py, 0);
-        const m = new THREE.Mesh(geo, mat);
-        m.position.y = -len / 2;
-        pivot.add(m);
-        kid.add(pivot);
-        return pivot;
-      };
-      const legL = mkLimb(limbGeo, std(pants[i]), -0.1, hip, 0.56);
-      const legR = mkLimb(limbGeo, std(pants[i]), 0.1, hip, 0.56);
-      const torso = new THREE.Mesh(bodyGeo2, std(shirts[i]));
-      torso.position.y = hip + 0.36;
-      kid.add(torso);
-      const armL = mkLimb(armGeo, std(skin[i]), -0.27, hip + 0.6, 0.46);
-      const armR = mkLimb(armGeo, std(skin[i]), 0.27, hip + 0.6, 0.46);
-      const head = new THREE.Mesh(headGeo, std(skin[i]));
-      head.position.y = hip + 0.9;
-      kid.add(head);
-      const hair = new THREE.Mesh(hairGeo, std(0x1a120c));
-      hair.position.y = hip + 0.92;
-      hair.rotation.x = -0.25;
-      kid.add(hair);
-      kid.scale.setScalar(1.05);
-      kid.position.set(x, GROUND, z);
-      kid.rotation.y = ry;
+      const legLen = 0.34, hipY = 0.04 + legLen * 2 + 0.06;
+      const hipL = limb(kid, -0.075, hipY, 0.058, legLen, 0.048, legLen, mat(L.bottom), mat(i % 2 ? L.skin : L.socks), { geo: shoeGeo, mat: mat(L.shoes, 0.5), off: [0, -legLen - 0.06, 0.05] });
+      const hipR = limb(kid, 0.075, hipY, 0.058, legLen, 0.048, legLen, mat(L.bottom), mat(i % 2 ? L.skin : L.socks), { geo: shoeGeo, mat: mat(L.shoes, 0.5), off: [0, -legLen - 0.06, 0.05] });
+      const torso = new THREE.Group(); torso.position.y = hipY; kid.add(torso);
+      const chest = new THREE.Mesh(cap(0.12, 0.28), mat(L.top)); chest.position.y = 0.2; chest.scale.set(1.15, 1, 0.75); torso.add(chest);
+      const neck = new THREE.Mesh(cap(0.04, 0.05), mat(L.skin)); neck.position.y = 0.43; torso.add(neck);
+      const head = new THREE.Mesh(headGeo, mat(L.skin, 0.7)); head.position.y = 0.55; head.scale.set(0.92, 1.05, 1); torso.add(head);
+      const hair = new THREE.Mesh(hairGeo, mat(L.hair, 0.9)); hair.position.y = 0.57; hair.rotation.x = -0.35; torso.add(hair);
+      const shL = limb(torso, -0.17, 0.36, 0.045, 0.2, 0.038, 0.19, mat(L.top), mat(L.skin), { geo: handGeo, mat: mat(L.skin), off: [0, -0.24, 0] });
+      const shR = limb(torso, 0.17, 0.36, 0.045, 0.2, 0.038, 0.19, mat(L.top), mat(L.skin), { geo: handGeo, mat: mat(L.skin), off: [0, -0.24, 0] });
+      kid.scale.setScalar(0.95 + (i % 3) * 0.06);
+      kid.position.set(x, 0, z);
       g.add(kid);
-      kids.push({ g: kid, legL, legR, armL, armR, ph: i * 1.7, base: kid.position.clone() });
+      kids.push({ g: kid, hipL, hipR, shL, shR, torso, ph: i * 1.7, base: new THREE.Vector3(x, 0, z), h: hipY });
+      const sh = new THREE.Mesh(track(new THREE.PlaneGeometry(0.9, 0.5)), track(fadeable(new THREE.MeshBasicMaterial({ map: shadowTex, depthWrite: false, opacity: 0.55 }))));
+      sh.rotation.x = -Math.PI / 2;
+      g.add(sh);
+      kidShadows.push(sh);
     });
     g.add(ball);
-    // Ombres des enfants
-    kids.forEach((k) => {
-      const sh = new THREE.Mesh(track(new THREE.PlaneGeometry(1.2, 1.2)), track(fadeable(new THREE.MeshBasicMaterial({ map: shadowTex, depthWrite: false, opacity: 0.8 }))));
-      sh.rotation.x = -Math.PI / 2;
-      sh.position.set(k.base.x, GROUND + 0.012, k.base.z);
-      g.add(sh);
-    });
   }
 
   // — 1 · La pizzeria : une vraie pizza napolitaine (pâte, sauce, mozzarella fondue, pepperoni, basilic)
@@ -616,7 +589,7 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
   };
   const camKF = (i: number, u: number): CamState => {
     switch (i) {
-      case 0: return { pos: [0 + u * 1.2, 3.4, 16], look: [0, -0.2, -1] };
+      case 0: return { pos: [u * 0.8, 0.9, 14], look: [u * 0.8, 0.9, 0] };
       case 1: return { pos: [0, 7, 14.5], look: [0, -0.8, 0] };
       case 2: return { pos: [0 + u * 1.4, 1.2, 17], look: [0, 0.3, 0] };
       case 3: return { pos: [0, 0.4, 16.5 - u * 1.4], look: [0, 0, 0] };
@@ -710,30 +683,56 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
     });
     // Animations propres à chaque décor
     if (chapters[0].visible) {
-      // Passes de ballon entre les trois premiers enfants, le quatrième court autour
+      // La photo remplit tout le cadre, le terrain en bas ; léger travelling (image fixe qui respire)
+      const halfV = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+      const visH = 2 * NAN_D * halfV, visW = visH * camera.aspect * 1.4;
+      const ph = Math.max(visH * 1.12, visW / 1.777);
+      const camY = camera.position.y;
+      const bottom = camY - visH / 2 - (small ? 0.2 : 0.04) * visH;
+      const drift = reduceMotion ? 0 : Math.sin(t * 0.08);
+      photo.scale.set(ph * 1.777 * (1.03 + drift * 0.015), ph * (1.03 + drift * 0.015), 1);
+      photo.position.set(camera.position.x * 0.6 + drift * 0.25, bottom + ph / 2, camera.position.z - NAN_D);
+      // Ligne du terrain dans la photo (≈ 5 % au-dessus du bas) ramenée à la profondeur des enfants
+      const grassY = bottom + ph * 0.05;
+      const slope = (grassY - camY) / NAN_D;
       const tt = reduceMotion ? 0 : t;
-      const passDur = 1.1;
-      const n = 3, seg = Math.floor(tt / passDur), fr = (tt / passDur) % 1;
-      const from = kids[seg % n].base, to = kids[(seg + 1) % n].base;
-      ball.position.set(lerp(from.x, to.x, fr), GROUND + 0.18 + Math.sin(Math.PI * fr) * 1.4, lerp(from.z, to.z, fr));
-      ball.rotation.x = tt * 6;
+      const groundAt = (z: number) => camY + slope * (camera.position.z - z);
+      // Passes au ras du sol entre trois enfants, le quatrième court derrière
+      const passDur = 1.25, n = 3;
+      const seg = Math.floor(tt / passDur), fr = (tt / passDur) % 1;
+      const A = kids[seg % n].base, B = kids[(seg + 1) % n].base;
+      const e = fr < 0.12 ? 0 : (fr - 0.12) / 0.88;
+      const bx = lerp(A.x, B.x, e), bz = lerp(A.z, B.z, e);
+      ball.position.set(bx, groundAt(bz) + 0.11 + Math.sin(Math.PI * e) * 0.12, bz);
+      ball.rotation.x += 0.2; ball.rotation.z = Math.atan2(B.x - A.x, B.z - A.z);
       kids.forEach((k, i) => {
         const run = i === 3;
-        const sp = run ? 9 : 5;
-        const sw = Math.sin(tt * sp + k.ph) * (run ? 0.8 : 0.35);
-        k.legL.rotation.x = sw; k.legR.rotation.x = -sw;
-        k.armL.rotation.x = -sw * 0.9; k.armR.rotation.x = sw * 0.9;
-        const target = i < n ? ball.position : kids[0].base;
-        if (run) {
-          const a = tt * 0.9;
-          k.g.position.set(k.base.x + Math.cos(a) * 1.6, GROUND + Math.abs(Math.sin(tt * 9)) * 0.12, k.base.z + Math.sin(a) * 0.9);
-          k.g.rotation.y = -a;
-        } else {
-          k.g.position.y = GROUND + Math.abs(Math.sin(tt * 2.4 + k.ph)) * 0.08;
-          k.g.rotation.y = Math.atan2(target.x - k.g.position.x, target.z - k.g.position.z);
-          // celui qui reçoit lève les bras
-          if ((seg + 1) % n === i && fr > 0.6) { k.armL.rotation.x = -2.4; k.armR.rotation.x = -2.4; }
+        let x = k.base.x, z = k.base.z;
+        if (run) { const a = tt * 0.7; x += Math.cos(a) * 1.8; z += Math.sin(a) * 0.5; }
+        const gy = groundAt(z);
+        const kicker = (seg % n) === i, receiver = ((seg + 1) % n) === i;
+        // Cycle de marche/course : hanche, genou, épaules, coude
+        const sp = run ? 9.5 : 4, amp = run ? 0.75 : 0.18;
+        const c = Math.sin(tt * sp + k.ph);
+        k.hipL.root.rotation.x = c * amp; k.hipR.root.rotation.x = -c * amp;
+        k.hipL.lower.rotation.x = Math.max(0, -c) * amp * 1.3; k.hipR.lower.rotation.x = Math.max(0, c) * amp * 1.3;
+        k.shL.root.rotation.x = -c * amp * 0.9; k.shR.root.rotation.x = c * amp * 0.9;
+        k.shL.lower.rotation.x = -0.35 - (run ? 0.6 : 0); k.shR.lower.rotation.x = -0.35 - (run ? 0.6 : 0);
+        k.shL.root.rotation.z = 0.12; k.shR.root.rotation.z = -0.12;
+        k.torso.rotation.x = run ? 0.18 : 0.05;
+        // Frappe : jambe droite armée puis lancée vers l'avant
+        if (kicker && fr < 0.3) {
+          const kf = fr / 0.3;
+          k.hipR.root.rotation.x = kf < 0.45 ? lerp(0, 0.9, kf / 0.45) : lerp(0.9, -1.1, (kf - 0.45) / 0.55);
+          k.hipR.lower.rotation.x = kf < 0.45 ? 1.1 : lerp(1.1, 0.1, (kf - 0.45) / 0.55);
+          k.shL.root.rotation.z = 0.7; k.shR.root.rotation.z = -0.5;
         }
+        if (receiver && fr > 0.7) { k.hipL.root.rotation.x = -0.4; k.hipL.lower.rotation.x = 0.5; }
+        const bob = Math.abs(Math.sin(tt * sp + k.ph)) * (run ? 0.05 : 0.012);
+        k.g.position.set(x, gy + bob, z);
+        const tx = run ? x - Math.sin(tt * 0.7) : ball.position.x, tz = run ? z + Math.cos(tt * 0.7) : ball.position.z;
+        k.g.rotation.y = Math.atan2(tx - x, tz - z);
+        kidShadows[i].position.set(x + 0.12, gy + 0.005, z + 0.05);
       });
     }
     if (chapters[1].visible && !reduceMotion) pizza.rotation.y = t * 0.25;
