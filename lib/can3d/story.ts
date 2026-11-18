@@ -224,7 +224,7 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
     const bodyGeo2 = track(new THREE.CapsuleGeometry(0.2, 0.36, 4, 12));
     const headGeo = track(new THREE.SphereGeometry(0.2, 20, 14));
     const hairGeo = track(new THREE.SphereGeometry(0.21, 20, 10, 0, Math.PI * 2, 0, Math.PI * 0.55));
-    const spots: [number, number, number][] = [[-1.5, 2.6, 0.3], [1.4, 2.2, -0.4], [0.1, 3.6, 3.1], [-0.2, 1.4, 0]];
+    const spots: [number, number, number][] = [[-1.4, 0.9, 0.3], [1.3, 0.6, -0.4], [0.1, 2.0, 3.1], [-0.2, 0.2, 0]];
     spots.forEach(([x, z, ry], i) => {
       const std = (c: number) => track(fadeable(new THREE.MeshStandardMaterial({ color: c, roughness: 0.7 })));
       const kid = new THREE.Group();
@@ -252,7 +252,7 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
       hair.position.y = hip + 0.92;
       hair.rotation.x = -0.25;
       kid.add(hair);
-      kid.scale.setScalar(1.35);
+      kid.scale.setScalar(1.05);
       kid.position.set(x, GROUND, z);
       kid.rotation.y = ry;
       g.add(kid);
@@ -490,7 +490,7 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
   };
   const camKF = (i: number, u: number): CamState => {
     switch (i) {
-      case 0: return { pos: [0 + u * 1.2, 2.6, 15], look: [0, -0.4, -0.5] };
+      case 0: return { pos: [0 + u * 1.2, 3.4, 16], look: [0, -0.2, -1] };
       case 1: return { pos: [0, 7, 14.5], look: [0, -0.8, 0] };
       case 2: return { pos: [0 + u * 1.4, 1.2, 17], look: [0, 0.3, 0] };
       case 3: return { pos: [0, 0.4, 16.5 - u * 1.4], look: [0, 0, 0] };
@@ -546,7 +546,7 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
     // Ce que la canette « est » : idée → verre 2007 → design actuel
     const kWire = smooth((p - 0.45) / 0.4) * (1 - smooth((p - 2.45) / 0.45));
     const kLabel = smooth((p - 5.55) / 0.4);
-    const kGlass = (1 - kWire) * (1 - kLabel);
+    const kGlass = smooth((p - 2.45) / 0.45) * (1 - kLabel);
     setGroupFade(wire, kWire);
     setGroupFade(glass, kGlass);
     setGroupFade(labelled, kLabel);
