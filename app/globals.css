@@ -1516,3 +1516,6 @@ html.is-loading, html.is-loading body { overflow: hidden; }
 .story-top .page-hero-lede, .story-top .eyebrow { color: rgba(255,255,255,0.88) !important; }
 .story-top .page-hero-title { text-shadow: 0 4px 30px rgba(10,40,90,0.35); }
 .sx { background: #2f78c4; }
+/* Pas de voile sombre sur le ciel bleu du chapitre 1 (il réapparaît ensuite) : aucune démarcation avec l'en-tête */
+.sx-stage::after { opacity: calc(1 - var(--sx-sky, 0)); }
+.sx-glow { opacity: calc(1 - var(--sx-sky, 0)); }
