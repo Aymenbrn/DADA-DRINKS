@@ -1288,3 +1288,14 @@ h1 .serif-i, h2 .serif-i, h3 .serif-i, h4 .serif-i, .h-xl .serif-i { font-weight
 .checkout-lines strong, .cart-total strong, .cart-summary dd { white-space: nowrap; }
 /* Récapitulatif : la description du pack toujours à la ligne, sous le nom de l'article */
 .checkout-lines small { display: block; margin-top: 2px; }
+
+/* Fiches produits (mobile / tablette) : l'univers 3D prend toute la largeur et se fond en dégradé sur les bords (plus de fruits coupés net) */
+@media (max-width: 860px) {
+  .universe-stage { width: 100vw; margin-left: calc(50% - 50vw); height: 540px; margin-bottom: -60px; }
+  .universe-stage .launch-canvas {
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 9%, #000 70%, rgba(0,0,0,0.45) 84%, transparent 100%), linear-gradient(to right, transparent 0%, #000 12%, #000 88%, transparent 100%);
+    -webkit-mask-composite: source-in;
+    mask-image: linear-gradient(to bottom, transparent 0%, #000 9%, #000 70%, rgba(0,0,0,0.45) 84%, transparent 100%), linear-gradient(to right, transparent 0%, #000 12%, #000 88%, transparent 100%);
+    mask-composite: intersect;
+  }
+}
