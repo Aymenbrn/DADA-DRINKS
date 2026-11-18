@@ -1546,3 +1546,7 @@ html.is-loading, html.is-loading body { overflow: hidden; }
 /* le texte reste lisible sur le liquide */
 .site-header.is-glass .nav a, .site-header.is-glass .logo-img { filter: drop-shadow(0 1px 6px rgba(0,0,0,0.35)); }
 @media (prefers-reduced-motion: reduce) { .header-liquid-fill, .header-liquid i { animation: none; } .header-liquid i { display: none; } }
+
+/* Écran de chargement : vraiment toute la page sur mobile (sous les barres du navigateur, encoches, rebond du défilement) */
+.site-loader { top: -12vh; bottom: -12vh; left: 0; right: 0; width: 100%; height: auto; min-height: 124vh; padding: 12vh 0; }
+html:has(.site-loader:not(.is-done)), html:has(.site-loader:not(.is-done)) body { background: #050505; overflow: hidden; }

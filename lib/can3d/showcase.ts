@@ -31,7 +31,7 @@ export function createShowcase(canvas: HTMLCanvasElement, opts: ShowcaseOptions)
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, window.innerWidth < 900 ? 1.5 : 2)); // mobile : moins de pixels à calculer
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, window.innerWidth < 900 ? (opts.cardMode ? 1.25 : 1.5) : 2)); // mobile : moins de pixels à calculer
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.0;

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Anton, Montserrat } from "next/font/google";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -19,6 +19,9 @@ const montserrat = Montserrat({
 });
 // Anton : uniquement pour le grand « DADA DRINKS » du pied de page
 const anton = Anton({ weight: "400", subsets: ["latin"], variable: "--font-anton", display: "swap" });
+
+// Plein écran sur mobile (jusque sous l'encoche) et barre du navigateur noire, comme l'écran de chargement
+export const viewport: Viewport = { themeColor: "#050505", viewportFit: "cover", width: "device-width", initialScale: 1 };
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

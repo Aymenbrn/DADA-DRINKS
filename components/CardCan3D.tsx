@@ -19,17 +19,17 @@ export default function CardCan3D({ flavor, fogColor, fallback }: { flavor: Flav
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
-    // Mobile : pas de scène 3D par carte (des dizaines de contextes WebGL faisaient planter le téléphone) ;
-    // le visuel 2D de la canette reste affiché, la 3D est réservée à la fiche produit.
-    if (window.innerWidth < 900 || window.matchMedia("(pointer: coarse)").matches) return;
+    // Mobile : la 3D est active comme sur ordinateur, mais seulement pour les cartes réellement à l'écran
+    // (au plus 4 à la fois) et libérée dès qu'une carte sort de l'écran, pour ne pas saturer le téléphone.
+    const mobile = window.innerWidth < 900;
     let timer = 0;
     const io = new IntersectionObserver(
       ([e]) => {
         window.clearTimeout(timer);
         if (e.isIntersecting) setActive(true);
-        else timer = window.setTimeout(() => setActive(false), 1200);
+        else timer = window.setTimeout(() => setActive(false), mobile ? 250 : 1200);
       },
-      { rootMargin: "150px 0px" }
+      { rootMargin: mobile ? "0px 0px" : "150px 0px" }
     );
     io.observe(el);
     return () => {
