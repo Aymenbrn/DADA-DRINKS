@@ -118,11 +118,14 @@ export default function StoryScroll() {
 
   useEffect(() => {
     onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+    let ticking = 0;
+    const onScrollRaf = () => { if (!ticking) ticking = requestAnimationFrame(() => { ticking = 0; onScroll(); }); };
+    window.addEventListener("scroll", onScrollRaf, { passive: true });
+    window.addEventListener("resize", onScrollRaf);
     return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(ticking);
+      window.removeEventListener("scroll", onScrollRaf);
+      window.removeEventListener("resize", onScrollRaf);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

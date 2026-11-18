@@ -48,6 +48,9 @@ function fadeable<T extends THREE.Material>(m: T): T {
 function setGroupFade(g: THREE.Object3D, k: number) {
   g.visible = k > 0.002;
   if (!g.visible) return;
+  // ne reparcourt pas tous les matériaux si rien n'a changé (gros gain par image)
+  if (g.userData.fadeK !== undefined && Math.abs(g.userData.fadeK - k) < 0.003) return;
+  g.userData.fadeK = k;
   g.traverse((o) => {
     const m = (o as THREE.Mesh).material as THREE.Material | THREE.Material[] | undefined;
     if (!m) return;
@@ -63,7 +66,7 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const small = window.innerWidth < 760;
 
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: window.devicePixelRatio < 2, alpha: true, powerPreference: "high-performance" }) /* écrans haute densité : pas d'anticrénelage (invisible, mais coûteux) */;
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, small ? 1.5 : 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;

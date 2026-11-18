@@ -131,7 +131,9 @@ export default function SkyClouds({ className }: { className?: string }) {
       }
       g.globalAlpha = 1;
     };
-    const loop = (now: number) => { if (visible) draw(now); raf = requestAnimationFrame(loop); };
+    let last = 0;
+    // 30 images/s suffisent pour des nuages qui dérivent lentement ; rien n'est calculé hors écran
+    const loop = (now: number) => { if (visible && now - last > 33) { last = now; draw(now); } raf = requestAnimationFrame(loop); };
     build();
     draw(performance.now());
     if (!reduce) raf = requestAnimationFrame(loop);

@@ -46,7 +46,7 @@ function woodTexture() {
 }
 
 export function createPallet(canvas: HTMLCanvasElement, opts: { onReady?: () => void } = {}) {
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: window.devicePixelRatio < 2, alpha: true, powerPreference: "high-performance" }) /* écrans haute densité : pas d'anticrénelage (invisible, mais coûteux) */;
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, window.innerWidth < 900 ? 1.5 : 2)); // mobile : moins de pixels à calculer
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
