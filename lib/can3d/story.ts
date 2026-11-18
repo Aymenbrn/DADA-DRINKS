@@ -121,33 +121,111 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
   hero.add(metal);
 
   const bodyGeo = track(new THREE.CylinderGeometry(R, R, H, 96, 1, true));
-  // 2a) 2007 et 2009 : la toute première canette transparente (boisson ambrée, bulles, « dada »)
+  // 2a) 2007 → 2011 : la première canette Dada, saveur Lychee, d'après les photos.
+  //     Canette en plastique transparent (PET) au couvercle alu, fond pétaloïde à 5 lobes, plus trapue que la slim
+  //     (≈ 66 × 125 mm contre 58 × 146 mm) ; étiquette saumon translucide : bulles rouge et jaune, « DADA », « LYCHEE / », litchis.
+  const LR = 1.14, LTOP = 2.08, LBOT = -2.12;
   const glass0 = new THREE.Group();
-  const glassMat0 = track(fadeable(new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.04, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.05, opacity: 0.22, envMapIntensity: 1.4, side: THREE.DoubleSide })));
-  glass0.add(new THREE.Mesh(bodyGeo, glassMat0));
-  const liquidMat0 = track(fadeable(new THREE.MeshPhysicalMaterial({ color: 0xff9a1f, roughness: 0.15, opacity: 0.72, emissive: 0x6a2a00, emissiveIntensity: 0.35 })));
-  const liquid = new THREE.Mesh(track(new THREE.CylinderGeometry(R * 0.93, R * 0.93, H * 0.8, 64)), liquidMat0);
-  liquid.position.y = -H * 0.08;
-  glass0.add(liquid);
-  // Bandeau « Dada » des débuts, posé sur le verre
-  const oldBand = new THREE.Mesh(
-    track(new THREE.CylinderGeometry(R * 1.005, R * 1.005, 1.1, 96, 1, true, -Math.PI * 0.42, Math.PI * 0.84)),
-    track(fadeable(new THREE.MeshBasicMaterial({
-      map: track(canvasTex(512, 128, (g) => {
-        g.fillStyle = "rgba(255,255,255,0.0)"; g.fillRect(0, 0, 512, 128);
-        g.fillStyle = "#ffffff"; g.font = "italic 900 92px Montserrat, Arial, sans-serif"; g.textAlign = "center"; g.textBaseline = "middle";
-        g.fillText("dada", 256, 66);
-      })), side: THREE.DoubleSide,
-    }))),
-  );
-  oldBand.position.y = 0.3;
-  glass0.add(oldBand);
-  // Bulles dans la boisson
-  const bubbleGeo0 = track(new THREE.SphereGeometry(0.05, 8, 6));
-  const bubbleMat0 = track(fadeable(new THREE.MeshBasicMaterial({ color: 0xfff3d6, opacity: 0.85 })));
-  const BUB0 = 46;
+  const lycheeLabel = canvasTex(2048, 900, (c) => {
+    const W = 2048, Hh = 900, cx = 1024;
+    let sd = 21;
+    const rr = () => ((sd = (sd * 16807) % 2147483647) / 2147483647);
+    // film saumon translucide (plus dense à l'avant), traits clairs en haut à gauche
+    const bg = c.createLinearGradient(0, 0, 0, Hh);
+    bg.addColorStop(0, "rgba(236,112,84,0.86)"); bg.addColorStop(0.6, "rgba(242,138,108,0.8)"); bg.addColorStop(1, "rgba(246,160,132,0.7)");
+    c.fillStyle = bg; c.fillRect(0, 0, W, Hh);
+    c.save(); c.globalAlpha = 0.45; c.strokeStyle = "#fff4ec"; c.lineCap = "round";
+    for (let k = 0; k < 4; k++) { c.lineWidth = 26 - k * 5; c.beginPath(); c.moveTo(cx - 560 + k * 46, 30); c.lineTo(cx - 330 + k * 46, -120); c.stroke(); }
+    c.restore();
+    const ball = (x: number, y: number, r: number, c0: string, c1: string, gloss = 0.55) => {
+      const g = c.createRadialGradient(x - r * 0.35, y - r * 0.4, r * 0.08, x, y, r);
+      g.addColorStop(0, c0); g.addColorStop(1, c1);
+      c.fillStyle = g; c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fill();
+      const h = c.createRadialGradient(x - r * 0.4, y - r * 0.5, 0, x - r * 0.4, y - r * 0.5, r * 0.55);
+      h.addColorStop(0, `rgba(255,255,255,${gloss})`); h.addColorStop(1, "rgba(255,255,255,0)");
+      c.fillStyle = h; c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fill();
+    };
+    // bulles blanches
+    for (const [x, y, r] of [[cx - 330, 330, 42], [cx + 140, 110, 62], [cx + 300, 70, 22], [cx - 40, 540, 30], [cx + 360, 240, 16], [cx - 470, 160, 20]] as [number, number, number][]) ball(x, y, r, "rgba(255,255,255,0.98)", "rgba(225,232,245,0.85)", 0.9);
+    // grande bulle rouge et bulle jaune
+    ball(cx + 220, 380, 158, "#fff1a6", "#f2b300", 0.6);
+    ball(cx - 90, 300, 240, "#ff7a55", "#d9281f", 0.45);
+    // DADA : lettres fines au contour blanc
+    c.save();
+    c.font = "200 250px Montserrat, 'Helvetica Neue', Arial, sans-serif"; c.textAlign = "center"; c.textBaseline = "middle";
+    c.lineWidth = 7; c.strokeStyle = "rgba(255,255,255,0.95)"; c.fillStyle = "rgba(255,255,255,0.18)";
+    c.fillText("DADA", cx + 20, 318); c.strokeText("DADA", cx + 20, 318);
+    c.font = "300 34px Montserrat, Arial, sans-serif"; c.fillStyle = "rgba(255,255,255,0.85)"; c.fillText("drinks", cx + 300, 410);
+    c.restore();
+    // filet, « flavour », « LYCHEE / »
+    c.fillStyle = "rgba(255,255,255,0.75)"; c.fillRect(cx - 400, 476, 800, 3);
+    c.textAlign = "left"; c.textBaseline = "alphabetic";
+    c.fillStyle = "#fff"; c.font = "300 40px Montserrat, Arial, sans-serif"; c.fillText("flavour", cx - 400, 462);
+    c.font = "200 118px Montserrat, Arial, sans-serif"; c.fillText("LYCHEE /", cx - 405, 600);
+    // litchis : l'un épluché (chair nacrée, fibres, petit trou), l'autre rouge à la peau granuleuse
+    const px = cx - 150, py = 745, pr = 150;
+    const flesh = c.createRadialGradient(px - 40, py - 50, 10, px, py, pr);
+    flesh.addColorStop(0, "#ffffff"); flesh.addColorStop(0.7, "#f6eef2"); flesh.addColorStop(1, "#e7c9d4");
+    c.fillStyle = flesh; c.beginPath(); c.arc(px, py, pr, 0, Math.PI * 2); c.fill();
+    c.strokeStyle = "rgba(225,190,205,0.6)"; c.lineWidth = 2;
+    for (let k = 0; k < 46; k++) { const a = (k / 46) * Math.PI * 2; c.beginPath(); c.moveTo(px + Math.cos(a) * 22, py + Math.sin(a) * 22); c.lineTo(px + Math.cos(a) * pr * 0.95, py + Math.sin(a) * pr * 0.95); c.stroke(); }
+    c.fillStyle = "#d9a24a"; c.beginPath(); c.ellipse(px, py, 14, 20, 0, 0, Math.PI * 2); c.fill();
+    const qx = cx + 140, qy = 720, qr = 140;
+    const skin = c.createRadialGradient(qx - 40, qy - 50, 10, qx, qy, qr);
+    skin.addColorStop(0, "#ff5a4a"); skin.addColorStop(1, "#b81d24");
+    c.fillStyle = skin; c.beginPath(); c.ellipse(qx, qy, qr * 0.92, qr, 0, 0, Math.PI * 2); c.fill();
+    for (let k = 0; k < 900; k++) { const a = rr() * Math.PI * 2, d = Math.sqrt(rr()) * qr * 0.95; const x = qx + Math.cos(a) * d * 0.92, y = qy + Math.sin(a) * d; c.fillStyle = rr() > 0.5 ? "rgba(120,10,20,0.55)" : "rgba(255,150,140,0.5)"; c.beginPath(); c.arc(x, y, 3 + rr() * 3, 0, Math.PI * 2); c.fill(); }
+    // dos de l'étiquette : texte de composition discret
+    c.fillStyle = "rgba(255,255,255,0.6)"; c.font = "400 22px Arial, sans-serif";
+    for (let k = 0; k < 9; k++) c.fillRect(cx + 620, 300 + k * 30, 260 - (k % 3) * 40, 6);
+    c.font = "700 46px Arial, sans-serif"; c.fillText("350 ml", cx + 640, 640);
+  });
+  lycheeLabel.anisotropy = 8;
+  {
+    // Corps en PET : col étroit sous le couvercle, épaule, fût droit, fond pétaloïde
+    const prof = [
+      [0.0, LBOT + 0.02], [0.35, LBOT], [0.72, LBOT + 0.06], [0.98, LBOT + 0.3], [1.1, LBOT + 0.62], [LR, LBOT + 0.86],
+      [LR, 1.5], [1.12, 1.7], [1.04, 1.86], [0.98, 1.94], [0.97, LTOP - 0.1],
+    ].map(([x, y]) => new THREE.Vector2(x, y));
+    const bodyGeoL = track(new THREE.LatheGeometry(prof, 96));
+    // lobes du fond (5 pieds)
+    const bp = bodyGeoL.attributes.position as THREE.BufferAttribute;
+    for (let i = 0; i < bp.count; i++) {
+      const x = bp.getX(i), y = bp.getY(i), z = bp.getZ(i);
+      const w = Math.max(0, Math.min(1, (LBOT + 0.86 - y) / 0.86));
+      if (w <= 0) continue;
+      const a = Math.atan2(x, z);
+      const k = 1 - w * 0.16 * (0.5 - 0.5 * Math.cos(a * 5));
+      bp.setX(i, x * k); bp.setZ(i, z * k);
+    }
+    bodyGeoL.computeVertexNormals();
+    const pet = track(fadeable(new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.03, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.03, opacity: 0.26, envMapIntensity: 1.8, side: THREE.DoubleSide })));
+    glass0.add(new THREE.Mesh(bodyGeoL, pet));
+    // Boisson : eau pétillante claire, à peine rosée, jusqu'à l'épaule
+    const liq = new THREE.Mesh(track(new THREE.CylinderGeometry(LR * 0.95, LR * 0.86, 1.5 - (LBOT + 0.25), 64)), track(fadeable(new THREE.MeshPhysicalMaterial({ color: 0xffe3dc, roughness: 0.08, opacity: 0.32, clearcoat: 1 }))));
+    liq.position.y = (1.5 + LBOT + 0.25) / 2;
+    glass0.add(liq);
+    // Étiquette : film imprimé tout autour du fût (face avant au centre de l'image)
+    const lab = new THREE.Mesh(track(new THREE.CylinderGeometry(LR + 0.006, LR + 0.006, 3.08, 128, 1, true, -Math.PI, Math.PI * 2)), track(fadeable(new THREE.MeshPhysicalMaterial({ map: track(lycheeLabel), transparent: true, roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.05, side: THREE.DoubleSide, envMapIntensity: 0.8 }))));
+    lab.position.y = (1.5 + (LBOT + 0.86)) / 2 + 0.03;
+    glass0.add(lab);
+    // Couvercle aluminium serti
+    const lid = [[0, LTOP], [0.86, LTOP], [0.93, LTOP - 0.015], [1.0, LTOP - 0.05], [1.01, LTOP - 0.12], [0.98, LTOP - 0.16], [0.96, LTOP - 0.2]].map(([x, y]) => new THREE.Vector2(x, y));
+    const lidMat = track(fadeable(new THREE.MeshStandardMaterial({ color: 0xd8dade, metalness: 1, roughness: 0.22, envMapIntensity: 0.9 })));
+    glass0.add(new THREE.Mesh(track(new THREE.LatheGeometry(lid, 64)), lidMat));
+    const ring = new THREE.Mesh(track(new THREE.TorusGeometry(0.8, 0.025, 8, 64)), lidMat);
+    ring.rotation.x = Math.PI / 2; ring.position.y = LTOP + 0.01;
+    glass0.add(ring);
+    const tabL = new THREE.Mesh(track(new THREE.BoxGeometry(0.34, 0.025, 0.5)), lidMat);
+    tabL.position.set(0, LTOP + 0.025, 0.08);
+    glass0.add(tabL);
+  }
+  // Bulles qui montent dans la boisson
+  const bubbleGeo0 = track(new THREE.SphereGeometry(0.04, 10, 8));
+  const bubbleMat0 = track(fadeable(new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.05, clearcoat: 1, opacity: 0.85, envMapIntensity: 1.5 })));
+  const BUB0 = 60;
   const bubbles0 = new THREE.InstancedMesh(bubbleGeo0, bubbleMat0, BUB0);
-  const bubSeed0 = Array.from({ length: BUB0 }, (_, i) => ({ a: (i * 2.39996) % (Math.PI * 2), r: 0.15 + ((i * 37) % 70) / 100, s: 0.4 + ((i * 13) % 10) / 12, o: (i * 0.137) % 1, z: 0.6 + ((i * 7) % 6) / 6 }));
+  const bubSeed0 = Array.from({ length: BUB0 }, (_, i) => ({ a: (i * 2.39996) % (Math.PI * 2), r: 0.1 + ((i * 37) % 80) / 100, s: 0.4 + ((i * 13) % 10) / 12, o: (i * 0.137) % 1, z: 0.5 + ((i * 7) % 6) / 7 }));
   glass0.add(bubbles0);
   hero.add(glass0);
 
@@ -622,7 +700,7 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
         const a = u * 2.2 + 0.4;
         return { pos: [Math.cos(a) * 3.3, 1.2, Math.sin(a) * 1.4 + 1.6], rot: [0.3, spin, 0.35], scale: [0.36, 0.36, 0.36] };
       }
-      case 3: return { pos: [0, -0.05, 0], rot: [0.05, spin * 0.6 + u * 1.5, -0.08], scale: [1, 1, 1] };
+      case 3: return { pos: [0, -0.05, 0], rot: [0.06, reduceMotion ? 0 : Math.sin(t * 0.5) * 0.35, -0.06], scale: [1, 1, 1] };
       case 4: return { pos: [0.2, GROUND + 0.95, 0], rot: [0, 0.4, Math.PI / 2 - 0.08], scale: [1.18, 0.66, 1.18] };
       case 5: {
         const s = clamp01(u + 0.5) * (STEPS - 1); // de la première à la dernière marche
@@ -711,7 +789,7 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
     if (glass0.visible) {
       for (let k = 0; k < BUB0; k++) {
         const b = bubSeed0[k];
-        const y = ((b.o + t * b.s * 0.25) % 1) * H * 0.78 - H * 0.47;
+        const y = LBOT + 0.35 + ((b.o + t * b.s * 0.25) % 1) * (1.45 - LBOT - 0.35);
         tmpP.set(Math.cos(b.a + t * 0.3) * b.r, y, Math.sin(b.a + t * 0.3) * b.r);
         tmpS.setScalar(b.z);
         tmpM.compose(tmpP, tmpQ.identity(), tmpS);
