@@ -1368,3 +1368,6 @@ html.is-loading, html.is-loading body { overflow: hidden; }
   .title-1line { font-size: min(var(--t-section), 7.4vw); }
   .title-reasons { font-size: min(var(--t-section), 5.3vw); }
 }
+
+/* Bandeau « une idée de collaboration ? » : jaune du logo Dada */
+.band-yellow { background: #ffdd00; color: var(--ink); }

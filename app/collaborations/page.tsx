@@ -67,7 +67,7 @@ export default function CollaborationsPage() {
           </ul>
         </div>
       </section>
-      <section className="band band-accent">
+      <section className="band band-accent band-yellow">
         <div className="container band-inner">
           <p className="band-text">Artiste, club, média ou marque : une idée de collaboration avec Dada ?</p>
           <Link href="/contact" className="btn btn-dark">Nous écrire</Link>
