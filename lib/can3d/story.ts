@@ -201,15 +201,40 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
   // ═══════════ Décors des chapitres ═══════════
   const chapters: THREE.Group[] = Array.from({ length: STORY_CHAPTERS }, () => { const g = new THREE.Group(); scene.add(g); return g; });
 
-  // — 0 · Nanterre : la vraie photo des tours Aillaud et de leur terrain, des enfants qui jouent au foot devant.
-  //   L'image reste fixe mais vit : léger travelling, et les enfants courent, se passent le ballon.
-  const NAN_D = 26; // distance caméra → photo
-  const photoMat = track(fadeable(new THREE.MeshBasicMaterial({ toneMapped: false, color: 0xf2efe9 })));
-  const nanTex = track(new THREE.TextureLoader().load("/story/nanterre.webp"));
-  nanTex.colorSpace = THREE.SRGBColorSpace;
-  photoMat.map = nanTex;
-  const photo = new THREE.Mesh(track(new THREE.PlaneGeometry(1, 1)), photoMat);
-  chapters[0].add(photo);
+  // — 0 · Nanterre : les tours nuages (Tours Aillaud), ciel étoilé
+  {
+    const g = chapters[0];
+    const cloudColors = ["#7fb6e6", "#a8d4f2", "#5d9bd1", "#9fd3a8", "#6fbf8f", "#f2b6c6", "#e8eef5"];
+    const towerTex = (seed: number) => canvasTex(256, 512, (c) => {
+      c.fillStyle = "#cfe3f3"; c.fillRect(0, 0, 256, 512);
+      for (let i = 0; i < 46; i++) { // taches façon nuages
+        const x = ((seed * 97 + i * 53) % 256), y = ((seed * 31 + i * 89) % 512), r = 18 + ((i * 7 + seed) % 34);
+        c.fillStyle = cloudColors[(i + seed) % cloudColors.length];
+        c.beginPath(); c.ellipse(x, y, r * 1.3, r, 0, 0, Math.PI * 2); c.fill();
+      }
+      c.fillStyle = "rgba(20,30,50,0.55)"; // petites fenêtres
+      for (let y = 10; y < 512; y += 22) for (let x = 6; x < 256; x += 18) if ((x * y + seed) % 5 !== 0) c.fillRect(x, y, 6, 9);
+    });
+    const ground = new THREE.Mesh(track(new THREE.CircleGeometry(14, 64)), track(fadeable(new THREE.MeshStandardMaterial({ color: 0x1a2238, roughness: 0.9 }))));
+    ground.rotation.x = -Math.PI / 2; ground.position.y = GROUND;
+    g.add(ground);
+    for (let i = 0; i < 20; i++) {
+      const a = -1.45 + (i / 19) * 2.9; // demi-cercle derrière la canette
+      const rad = 5.2 + ((i * 37) % 40) / 10;
+      const h = 2.2 + ((i * 53) % 40) / 10;
+      const r = 0.5 + ((i * 17) % 4) / 10;
+      const mat = track(fadeable(new THREE.MeshStandardMaterial({ map: track(towerTex(i)), roughness: 0.75 })));
+      const t = new THREE.Mesh(track(new THREE.CylinderGeometry(r, r, h, 28)), mat);
+      t.position.set(Math.sin(a) * rad * 1.15, GROUND + h / 2, -Math.cos(a) * rad - 1);
+      g.add(t);
+    }
+    // étoiles
+    const starGeo = track(new THREE.BufferGeometry());
+    const sp: number[] = [];
+    for (let i = 0; i < 260; i++) sp.push(((i * 73) % 100) / 100 * 60 - 30, ((i * 41) % 100) / 100 * 22 + 2, -18 - ((i * 29) % 10));
+    starGeo.setAttribute("position", new THREE.Float32BufferAttribute(sp, 3));
+    g.add(new THREE.Points(starGeo, track(fadeable(new THREE.PointsMaterial({ color: 0xffffff, size: 0.08, opacity: 0.8 })))));
+  }
 
   type Limb = { root: THREE.Group; lower: THREE.Group };
   type Kid = { g: THREE.Group; hipL: Limb; hipR: Limb; shL: Limb; shR: Limb; torso: THREE.Group; ph: number; base: THREE.Vector3; h: number };
@@ -246,7 +271,7 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
     const handGeo = track(new THREE.SphereGeometry(0.045, 12, 10));
     const headGeo = track(new THREE.SphereGeometry(0.11, 24, 18));
     const hairGeo = track(new THREE.SphereGeometry(0.116, 24, 12, 0, Math.PI * 2, 0, Math.PI * 0.5));
-    const spots: [number, number][] = [[-2.4, -9.2], [2.1, -9.6], [-0.2, -8.2], [0.6, -10.2]];
+    const spots: [number, number][] = [[-1.5, 0.9], [1.4, 0.5], [0.1, 2.1], [-0.3, -0.2]];
     spots.forEach(([x, z], i) => {
       const L = looks[i];
       const kid = new THREE.Group();
@@ -589,7 +614,7 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
   };
   const camKF = (i: number, u: number): CamState => {
     switch (i) {
-      case 0: return { pos: [u * 0.8, 0.9, 14], look: [u * 0.8, 0.9, 0] };
+      case 0: return { pos: [0 + u * 1.2, 3.4, 16], look: [0, -0.2, -1] };
       case 1: return { pos: [0, 7, 14.5], look: [0, -0.8, 0] };
       case 2: return { pos: [0 + u * 1.4, 1.2, 17], look: [0, 0.3, 0] };
       case 3: return { pos: [0, 0.4, 16.5 - u * 1.4], look: [0, 0, 0] };
@@ -683,20 +708,8 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
     });
     // Animations propres à chaque décor
     if (chapters[0].visible) {
-      // La photo remplit tout le cadre, le terrain en bas ; léger travelling (image fixe qui respire)
-      const halfV = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
-      const visH = 2 * NAN_D * halfV, visW = visH * camera.aspect * 1.18;
-      const ph = Math.max(visH * 1.06, visW / 1.777);
-      const camY = camera.position.y;
-      const bottom = camY - visH / 2 - (small ? 0.16 : 0.01) * visH;
-      const drift = reduceMotion ? 0 : Math.sin(t * 0.08);
-      photo.scale.set(ph * 1.777 * (1.03 + drift * 0.015), ph * (1.03 + drift * 0.015), 1);
-      photo.position.set(camera.position.x * 0.6 + drift * 0.25, bottom + ph / 2, camera.position.z - NAN_D);
-      // Ligne du terrain dans la photo (≈ 5 % au-dessus du bas) ramenée à la profondeur des enfants
-      const grassY = bottom + ph * 0.068;
-      const slope = (grassY - camY) / NAN_D;
       const tt = reduceMotion ? 0 : t;
-      const groundAt = (z: number) => camY + slope * (camera.position.z - z);
+      const groundAt = (_z: number) => GROUND;
       // Passes au ras du sol entre trois enfants, le quatrième court derrière
       const passDur = 1.25, n = 3;
       const seg = Math.floor(tt / passDur), fr = (tt / passDur) % 1;
