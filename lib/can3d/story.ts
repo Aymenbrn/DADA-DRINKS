@@ -236,67 +236,6 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
     g.add(new THREE.Points(starGeo, track(fadeable(new THREE.PointsMaterial({ color: 0xffffff, size: 0.08, opacity: 0.8 })))));
   }
 
-  type Limb = { root: THREE.Group; lower: THREE.Group };
-  type Kid = { g: THREE.Group; hipL: Limb; hipR: Limb; shL: Limb; shR: Limb; torso: THREE.Group; ph: number; base: THREE.Vector3; h: number };
-  const kids: Kid[] = [];
-  const ballMat = track(fadeable(new THREE.MeshStandardMaterial({
-    map: track(canvasTex(256, 128, (c) => {
-      c.fillStyle = "#f4f4f2"; c.fillRect(0, 0, 256, 128);
-      c.fillStyle = "#1b1b1b";
-      for (let i = 0; i < 8; i++) { const x = 16 + i * 32, y = 32 + (i % 2) * 64; c.beginPath(); for (let k = 0; k < 5; k++) { const a = k / 5 * Math.PI * 2 - Math.PI / 2; c.lineTo(x + Math.cos(a) * 11, y + Math.sin(a) * 11); } c.fill(); }
-    })), roughness: 0.45,
-  })));
-  const ball = new THREE.Mesh(track(new THREE.SphereGeometry(0.11, 24, 16)), ballMat);
-  const kidShadows: THREE.Mesh[] = [];
-  {
-    const g = chapters[0];
-    // Tenues réalistes, couleurs sourdes (maillots de club, survêtements)
-    const looks = [
-      { skin: 0x8a5a3c, top: 0x1f2a4d, bottom: 0x161616, socks: 0xeeeeee, shoes: 0x111111, hair: 0x14100d },
-      { skin: 0xd9a77e, top: 0xb3202c, bottom: 0x23232a, socks: 0x222222, shoes: 0xf2f2f2, hair: 0x3a2617 },
-      { skin: 0x5c3b28, top: 0xe9e6df, bottom: 0x1d2440, socks: 0x1d2440, shoes: 0x202020, hair: 0x0e0b09 },
-      { skin: 0xb98563, top: 0x2d6b3c, bottom: 0x3a3a3f, socks: 0xdddddd, shoes: 0x2a2a2a, hair: 0x1c130c },
-    ];
-    const mat = (c: number, r = 0.85) => track(fadeable(new THREE.MeshStandardMaterial({ color: c, roughness: r })));
-    const cap = (r: number, l: number) => track(new THREE.CapsuleGeometry(r, l, 6, 12));
-    const limb = (parent: THREE.Object3D, x: number, y: number, upR: number, upL: number, loR: number, loL: number, upMat: THREE.Material, loMat: THREE.Material, end?: { geo: THREE.BufferGeometry; mat: THREE.Material; off: [number, number, number] }) => {
-      const root = new THREE.Group(); root.position.set(x, y, 0); parent.add(root);
-      const up = new THREE.Mesh(cap(upR, upL), upMat); up.position.y = -upL / 2 - upR * 0.4; root.add(up);
-      const lower = new THREE.Group(); lower.position.y = -upL - upR * 0.6; root.add(lower);
-      const lo = new THREE.Mesh(cap(loR, loL), loMat); lo.position.y = -loL / 2 - loR * 0.4; lower.add(lo);
-      if (end) { const e = new THREE.Mesh(end.geo, end.mat); e.position.set(...end.off); lower.add(e); }
-      return { root, lower };
-    };
-    const shoeGeo = track(new THREE.BoxGeometry(0.1, 0.07, 0.22));
-    const handGeo = track(new THREE.SphereGeometry(0.045, 12, 10));
-    const headGeo = track(new THREE.SphereGeometry(0.11, 24, 18));
-    const hairGeo = track(new THREE.SphereGeometry(0.116, 24, 12, 0, Math.PI * 2, 0, Math.PI * 0.5));
-    const spots: [number, number][] = [[-1.5, 0.9], [1.4, 0.5], [0.1, 2.1], [-0.3, -0.2]];
-    spots.forEach(([x, z], i) => {
-      const L = looks[i];
-      const kid = new THREE.Group();
-      const legLen = 0.34, hipY = 0.04 + legLen * 2 + 0.06;
-      const hipL = limb(kid, -0.075, hipY, 0.058, legLen, 0.048, legLen, mat(L.bottom), mat(i % 2 ? L.skin : L.socks), { geo: shoeGeo, mat: mat(L.shoes, 0.5), off: [0, -legLen - 0.06, 0.05] });
-      const hipR = limb(kid, 0.075, hipY, 0.058, legLen, 0.048, legLen, mat(L.bottom), mat(i % 2 ? L.skin : L.socks), { geo: shoeGeo, mat: mat(L.shoes, 0.5), off: [0, -legLen - 0.06, 0.05] });
-      const torso = new THREE.Group(); torso.position.y = hipY; kid.add(torso);
-      const chest = new THREE.Mesh(cap(0.12, 0.28), mat(L.top)); chest.position.y = 0.2; chest.scale.set(1.15, 1, 0.75); torso.add(chest);
-      const neck = new THREE.Mesh(cap(0.04, 0.05), mat(L.skin)); neck.position.y = 0.43; torso.add(neck);
-      const head = new THREE.Mesh(headGeo, mat(L.skin, 0.7)); head.position.y = 0.55; head.scale.set(0.92, 1.05, 1); torso.add(head);
-      const hair = new THREE.Mesh(hairGeo, mat(L.hair, 0.9)); hair.position.y = 0.57; hair.rotation.x = -0.35; torso.add(hair);
-      const shL = limb(torso, -0.17, 0.36, 0.045, 0.2, 0.038, 0.19, mat(L.top), mat(L.skin), { geo: handGeo, mat: mat(L.skin), off: [0, -0.24, 0] });
-      const shR = limb(torso, 0.17, 0.36, 0.045, 0.2, 0.038, 0.19, mat(L.top), mat(L.skin), { geo: handGeo, mat: mat(L.skin), off: [0, -0.24, 0] });
-      kid.scale.setScalar(1.15 + (i % 3) * 0.07);
-      kid.position.set(x, 0, z);
-      g.add(kid);
-      kids.push({ g: kid, hipL, hipR, shL, shR, torso, ph: i * 1.7, base: new THREE.Vector3(x, 0, z), h: hipY });
-      const sh = new THREE.Mesh(track(new THREE.PlaneGeometry(0.9, 0.5)), track(fadeable(new THREE.MeshBasicMaterial({ map: shadowTex, depthWrite: false, opacity: 0.55 }))));
-      sh.rotation.x = -Math.PI / 2;
-      g.add(sh);
-      kidShadows.push(sh);
-    });
-    g.add(ball);
-  }
-
   // — 1 · La pizzeria : une vraie pizza napolitaine (pâte, sauce, mozzarella fondue, pepperoni, basilic)
   const pizza = new THREE.Group();
   {
@@ -707,47 +646,6 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
       g.position.y = (1 - k) * -0.6;
     });
     // Animations propres à chaque décor
-    if (chapters[0].visible) {
-      const tt = reduceMotion ? 0 : t;
-      const groundAt = (_z: number) => GROUND;
-      // Passes au ras du sol entre trois enfants, le quatrième court derrière
-      const passDur = 1.25, n = 3;
-      const seg = Math.floor(tt / passDur), fr = (tt / passDur) % 1;
-      const A = kids[seg % n].base, B = kids[(seg + 1) % n].base;
-      const e = fr < 0.12 ? 0 : (fr - 0.12) / 0.88;
-      const bx = lerp(A.x, B.x, e), bz = lerp(A.z, B.z, e);
-      ball.position.set(bx, groundAt(bz) + 0.11 + Math.sin(Math.PI * e) * 0.12, bz);
-      ball.rotation.x += 0.2; ball.rotation.z = Math.atan2(B.x - A.x, B.z - A.z);
-      kids.forEach((k, i) => {
-        const run = i === 3;
-        let x = k.base.x, z = k.base.z;
-        if (run) { const a = tt * 0.7; x += Math.cos(a) * 1.8; z += Math.sin(a) * 0.5; }
-        const gy = groundAt(z);
-        const kicker = (seg % n) === i, receiver = ((seg + 1) % n) === i;
-        // Cycle de marche/course : hanche, genou, épaules, coude
-        const sp = run ? 9.5 : 4, amp = run ? 0.75 : 0.18;
-        const c = Math.sin(tt * sp + k.ph);
-        k.hipL.root.rotation.x = c * amp; k.hipR.root.rotation.x = -c * amp;
-        k.hipL.lower.rotation.x = Math.max(0, -c) * amp * 1.3; k.hipR.lower.rotation.x = Math.max(0, c) * amp * 1.3;
-        k.shL.root.rotation.x = -c * amp * 0.9; k.shR.root.rotation.x = c * amp * 0.9;
-        k.shL.lower.rotation.x = -0.35 - (run ? 0.6 : 0); k.shR.lower.rotation.x = -0.35 - (run ? 0.6 : 0);
-        k.shL.root.rotation.z = 0.12; k.shR.root.rotation.z = -0.12;
-        k.torso.rotation.x = run ? 0.18 : 0.05;
-        // Frappe : jambe droite armée puis lancée vers l'avant
-        if (kicker && fr < 0.3) {
-          const kf = fr / 0.3;
-          k.hipR.root.rotation.x = kf < 0.45 ? lerp(0, 0.9, kf / 0.45) : lerp(0.9, -1.1, (kf - 0.45) / 0.55);
-          k.hipR.lower.rotation.x = kf < 0.45 ? 1.1 : lerp(1.1, 0.1, (kf - 0.45) / 0.55);
-          k.shL.root.rotation.z = 0.7; k.shR.root.rotation.z = -0.5;
-        }
-        if (receiver && fr > 0.7) { k.hipL.root.rotation.x = -0.4; k.hipL.lower.rotation.x = 0.5; }
-        const bob = Math.abs(Math.sin(tt * sp + k.ph)) * (run ? 0.05 : 0.012);
-        k.g.position.set(x, gy + bob, z);
-        const tx = run ? x - Math.sin(tt * 0.7) : ball.position.x, tz = run ? z + Math.cos(tt * 0.7) : ball.position.z;
-        k.g.rotation.y = Math.atan2(tx - x, tz - z);
-        kidShadows[i].position.set(x + 0.12, gy + 0.005, z + 0.05);
-      });
-    }
     if (chapters[1].visible && !reduceMotion) pizza.rotation.y = t * 0.25;
     if (chapters[2].visible) {
       const fu = clamp01((p - 2 + 0.45) / 0.9);
