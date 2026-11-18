@@ -205,6 +205,69 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
     g.add(new THREE.Points(starGeo, track(fadeable(new THREE.PointsMaterial({ color: 0xffffff, size: 0.08, opacity: 0.8 })))));
   }
 
+  // Les enfants qui jouent au ballon au pied des tours (chapitre 1, à la place de la canette)
+  type Kid = { g: THREE.Group; legL: THREE.Object3D; legR: THREE.Object3D; armL: THREE.Object3D; armR: THREE.Object3D; ph: number; base: THREE.Vector3 };
+  const kids: Kid[] = [];
+  const ball = new THREE.Mesh(track(new THREE.SphereGeometry(0.17, 20, 14)), track(fadeable(new THREE.MeshStandardMaterial({
+    map: track(canvasTex(128, 64, (c) => {
+      c.fillStyle = "#ffffff"; c.fillRect(0, 0, 128, 64);
+      c.fillStyle = "#111111"; for (let i = 0; i < 6; i++) { c.beginPath(); c.arc(10 + i * 22, 16 + (i % 2) * 32, 7, 0, Math.PI * 2); c.fill(); }
+    })), roughness: 0.5,
+  }))));
+  {
+    const g = chapters[0];
+    const skin = [0x8d5524, 0xc68642, 0xe0ac69, 0x5c3a21];
+    const shirts = [0xe6003c, 0xffdd00, 0x3d6fd6, 0x1fb38a];
+    const pants = [0x1e2a44, 0x2b2b2b, 0x3b2a1a, 0x23304f];
+    const limbGeo = track(new THREE.CapsuleGeometry(0.075, 0.42, 4, 8));
+    const armGeo = track(new THREE.CapsuleGeometry(0.06, 0.34, 4, 8));
+    const bodyGeo2 = track(new THREE.CapsuleGeometry(0.2, 0.36, 4, 12));
+    const headGeo = track(new THREE.SphereGeometry(0.2, 20, 14));
+    const hairGeo = track(new THREE.SphereGeometry(0.21, 20, 10, 0, Math.PI * 2, 0, Math.PI * 0.55));
+    const spots: [number, number, number][] = [[-1.5, 2.6, 0.3], [1.4, 2.2, -0.4], [0.1, 3.6, 3.1], [-0.2, 1.4, 0]];
+    spots.forEach(([x, z, ry], i) => {
+      const std = (c: number) => track(fadeable(new THREE.MeshStandardMaterial({ color: c, roughness: 0.7 })));
+      const kid = new THREE.Group();
+      const hip = 0.62;
+      const mkLimb = (geo: THREE.BufferGeometry, mat: THREE.Material, px: number, py: number, len: number) => {
+        const pivot = new THREE.Group();
+        pivot.position.set(px, py, 0);
+        const m = new THREE.Mesh(geo, mat);
+        m.position.y = -len / 2;
+        pivot.add(m);
+        kid.add(pivot);
+        return pivot;
+      };
+      const legL = mkLimb(limbGeo, std(pants[i]), -0.1, hip, 0.56);
+      const legR = mkLimb(limbGeo, std(pants[i]), 0.1, hip, 0.56);
+      const torso = new THREE.Mesh(bodyGeo2, std(shirts[i]));
+      torso.position.y = hip + 0.36;
+      kid.add(torso);
+      const armL = mkLimb(armGeo, std(skin[i]), -0.27, hip + 0.6, 0.46);
+      const armR = mkLimb(armGeo, std(skin[i]), 0.27, hip + 0.6, 0.46);
+      const head = new THREE.Mesh(headGeo, std(skin[i]));
+      head.position.y = hip + 0.9;
+      kid.add(head);
+      const hair = new THREE.Mesh(hairGeo, std(0x1a120c));
+      hair.position.y = hip + 0.92;
+      hair.rotation.x = -0.25;
+      kid.add(hair);
+      kid.scale.setScalar(1.35);
+      kid.position.set(x, GROUND, z);
+      kid.rotation.y = ry;
+      g.add(kid);
+      kids.push({ g: kid, legL, legR, armL, armR, ph: i * 1.7, base: kid.position.clone() });
+    });
+    g.add(ball);
+    // Ombres des enfants
+    kids.forEach((k) => {
+      const sh = new THREE.Mesh(track(new THREE.PlaneGeometry(1.2, 1.2)), track(fadeable(new THREE.MeshBasicMaterial({ map: shadowTex, depthWrite: false, opacity: 0.8 }))));
+      sh.rotation.x = -Math.PI / 2;
+      sh.position.set(k.base.x, GROUND + 0.012, k.base.z);
+      g.add(sh);
+    });
+  }
+
   // — 1 · La pizzeria : la canette tourne au-dessus d'une pizza
   const pizza = new THREE.Group();
   {
@@ -427,7 +490,7 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
   };
   const camKF = (i: number, u: number): CamState => {
     switch (i) {
-      case 0: return { pos: [0 + u * 1.2, 2.2, 18], look: [0, 0.6, -1.5] };
+      case 0: return { pos: [0 + u * 1.2, 2.6, 15], look: [0, -0.4, -0.5] };
       case 1: return { pos: [0, 7, 14.5], look: [0, -0.8, 0] };
       case 2: return { pos: [0 + u * 1.4, 1.2, 17], look: [0, 0.3, 0] };
       case 3: return { pos: [0, 0.4, 16.5 - u * 1.4], look: [0, 0, 0] };
@@ -481,7 +544,7 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
     hero.rotation.set(...lerp3(a.rot, b.rot, f));
     hero.scale.set(...lerp3(a.scale, b.scale, f));
     // Ce que la canette « est » : idée → verre 2007 → design actuel
-    const kWire = 1 - smooth((p - 2.45) / 0.45);
+    const kWire = smooth((p - 0.45) / 0.4) * (1 - smooth((p - 2.45) / 0.45));
     const kLabel = smooth((p - 5.55) / 0.4);
     const kGlass = (1 - kWire) * (1 - kLabel);
     setGroupFade(wire, kWire);
@@ -512,6 +575,33 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
       g.position.y = (1 - k) * -0.6;
     });
     // Animations propres à chaque décor
+    if (chapters[0].visible) {
+      // Passes de ballon entre les trois premiers enfants, le quatrième court autour
+      const tt = reduceMotion ? 0 : t;
+      const passDur = 1.1;
+      const n = 3, seg = Math.floor(tt / passDur), fr = (tt / passDur) % 1;
+      const from = kids[seg % n].base, to = kids[(seg + 1) % n].base;
+      ball.position.set(lerp(from.x, to.x, fr), GROUND + 0.18 + Math.sin(Math.PI * fr) * 1.4, lerp(from.z, to.z, fr));
+      ball.rotation.x = tt * 6;
+      kids.forEach((k, i) => {
+        const run = i === 3;
+        const sp = run ? 9 : 5;
+        const sw = Math.sin(tt * sp + k.ph) * (run ? 0.8 : 0.35);
+        k.legL.rotation.x = sw; k.legR.rotation.x = -sw;
+        k.armL.rotation.x = -sw * 0.9; k.armR.rotation.x = sw * 0.9;
+        const target = i < n ? ball.position : kids[0].base;
+        if (run) {
+          const a = tt * 0.9;
+          k.g.position.set(k.base.x + Math.cos(a) * 1.6, GROUND + Math.abs(Math.sin(tt * 9)) * 0.12, k.base.z + Math.sin(a) * 0.9);
+          k.g.rotation.y = -a;
+        } else {
+          k.g.position.y = GROUND + Math.abs(Math.sin(tt * 2.4 + k.ph)) * 0.08;
+          k.g.rotation.y = Math.atan2(target.x - k.g.position.x, target.z - k.g.position.z);
+          // celui qui reçoit lève les bras
+          if ((seg + 1) % n === i && fr > 0.6) { k.armL.rotation.x = -2.4; k.armR.rotation.x = -2.4; }
+        }
+      });
+    }
     if (chapters[1].visible && !reduceMotion) pizza.rotation.y = t * 0.25;
     if (chapters[2].visible) {
       const fu = clamp01((p - 2 + 0.45) / 0.9);

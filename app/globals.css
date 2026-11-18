@@ -1470,3 +1470,13 @@ html.is-loading, html.is-loading body { overflow: hidden; }
   .page-loading .dada-fill { width: 88vw !important; max-width: none; }
   .site-loader-text { font-size: 11px; }
 }
+
+/* Histoire : le texte ressort sur un fond ombré, quel que soit le décor 3D derrière */
+@media (min-width: 901px) {
+  .sx-ch { padding: 28px 30px 30px; border-radius: 22px; background: rgba(6, 6, 8, 0.62); -webkit-backdrop-filter: blur(14px) saturate(140%); backdrop-filter: blur(14px) saturate(140%); box-shadow: 0 30px 60px -24px rgba(0,0,0,0.7), inset 0 0 0 1px rgba(255,255,255,0.08); left: clamp(16px, 3vw, 40px); }
+}
+.sx-text { color: rgba(255,255,255,0.92); text-shadow: 0 1px 12px rgba(0,0,0,0.55); }
+.sx-title { text-shadow: 0 2px 24px rgba(0,0,0,0.5); }
+@media (max-width: 900px) {
+  .sx-ch { background: linear-gradient(to top, rgba(6,6,8,0.9) 62%, rgba(6,6,8,0.55) 85%, transparent); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+}
