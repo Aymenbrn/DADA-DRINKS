@@ -201,6 +201,7 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
   // ═══════════ Décors des chapitres ═══════════
   const chapters: THREE.Group[] = Array.from({ length: STORY_CHAPTERS }, () => { const g = new THREE.Group(); scene.add(g); return g; });
 
+  const starLayers: { m: THREE.PointsMaterial; base: number }[] = [];
   // — 0 · Nanterre : les tours nuages (Tours Aillaud), ciel étoilé
   {
     const g = chapters[0];
@@ -228,12 +229,54 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
       t.position.set(Math.sin(a) * rad * 1.15, GROUND + h / 2, -Math.cos(a) * rad - 1);
       g.add(t);
     }
-    // étoiles
-    const starGeo = track(new THREE.BufferGeometry());
-    const sp: number[] = [];
-    for (let i = 0; i < 260; i++) sp.push(((i * 73) % 100) / 100 * 60 - 30, ((i * 41) % 100) / 100 * 22 + 2, -18 - ((i * 29) % 10));
-    starGeo.setAttribute("position", new THREE.Float32BufferAttribute(sp, 3));
-    g.add(new THREE.Points(starGeo, track(fadeable(new THREE.PointsMaterial({ color: 0xffffff, size: 0.08, opacity: 0.8 })))));
+    // Ciel étoilé détaillé : trois couches d'étoiles (fines, moyennes, brillantes) aux teintes variées,
+    // une voie lactée en fond, le tout qui scintille doucement
+    const dot = canvasTex(64, 64, (c) => {
+      const gr = c.createRadialGradient(32, 32, 0, 32, 32, 32);
+      gr.addColorStop(0, "rgba(255,255,255,1)"); gr.addColorStop(0.2, "rgba(255,255,255,0.85)"); gr.addColorStop(0.45, "rgba(200,220,255,0.25)"); gr.addColorStop(1, "rgba(200,220,255,0)");
+      c.fillStyle = gr; c.fillRect(0, 0, 64, 64);
+    });
+    track(dot);
+    let sd = 9;
+    const rr = () => ((sd = (sd * 16807) % 2147483647) / 2147483647);
+    const tints = [[1, 1, 1], [1, 0.95, 0.86], [0.85, 0.9, 1], [0.8, 0.86, 1], [1, 0.9, 0.78]];
+    const layer = (count: number, size: number, opacity: number) => {
+      const geo = track(new THREE.BufferGeometry());
+      const pos: number[] = [], col: number[] = [];
+      for (let i = 0; i < count; i++) {
+        // plus dense le long d'une bande diagonale (voie lactée)
+        let x = rr() * 80 - 40, y = rr() * 34 - 2;
+        if (rr() < 0.45) { const t = rr() * 80 - 40; x = t; y = 14 - t * 0.28 + (rr() + rr() + rr() - 1.5) * 5; }
+        pos.push(x, y, -22 - rr() * 8);
+        const c = tints[Math.floor(rr() * tints.length)];
+        const b = 0.6 + rr() * 0.4;
+        col.push(c[0] * b, c[1] * b, c[2] * b);
+      }
+      geo.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+      geo.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
+      const m = track(fadeable(new THREE.PointsMaterial({ size, map: dot, vertexColors: true, opacity, depthWrite: false, blending: THREE.AdditiveBlending, sizeAttenuation: true })));
+      const pts = new THREE.Points(geo, m);
+      g.add(pts);
+      starLayers.push({ m, base: size });
+    };
+    layer(2600, 0.16, 0.85);
+    layer(600, 0.32, 0.9);
+    layer(70, 0.75, 1);
+    // Voie lactée : nébuleuse douce derrière les étoiles
+    const milky = track(canvasTex(1024, 512, (c) => {
+      for (let i = 0; i < 40; i++) {
+        const t = i / 39, x = t * 1024, y = 300 - t * 160 + (rr() - 0.5) * 70, r = 80 + rr() * 90;
+        const hue = rr() > 0.5 ? "110,140,255" : rr() > 0.5 ? "180,130,255" : "255,190,160";
+        const gr = c.createRadialGradient(x, y, 0, x, y, r);
+        gr.addColorStop(0, `rgba(${hue},${0.1 + rr() * 0.08})`); gr.addColorStop(1, `rgba(${hue},0)`);
+        c.fillStyle = gr; c.fillRect(x - r, y - r, r * 2, r * 2);
+      }
+      for (let i = 0; i < 9000; i++) { const t = rr() * 1024; const y = 300 - (t / 1024) * 160 + (rr() + rr() + rr() - 1.5) * 90; c.fillStyle = `rgba(255,255,255,${0.05 + rr() * 0.25})`; c.fillRect(t, y, 1, 1); }
+      for (let i = 0; i < 14; i++) { const t = rr() * 1024, y = 300 - (t / 1024) * 160 + (rr() - 0.5) * 20, r = 20 + rr() * 40; const gr = c.createRadialGradient(t, y, 0, t, y, r); gr.addColorStop(0, "rgba(6,10,24,0.45)"); gr.addColorStop(1, "rgba(6,10,24,0)"); c.fillStyle = gr; c.fillRect(t - r, y - r, r * 2, r * 2); }
+    }));
+    const mw = new THREE.Mesh(track(new THREE.PlaneGeometry(90, 45)), track(fadeable(new THREE.MeshBasicMaterial({ map: milky, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.9 }))));
+    mw.position.set(0, 12, -34);
+    g.add(mw);
   }
 
   // — 1 · La pizzeria : une vraie pizza napolitaine (pâte, sauce, mozzarella fondue, pepperoni, basilic)
@@ -646,6 +689,7 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
       g.position.y = (1 - k) * -0.6;
     });
     // Animations propres à chaque décor
+    if (chapters[0].visible && !reduceMotion) starLayers.forEach((l, k) => { l.m.size = l.base * (0.85 + 0.15 * Math.sin(t * (1.3 + k * 0.7) + k)); });
     if (chapters[1].visible && !reduceMotion) pizza.rotation.y = t * 0.25;
     if (chapters[2].visible) {
       const fu = clamp01((p - 2 + 0.45) / 0.9);
