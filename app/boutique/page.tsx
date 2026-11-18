@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 const PERKS = [
   { k: "6 · 12 · 24 · 32", v: "canettes par pack, au choix" },
-  { k: `dès ${FROM_PRICE}`, v: "soit 1,33 € la canette" },
+  { k: `dès ${FROM_PRICE}`, v: "soit 1,33\u00a0€ la canette" },
   { k: `${FLAVORS.length} saveurs`, v: "fruitées, colas et thé glacé" },
 ];
 

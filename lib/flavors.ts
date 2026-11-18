@@ -185,7 +185,7 @@ export const CAT_LABELS: Record<FlavorCategory, string> = {
 export const PACK_PRICE_CENTS = 3200;
 /** 3200 → "32,00 €" (format identique côté serveur et navigateur) */
 export const formatEUR = (cents: number) =>
-  `${(cents / 100).toFixed(2).replace(".", ",").replace(/\B(?=(\d{3})+(?!\d))/g, "\u202f")} €`;
+  `${(cents / 100).toFixed(2).replace(".", ",").replace(/\B(?=(\d{3})+(?!\d))/g, "\u202f")}\u00a0€`;
 export const PACK_PRICE = formatEUR(PACK_PRICE_CENTS);
 
 /** Formats proposés aux particuliers : plus le pack est grand, moins la canette est chère */
