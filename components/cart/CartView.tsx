@@ -72,7 +72,7 @@ export default function CartView() {
               <div><dt>Livraison</dt><dd>{deliveryCents(totalCents) === 0 ? "Offerte" : formatEUR(deliveryCents(totalCents))}</dd></div>
             </dl>
             <p className="cart-total"><span>Total</span><strong>{formatEUR(totalCents + deliveryCents(totalCents))}</strong></p>
-            <Link href="/commande" className="btn btn-dark cart-cta">Passer commande</Link>
+            <Link href="/commande" className="btn btn-dark cart-cta">Payer</Link>
             <Link href="/#saveurs" className="cart-continue">← Continuer mes achats</Link>
           </aside>
         </div>

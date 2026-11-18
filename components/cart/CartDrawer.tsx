@@ -92,7 +92,7 @@ export default function CartDrawer() {
               {deliveryCents(totalCents) > 0 && (
                 <p className="cart-drawer-free">Livraison offerte dès {formatEUR(FREE_DELIVERY_FROM_CENTS)} d’achat</p>
               )}
-              <Link href="/commande" className="btn btn-dark cart-drawer-cta" onClick={closeCart}>Passer commande</Link>
+              <Link href="/commande" className="btn btn-dark cart-drawer-cta" onClick={closeCart}>Payer</Link>
               <button type="button" className="cart-drawer-continue" onClick={closeCart}>Continuer mes achats</button>
             </footer>
           </>
