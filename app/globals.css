@@ -1299,3 +1299,40 @@ h1 .serif-i, h2 .serif-i, h3 .serif-i, h4 .serif-i, .h-xl .serif-i { font-weight
     mask-composite: intersect;
   }
 }
+
+/* ——— Écran de chargement : le logo Dada se remplit comme une canette ——— */
+html.is-loading, html.is-loading body { overflow: hidden; }
+.site-loader {
+  position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px;
+  background: #050505; color: #fff; transition: opacity 0.7s ease, visibility 0.7s;
+  animation: loaderSafety 0.6s ease 12s forwards; /* filet de sécurité si le script ne tourne pas */
+}
+.site-loader.is-done { opacity: 0; visibility: hidden; pointer-events: none; }
+.site-loader.is-done .site-loader-logo { transform: scale(1.08); }
+@keyframes loaderSafety { to { opacity: 0; visibility: hidden; pointer-events: none; } }
+.site-loader-glow { position: absolute; inset: 0; background: radial-gradient(42% 36% at 50% 50%, rgba(230, 0, 60, 0.22), transparent 70%); animation: loaderGlow 2.6s ease-in-out infinite alternate; }
+@keyframes loaderGlow { from { opacity: 0.55; } to { opacity: 1; } }
+.site-loader-logo { position: relative; width: min(78vw, 520px); aspect-ratio: 750 / 303; transition: transform 0.7s cubic-bezier(.2,.8,.2,1); }
+.site-loader-logo img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; user-select: none; -webkit-user-drag: none; }
+.site-loader-empty { filter: grayscale(1) brightness(0.32); opacity: 0.9; }
+.site-loader-fill {
+  position: absolute; inset: 0; --lvl: 0px; --wx: 0px; --wx2: 0px;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 18' preserveAspectRatio='none'%3E%3Cpath d='M0 9 C20 1 40 1 60 9 S100 17 120 9 V18 H0Z'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 18' preserveAspectRatio='none'%3E%3Cpath d='M0 11 C20 5 40 5 60 11 S100 17 120 11 V18 H0Z'/%3E%3C/svg%3E"), linear-gradient(#000, #000);
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 18' preserveAspectRatio='none'%3E%3Cpath d='M0 9 C20 1 40 1 60 9 S100 17 120 9 V18 H0Z'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 18' preserveAspectRatio='none'%3E%3Cpath d='M0 11 C20 5 40 5 60 11 S100 17 120 11 V18 H0Z'/%3E%3C/svg%3E"), linear-gradient(#000, #000);
+  -webkit-mask-repeat: repeat-x, repeat-x, no-repeat; mask-repeat: repeat-x, repeat-x, no-repeat;
+  -webkit-mask-size: 120px 18px, 120px 18px, 100% max(0px, calc(var(--lvl) + 2px)); mask-size: 120px 18px, 120px 18px, 100% max(0px, calc(var(--lvl) + 2px));
+  -webkit-mask-position: left var(--wx) bottom var(--lvl), left var(--wx2) bottom calc(var(--lvl) + 1px), left 0 bottom 0;
+  mask-position: left var(--wx) bottom var(--lvl), left var(--wx2) bottom calc(var(--lvl) + 1px), left 0 bottom 0;
+}
+.site-loader-inlogo {
+  position: absolute; inset: 0; overflow: hidden;
+  -webkit-mask: url("/brand/dada-logo.webp") center / 100% 100% no-repeat; mask: url("/brand/dada-logo.webp") center / 100% 100% no-repeat;
+}
+.site-loader-sheen { position: absolute; inset: 0; background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.28) 45%, transparent 60%); background-size: 260% 100%; animation: loaderSheen 2.2s linear infinite; mix-blend-mode: screen; }
+@keyframes loaderSheen { from { background-position: 130% 0; } to { background-position: -130% 0; } }
+.site-loader-bubbles i { position: absolute; bottom: -10px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.95), rgba(255,255,255,0.35) 60%, rgba(255,255,255,0.1)); box-shadow: 0 0 0 1px rgba(255,255,255,0.35) inset; animation: loaderBubble 2s ease-in infinite; }
+@keyframes loaderBubble { 0% { transform: translate(0, 0); opacity: 0; } 15% { opacity: 0.9; } 50% { transform: translate(4px, -55%); } 100% { transform: translate(-3px, -340%); opacity: 0; } }
+.site-loader-bubbles { position: absolute; inset: 0; }
+.site-loader-bubbles i { bottom: 0; }
+.site-loader-text { position: relative; margin: 0; font-size: 12px; letter-spacing: 0.24em; text-transform: uppercase; color: rgba(255,255,255,0.6); font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: reduce) { .site-loader-sheen, .site-loader-bubbles, .site-loader-glow { animation: none; display: none; } }

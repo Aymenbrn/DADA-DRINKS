@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { CartProvider } from "@/components/cart/CartProvider";
 import ScrollTop from "@/components/ScrollTop";
+import SiteLoader from "@/components/SiteLoader";
 import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
@@ -45,6 +46,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div id="contenu">{children}</div>
           <Footer />
           <ScrollTop />
+          <SiteLoader />
         </CartProvider>
       </body>
     </html>
