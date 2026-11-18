@@ -1523,3 +1523,7 @@ html.is-loading, html.is-loading body { overflow: hidden; }
 @media (min-width: 901px) {
   .sx-ch, .sx-ch.sx-ch { left: clamp(8px, 0.8vw, 16px); }
 }
+/* Histoire : grand mot de fond (VOYAGE, PIZZERIA, 2007…) calé à gauche */
+.sx-big { text-align: left; padding-right: 0; padding-left: 3vw; }
+.sx-big span { right: auto; left: 3vw; }
+@media (max-width: 900px) { .sx-big span { right: auto; left: 4vw; } }
