@@ -215,7 +215,12 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
       c.fillStyle = "rgba(20,30,50,0.55)"; // petites fenêtres
       for (let y = 10; y < 512; y += 22) for (let x = 6; x < 256; x += 18) if ((x * y + seed) % 5 !== 0) c.fillRect(x, y, 6, 9);
     });
-    const ground = new THREE.Mesh(track(new THREE.CircleGeometry(14, 64)), track(fadeable(new THREE.MeshStandardMaterial({ color: 0x9aa39a, roughness: 0.95 }))));
+    const ground = new THREE.Mesh(track(new THREE.CircleGeometry(14, 64)), track(fadeable(new THREE.MeshStandardMaterial({ roughness: 0.95, transparent: true, depthWrite: false, map: track(canvasTex(512, 512, (c) => {
+      // pelouse au pied des tours, qui se fond dans le ciel sur les bords
+      const gr = c.createRadialGradient(256, 256, 0, 256, 256, 256);
+      gr.addColorStop(0, "rgba(118,158,96,1)"); gr.addColorStop(0.55, "rgba(132,170,108,0.95)"); gr.addColorStop(1, "rgba(170,205,150,0)");
+      c.fillStyle = gr; c.fillRect(0, 0, 512, 512);
+    })) }))));
     ground.rotation.x = -Math.PI / 2; ground.position.y = GROUND;
     g.add(ground);
     for (let i = 0; i < 20; i++) {
