@@ -120,7 +120,38 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
   metal.add(tab);
   hero.add(metal);
 
-  // 2) 2007 → 2011 : la première canette Dada, d'après la photo (plastique transparent, étiquette Cerise).
+  const bodyGeo = track(new THREE.CylinderGeometry(R, R, H, 96, 1, true));
+  // 2a) 2007 et 2009 : la toute première canette transparente (boisson ambrée, bulles, « dada »)
+  const glass0 = new THREE.Group();
+  const glassMat0 = track(fadeable(new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.04, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.05, opacity: 0.22, envMapIntensity: 1.4, side: THREE.DoubleSide })));
+  glass0.add(new THREE.Mesh(bodyGeo, glassMat0));
+  const liquidMat0 = track(fadeable(new THREE.MeshPhysicalMaterial({ color: 0xff9a1f, roughness: 0.15, opacity: 0.72, emissive: 0x6a2a00, emissiveIntensity: 0.35 })));
+  const liquid = new THREE.Mesh(track(new THREE.CylinderGeometry(R * 0.93, R * 0.93, H * 0.8, 64)), liquidMat0);
+  liquid.position.y = -H * 0.08;
+  glass0.add(liquid);
+  // Bandeau « Dada » des débuts, posé sur le verre
+  const oldBand = new THREE.Mesh(
+    track(new THREE.CylinderGeometry(R * 1.005, R * 1.005, 1.1, 96, 1, true, -Math.PI * 0.42, Math.PI * 0.84)),
+    track(fadeable(new THREE.MeshBasicMaterial({
+      map: track(canvasTex(512, 128, (g) => {
+        g.fillStyle = "rgba(255,255,255,0.0)"; g.fillRect(0, 0, 512, 128);
+        g.fillStyle = "#ffffff"; g.font = "italic 900 92px Montserrat, Arial, sans-serif"; g.textAlign = "center"; g.textBaseline = "middle";
+        g.fillText("dada", 256, 66);
+      })), side: THREE.DoubleSide,
+    }))),
+  );
+  oldBand.position.y = 0.3;
+  glass0.add(oldBand);
+  // Bulles dans la boisson
+  const bubbleGeo0 = track(new THREE.SphereGeometry(0.05, 8, 6));
+  const bubbleMat0 = track(fadeable(new THREE.MeshBasicMaterial({ color: 0xfff3d6, opacity: 0.85 })));
+  const BUB0 = 46;
+  const bubbles0 = new THREE.InstancedMesh(bubbleGeo0, bubbleMat0, BUB0);
+  const bubSeed0 = Array.from({ length: BUB0 }, (_, i) => ({ a: (i * 2.39996) % (Math.PI * 2), r: 0.15 + ((i * 37) % 70) / 100, s: 0.4 + ((i * 13) % 10) / 12, o: (i * 0.137) % 1, z: 0.6 + ((i * 7) % 6) / 6 }));
+  glass0.add(bubbles0);
+  hero.add(glass0);
+
+  // 2b) 2011 : la première canette Dada, d'après la photo (plastique transparent, étiquette Cerise).
   //    En 2007 elle s'ouvre en deux comme une coupe : on voit la boisson et ses bulles à l'intérieur.
   const OR = 1.25, OH = 4.7, OHALF = OH / 2;
   const glass = new THREE.Group(); // la canette entière (deux moitiés)
@@ -181,7 +212,6 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
   }
   hero.add(glass);
 
-  const bodyGeo = track(new THREE.CylinderGeometry(R, R, H, 96, 1, true));
   // 3) Le renouveau : le design actuel (Cola Cherry, la nouveauté)
   const labelMat = track(fadeable(new THREE.MeshPhysicalMaterial({ color: 0x892d73, metalness: 0.45, roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.12, envMapIntensity: 0.6 })));
   const labelled = new THREE.Mesh(bodyGeo, labelMat);
@@ -537,7 +567,7 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
         const a = u * 2.2 + 0.4;
         return { pos: [Math.cos(a) * 3.3, 1.2, Math.sin(a) * 1.4 + 1.6], rot: [0.3, spin, 0.35], scale: [0.36, 0.36, 0.36] };
       }
-      case 3: return { pos: [0, -0.05, 0], rot: [0.08, 0.12 + (reduceMotion ? 0 : Math.sin(t * 0.4) * 0.06), -0.04], scale: [0.95, 0.95, 0.95] };
+      case 3: return { pos: [0, -0.05, 0], rot: [0.05, spin * 0.6 + u * 1.5, -0.08], scale: [1, 1, 1] };
       case 4: return { pos: [0.2, GROUND + 0.95, 0], rot: [0, 0.4, Math.PI / 2 - 0.08], scale: [1.18, 0.66, 1.18] };
       case 5: {
         const s = clamp01(u + 0.5) * (STEPS - 1); // de la première à la dernière marche
@@ -608,18 +638,32 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
     // Ce que la canette « est » : idée → verre 2007 → design actuel
     const kWire = smooth((p - 1.45) / 0.4) * (1 - smooth((p - 2.45) / 0.45));
     const kLabel = smooth((p - 5.55) / 0.4);
-    const kGlass = smooth((p - 2.45) / 0.45) * (1 - kLabel);
+    // La toute première canette transparente de 2007 jusqu'au renouveau (2007, 2009, 2011)
+    const kGlass0 = smooth((p - 2.45) / 0.45) * (1 - kLabel);
+    const kGlass = 0;
     setGroupFade(wire, kWire);
+    setGroupFade(glass0, kGlass0);
     setGroupFade(glass, kGlass);
     setGroupFade(labelled, kLabel);
     setGroupFade(metal, kLabel);
     // 2007 : la canette s'ouvre en deux (les moitiés s'écartent et pivotent), puis se referme
-    const open = band(p, 2.55, 2.85, 3.3, 3.6);
+    const open = 0; // la canette Cerise reste entière
     halves.forEach((h, k) => {
       const sd = k === 0 ? 1 : -1;
       h.position.x = sd * open * 1.0;
       h.rotation.y = sd * open * 0.55;
     });
+    if (glass0.visible) {
+      for (let k = 0; k < BUB0; k++) {
+        const b = bubSeed0[k];
+        const y = ((b.o + t * b.s * 0.25) % 1) * H * 0.78 - H * 0.47;
+        tmpP.set(Math.cos(b.a + t * 0.3) * b.r, y, Math.sin(b.a + t * 0.3) * b.r);
+        tmpS.setScalar(b.z);
+        tmpM.compose(tmpP, tmpQ.identity(), tmpS);
+        bubbles0.setMatrixAt(k, tmpM);
+      }
+      bubbles0.instanceMatrix.needsUpdate = true;
+    }
     // Bulles qui montent le long de la coupe, à l'intérieur
     if (glass.visible) {
       for (let k = 0; k < BUB; k++) {
@@ -636,7 +680,7 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
     // Ombre sous la canette (au sol quand elle est posée)
     heroShadow.position.set(hero.position.x, (i0 === 5 || i1 === 5) ? hero.position.y - (HALF + 0.3) * hero.scale.y - 0.02 : GROUND + 0.01, hero.position.z);
     heroShadow.scale.setScalar(Math.max(0.3, hero.scale.x));
-    setGroupFade(heroShadow, Math.min(Math.max(kGlass, kLabel), 1 - band(p, 1.5, 2, 2.6, 3)));
+    setGroupFade(heroShadow, Math.min(Math.max(kGlass0, kGlass, kLabel), 1 - band(p, 1.5, 2, 2.6, 3)));
 
     // Décors : chaque chapitre apparaît autour de son passage
     chapters.forEach((g, i) => {
@@ -702,6 +746,7 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
       disposables.forEach((d) => d.dispose());
       confetti.dispose();
       bubbles.dispose();
+      bubbles0.dispose();
       pmrem.dispose();
       renderer.dispose();
       renderer.forceContextLoss();
