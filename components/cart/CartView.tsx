@@ -20,7 +20,7 @@ export default function CartView() {
     <div className="container cart">
       <header className="cart-head">
         <p className="eyebrow" style={{ color: "var(--muted-on-light)" }}>PANIER</p>
-        <h1 className="h-xl" style={{ fontSize: "clamp(44px, 6vw, 84px)" }}>
+        <h1 className="h-xl cart-title">
           Votre panier<span className="serif-i">{count > 0 ? ` · ${count} article${count > 1 ? "s" : ""}` : "."}</span>
         </h1>
       </header>

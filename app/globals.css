@@ -1337,3 +1337,34 @@ html.is-loading, html.is-loading body { overflow: hidden; }
 .site-loader-text { position: relative; margin: 0; font-size: 12px; letter-spacing: 0.24em; text-transform: uppercase; color: rgba(255,255,255,0.6); font-variant-numeric: tabular-nums; }
 @media (prefers-reduced-motion: reduce) { .site-loader-sheen, .site-loader-bubbles, .site-loader-glow { animation: none; display: none; } }
 .site-loader-logo, .site-loader-text { z-index: 1; }
+
+/* ═══ Normalisation des mises en page ═══
+   Un seul rythme vertical, une seule taille par niveau de titre, sur toutes les pages. */
+:root {
+  --section-y: clamp(72px, 8.6vw, 110px);   /* espacement haut/bas de chaque section */
+  --head-gap: clamp(32px, 3.8vw, 48px);     /* entre l'en-tête de section et son contenu */
+  --t-section: clamp(36px, 5vw, 72px);      /* titres de section (h2) */
+  --t-product: clamp(40px, 4.6vw, 72px);    /* titres des fiches produits (particulier et pro) */
+  --t-page: clamp(40px, 5.6vw, 80px);       /* titres des pages sans grand bandeau (panier, paiement) */
+}
+/* Sections : même espacement partout */
+.section, .shop, #collabs { padding-block: var(--section-y); }
+.trust-section { padding-bottom: 32px; }
+.trust-section + .section { padding-top: 40px; }
+.section-head { margin-bottom: var(--head-gap); }
+.shop-grid, .home-collab-grid { margin-top: var(--head-gap); }
+/* Titres de section : une seule taille */
+.section-title { font-size: var(--t-section); line-height: 0.95; }
+/* Titres qui doivent tenir sur une ligne : même taille, réduite seulement si l'écran est trop étroit */
+.title-1line { white-space: nowrap; font-size: min(var(--t-section), 7.4vw); }
+.title-reasons { font-size: min(var(--t-section), 5.3vw); }
+/* Fiches produits particulier et pro : même titre, même rythme */
+.universe-title, .pro-pdp-title { font-size: var(--t-product); line-height: 0.95; }
+.pro-pdp { padding-block: clamp(72px, 7vw, 96px) clamp(56px, 6vw, 80px); }
+/* Panier et paiement : même titre */
+.cart-title { font-size: var(--t-page); }
+@media (max-width: 640px) {
+  .section-title { font-size: max(32px, min(var(--t-section), 9vw)); }
+  .title-1line { font-size: min(var(--t-section), 7.4vw); }
+  .title-reasons { font-size: min(var(--t-section), 5.3vw); }
+}

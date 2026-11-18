@@ -29,7 +29,7 @@ export default function Checkout() {
     <div className="container cart checkout">
       <header className="cart-head">
         <p className="eyebrow" style={{ color: "var(--muted-on-light)" }}>PAIEMENT</p>
-        <h1 className="h-xl" style={{ fontSize: "clamp(40px, 5.5vw, 76px)" }}>
+        <h1 className="h-xl cart-title">
           Moyen de<span className="serif-i"> paiement.</span>
         </h1>
       </header>
