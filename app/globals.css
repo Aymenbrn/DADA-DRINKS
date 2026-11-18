@@ -1336,3 +1336,8 @@ html.is-loading, html.is-loading body { overflow: hidden; }
 .site-loader-bubbles i { bottom: 0; }
 .site-loader-text { position: relative; margin: 0; font-size: 12px; letter-spacing: 0.24em; text-transform: uppercase; color: rgba(255,255,255,0.6); font-variant-numeric: tabular-nums; }
 @media (prefers-reduced-motion: reduce) { .site-loader-sheen, .site-loader-bubbles, .site-loader-glow { animation: none; display: none; } }
+/* Silhouette de canette derrière le logo de chargement */
+.site-loader-can { position: absolute; left: 50%; top: 50%; height: min(66vh, 480px); width: auto; aspect-ratio: 200 / 400; transform: translate(-50%, -54%) rotate(-8deg); pointer-events: none; filter: drop-shadow(0 0 30px rgba(230,0,60,0.18)); transition: transform 0.7s cubic-bezier(.2,.8,.2,1), opacity 0.5s; animation: loaderCanIn 0.9s cubic-bezier(.2,.8,.2,1) both; }
+.site-loader-logo, .site-loader-text { z-index: 1; }
+.site-loader.is-done .site-loader-can { transform: translate(-50%, -54%) rotate(-8deg) scale(1.06); }
+@keyframes loaderCanIn { from { opacity: 0; transform: translate(-50%, -48%) rotate(-8deg); } to { opacity: 1; transform: translate(-50%, -54%) rotate(-8deg); } }
