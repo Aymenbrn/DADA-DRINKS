@@ -406,7 +406,7 @@ export function createStory(canvas: HTMLCanvasElement, opts: { onReady?: () => v
   const canKF = (i: number, u: number, t: number): CanState => {
     const spin = reduceMotion ? 0 : t * 0.5;
     switch (i) {
-      case 0: return { pos: [0, 1.2 + Math.sin(t * 1.2) * 0.15, 0], rot: [0.1, spin, -0.12], scale: [0.62, 0.62, 0.62] };
+      case 0: return { pos: [0, 1.9 + Math.sin(t * 1.2) * 0.15, 3], rot: [0.1, spin, -0.12], scale: [0.62, 0.62, 0.62] };
       case 1: return { pos: [0, GROUND + 0.6 + 2.6 * 0.66 + 0.5 + Math.sin(t * 1.6) * 0.1, 0], rot: [0, spin * 2, 0.08], scale: [0.66, 0.66, 0.66] };
       case 2: {
         const a = u * 2.2 + 0.4;
