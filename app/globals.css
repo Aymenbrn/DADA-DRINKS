@@ -1550,3 +1550,10 @@ html.is-loading, html.is-loading body { overflow: hidden; }
 /* Écran de chargement : vraiment toute la page sur mobile (sous les barres du navigateur, encoches, rebond du défilement) */
 .site-loader { top: -12vh; bottom: -12vh; left: 0; right: 0; width: 100%; height: auto; min-height: 124vh; padding: 12vh 0; }
 html:has(.site-loader:not(.is-done)), html:has(.site-loader:not(.is-done)) body { background: #050505; overflow: hidden; }
+/* Mobile : le bouton « + » des cartes reste dans la carte */
+.shop-foot { min-width: 0; }
+.shop-foot > :first-child { min-width: 0; flex: 1 1 auto; }
+@media (max-width: 640px) {
+  .shop-foot small, .shop-foot .shop-sub { white-space: normal; }
+  .shop-add { flex: none; width: 32px; height: 32px; }
+}
