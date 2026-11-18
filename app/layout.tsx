@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import { CartProvider } from "@/components/cart/CartProvider";
 import ScrollTop from "@/components/ScrollTop";
 import SiteLoader from "@/components/SiteLoader";
+import NavLoader from "@/components/NavLoader";
 import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
@@ -47,6 +48,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Footer />
           <ScrollTop />
           <SiteLoader />
+          <NavLoader />
         </CartProvider>
       </body>
     </html>

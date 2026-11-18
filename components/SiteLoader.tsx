@@ -61,7 +61,8 @@ export default function SiteLoader() {
       .catch(() => { labelsDone = labelsTotal; });
 
     const sceneOk = () => {
-      const scenes = [...document.querySelectorAll<HTMLCanvasElement>(".ribbon-canvas, .launch-canvas, .sx-canvas")];
+      // seulement les scènes réellement affichées
+      const scenes = [...document.querySelectorAll<HTMLCanvasElement>(".ribbon-canvas, .launch-canvas, .sx-canvas")].filter((c) => c.offsetParent !== null && c.clientWidth > 0);
       return scenes.every((c) => c.classList.contains("is-ready"));
     };
 
