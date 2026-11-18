@@ -1282,3 +1282,7 @@ h1 .serif-i, h2 .serif-i, h3 .serif-i, h4 .serif-i, .h-xl .serif-i { font-weight
   .home-collab-card .collab-pfl-text strong { font-size: 24px; }
   .home-collab-card .collab-pfl-text span { font-size: 8.5px; letter-spacing: 0.12em; }
 }
+
+/* Récapitulatif : « (pack de 24 canettes) » reste d'un seul bloc, à la suite ou en dessous ; prix sans coupure */
+.checkout-lines small { white-space: nowrap; display: inline-block; }
+.checkout-lines strong, .cart-total strong, .cart-summary dd { white-space: nowrap; }
