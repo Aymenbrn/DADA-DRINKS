@@ -115,10 +115,6 @@ export default function SkyClouds({ className }: { className?: string }) {
       const t = reduce ? 0 : (now - t0) / 1000;
       g.setTransform(dpr, 0, 0, dpr, 0, 0);
       g.clearRect(0, 0, W, H);
-      // légère brume vers le bas (perspective atmosphérique)
-      const haze = g.createLinearGradient(0, H * 0.55, 0, H);
-      haze.addColorStop(0, "rgba(220,236,250,0)"); haze.addColorStop(1, "rgba(220,236,250,0.25)");
-      g.fillStyle = haze; g.fillRect(0, 0, W, H);
       for (const c of clouds) {
         const span = W + c.w + 200;
         const x = ((c.x + t * c.v) % span + span) % span - c.w - 100;
