@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { STORY_IMG } from "@/components/OurStory";
 import DadaFill from "@/components/DadaFill";
-import SkyClouds from "@/components/SkyClouds";
 
 /**
  * L'histoire de Dada racontée au scroll : la page reste « collée » pendant qu'on défile,
@@ -140,7 +139,7 @@ export default function StoryScroll() {
     <section ref={sectionRef} className="sx" style={{ "--sx-n": N } as CSSProperties} aria-label="L’histoire de Dada, chapitre par chapitre">
       <div ref={stageRef} className="sx-stage">
         <div className="sx-glow" aria-hidden="true" />
-        <div className="sx-sky" aria-hidden="true"><SkyClouds /></div>
+        <div className="sx-sky" aria-hidden="true" />
         <p className="sx-big" aria-hidden="true">
           {CHAPTERS.map((c, i) => (
             <span key={c.when} className={i === active ? "is-on" : undefined}>{c.when}</span>
