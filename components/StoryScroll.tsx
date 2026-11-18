@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { STORY_IMG } from "@/components/OurStory";
 import DadaFill from "@/components/DadaFill";
-import StarSky from "@/components/StarSky";
+import SkyClouds from "@/components/SkyClouds";
 
 /**
  * L'histoire de Dada racontée au scroll : la page reste « collée » pendant qu'on défile,
@@ -21,7 +21,7 @@ type Chapter = {
 
 const CHAPTERS: Chapter[] = [
   {
-    when: "Nanterre", title: "Un aîné de Nanterre", bg: "#0c1428", glow: "#3d6fd6",
+    when: "Nanterre", title: "Un aîné de Nanterre", bg: "#2f6fb0", glow: "#9fd0ff",
     text: "Mohamed grandit au pied des tours Aillaud, aîné d’une famille modeste. Vendeur sur les marchés, voiturier, groom, livreur : il enchaîne les petits boulots. Dada n’est encore qu’une idée.",
     quote: "Ma famille m’a transmis sa niaque.",
     imgs: [{ src: STORY_IMG.nanterre, alt: "Les tours Aillaud à Nanterre" }],
@@ -114,7 +114,7 @@ export default function StoryScroll() {
     stage.style.setProperty("--sx-bg", mix(CHAPTERS[i0].bg, CHAPTERS[i1].bg, f));
     stage.style.setProperty("--sx-glow", mix(CHAPTERS[i0].glow, CHAPTERS[i1].glow, f));
     stage.style.setProperty("--sx-p", `${raw}`);
-    stage.style.setProperty("--sx-stars", `${Math.max(0, 1 - p / 0.7)}`);
+    stage.style.setProperty("--sx-sky", `${Math.max(0, 1 - p / 0.7)}`);
   };
 
   useEffect(() => {
@@ -140,7 +140,7 @@ export default function StoryScroll() {
     <section ref={sectionRef} className="sx" style={{ "--sx-n": N } as CSSProperties} aria-label="L’histoire de Dada, chapitre par chapitre">
       <div ref={stageRef} className="sx-stage">
         <div className="sx-glow" aria-hidden="true" />
-        <StarSky className="sx-stars" />
+        <div className="sx-sky" aria-hidden="true"><SkyClouds /></div>
         <p className="sx-big" aria-hidden="true">
           {CHAPTERS.map((c, i) => (
             <span key={c.when} className={i === active ? "is-on" : undefined}>{c.when}</span>
