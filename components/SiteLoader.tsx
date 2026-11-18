@@ -58,7 +58,7 @@ export default function SiteLoader() {
       .catch(() => { labelsDone = labelsTotal; });
 
     const sceneOk = () => {
-      const scenes = [...document.querySelectorAll<HTMLCanvasElement>(".ribbon-canvas, .launch-canvas")];
+      const scenes = [...document.querySelectorAll<HTMLCanvasElement>(".ribbon-canvas, .launch-canvas, .sx-canvas")];
       return scenes.every((c) => c.classList.contains("is-ready"));
     };
 
